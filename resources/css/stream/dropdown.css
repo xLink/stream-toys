@@ -1,0 +1,12 @@
+@layer components {
+  .chks-dropdown:hover > .chks-dropdown-menu,
+  .chks-dropdown.active > .chks-dropdown-menu
+  {
+    display: block !important;
+  }
+
+  .chks-dropdown > .chks-dropdown-menu li:active .chks-dropdown-menu
+  {
+    display: block !important;
+  }
+}

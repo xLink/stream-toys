@@ -1,0 +1,53 @@
+@layer components {
+  .chks-buttons {
+    @apply flex flex-row font-medium leading-tight mt-0 mb-2 text-white hover:opacity-75 rounded-md ps-1 pe-1 shadow-lg transition;
+  }
+  .chks-buttons .icon, .chks-buttons .content {
+    @apply flex p-2;
+  }
+  .chks-buttons.disabled {
+    @apply bg-gray-500 hover:!opacity-100 cursor-not-allowed hover:cursor-not-allowed;
+  }
+  .chks-buttons:not(.icon-only) .icon {
+    @apply border-0 mt-[0.15rem] -mr-2;
+  }
+  .chks-buttons:not(.icon-only):not(.icon) .content {
+    @apply self-center justify-center w-full;
+  }
+  .chks-buttons.icon-only .icon {
+    @apply border-0 p-2;
+  }
+  .chks-buttons.icon-only .content {
+    @apply hidden;
+  }
+  .chks-buttons.info {
+    @apply bg-chks-light-blue-500;
+  }
+  .chks-buttons.info.disabled {
+    @apply bg-chks-light-blue-500/70;
+  }
+  .chks-buttons.success {
+    @apply bg-chks-bright-green-600;
+  }
+  .chks-buttons.success.disabled {
+    @apply bg-chks-bright-green-600/70;
+  }
+  .chks-buttons.warning {
+    @apply bg-red-500;
+  }
+  .chks-buttons.warning.disabled {
+    @apply bg-red-500/70;
+  }
+  .chks-buttons.submit {
+    @apply bg-chks-raspberry-500 hover:bg-chks-raspberry-600;
+  }
+  .chks-buttons.submit[type=submit] {
+    @apply border-2 border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-chks-raspberry-500/40;
+  }
+  .chks-buttons.submit:not(.icon-only) {
+    @apply w-full;
+  }
+  .chks-buttons.submit.disabled {
+    @apply bg-chks-raspberry-500/70;
+  }
+}

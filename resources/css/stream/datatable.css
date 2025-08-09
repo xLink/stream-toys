@@ -1,0 +1,48 @@
+
+@layer components {
+  .datatable {
+    @apply w-full;
+  }
+
+  .datatable table {
+    @apply border-2 text-chks-dark-gray-400 overflow-y-scroll;
+    @apply bg-chks-bright-green-500 border-chks-bright-green-600;
+  }
+
+  .datatable table tr.datatable-header {
+    @apply border border-b-0 text-sm uppercase text-white;
+    @apply bg-chks-bright-green-600 border-chks-bright-green-700;
+  }
+
+  .datatable table tr.datatable-row {
+    @apply border border-t-0;
+    @apply border-chks-dark-gray-300 bg-chks-dark-gray-200 hover:bg-chks-dark-gray-300 text-chks-dark-gray-700;
+    @apply dark:border-chks-dark-gray-600 dark:bg-chks-dark-gray-800 dark:hover:bg-chks-dark-gray-700  dark:text-chks-dark-gray-400;
+  }
+  .datatable table tr.datatable-row td {
+    @apply py-1 px-3 w-1/12;
+  }
+  .datatable table tr.datatable-row.error td,
+  .datatable table tr.datatable-row.loading td,
+  .datatable table tr.datatable-row.too-many-results td {
+    @apply p-2;
+  }
+
+  .datatable tfoot.datatable-extra {
+    @apply text-sm font-bold uppercase border-2 border-t-0 text-white;
+    @apply bg-chks-bright-green-600 border-chks-bright-green-600;
+  }
+
+  .datatable tfoot.datatable-extra .flex div,
+  .datatable tfoot.datatable-extra .buttons button {
+    @apply text-white bg-chks-bright-green-700/50;
+  }
+
+  .datatable tfoot.datatable-extra .buttons button {
+    @apply hover:bg-chks-bright-green-600/30;
+  }
+
+  .datatable tfoot.datatable-extra .buttons:empty {
+    @apply hidden;
+  }
+}

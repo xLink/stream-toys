@@ -1,0 +1,26 @@
+@layer components {
+  .chks-form-element input, .chks-form-element textarea, .chks-form-element select {
+    @apply appearance-none block w-full
+      border-2 rounded-md
+      placeholder-gray-400
+      text-zinc-700 dark:text-zinc-300
+      bg-white dark:bg-zinc-600
+      focus:outline-none focus:ring-portal-sea focus:border-portal-sea
+      text-base
+    ;
+  }
+  .chks-form-label {
+    @apply
+      text-zinc-700 dark:text-zinc-300
+    ;
+  }
+
+  .chks-form-radio-group .chks-form-radio-group-input {
+    @apply 
+      text-black dark:text-white hover:text-white
+      bg-white dark:bg-zinc-600 hover:bg-portal-sea-600 dark:hover:bg-portal-sea-600/40;
+  }
+  .chks-form-radio-group .chks-form-radio-group-input.active {
+    @apply bg-portal-sea-600 text-white dark:bg-portal-sea-600/40;
+  }
+}

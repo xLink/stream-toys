@@ -1,0 +1,35 @@
+{
+  "devDependencies": {
+    "@chks/vue": "^1.1",
+    "@inertiajs/vue3": "^2.0.0",
+    "@rushstack/eslint-patch": "^1.8.0",
+    "@spriteworld/pokemon-data": "file:../spriteworld.dev.xlink.cybershade.org/data",
+    "@tailwindcss/vite": "^4.0.0",
+    "@vitejs/plugin-vue": "^5.0.0",
+    "@vue/eslint-config-prettier": "^9.0.0",
+    "@vue/server-renderer": "^3.4.0",
+    "autoprefixer": "^10.4.12",
+    "axios": "^1.8.2",
+    "concurrently": "^9.0.1",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^9.23.0",
+    "laravel-vite-plugin": "^2.0.0",
+    "postcss": "^8.4.31",
+    "prettier": "^3.3.0",
+    "prettier-plugin-organize-imports": "^4.0.0",
+    "prettier-plugin-tailwindcss": "^0.6.5"
+  },
+  "$schema": "https://json.schemastore.org/package.json",
+  "private": true,
+  "scripts": {
+    "build": "vite build && vite build --ssr",
+    "dev": "vite",
+    "lint": "eslint resources/js --ext .js,.vue --ignore-path .gitignore --fix"
+  },
+  "type": "module",
+  "dependencies": {
+    "esm-seedrandom": "^3.0.5-esm.2",
+    "tiny-emitter": "^2.1.0"
+  }
+}

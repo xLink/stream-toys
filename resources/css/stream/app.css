@@ -1,0 +1,71 @@
+@import './base.css';
+@import './../global.css';
+@import './button.css';
+@import './datatable.css';
+@import './dropdown.css';
+@import './heading.css';
+@import './tabs.css';
+@import './toggle.css';
+@import './forms.css';
+
+.undernav .chks-dropdown:hover,
+.undernav .chks-dropdown.active {
+  @apply
+    bg-chks-dark-gray-800 dark:text-white cursor-pointer text-white
+  ;
+}
+.undernav .chks-dropdown div.chks-dropdown-menu {
+  @apply
+    w-64
+    bg-chks-dark-gray-50
+    text-chks-dark-gray-500 dark:text-white
+    -ml-2
+  ;
+}
+.undernav .chks-dropdown div.chks-dropdown-menu ul {
+  @apply
+    border border-black
+    bg-chks-dark-gray-50 dark:bg-chks-dark-gray-700
+  ;
+}
+.undernav .chks-dropdown div.chks-dropdown-menu ul {
+  @apply
+    border border-black
+    bg-chks-dark-gray-50 dark:bg-chks-dark-gray-700
+  ;
+}
+.undernav .chks-dropdown-button {
+  @apply p-2 w-full inline-block;
+}
+.undernav .chks-dropdown .chks-dropdown-submenu .chks-dropdown-menu {
+  @apply
+    m-4
+  ;
+}
+.undernav .chks-dropdown .chks-dropdown-submenu ul {
+  @apply
+    rounded rounded-t-none
+    shadow-lg -mt-4
+  ;
+}
+.undernav .chks-dropdown div.chks-dropdown-menu li {
+  @apply
+    hover:text-chks-dark-gray-700
+    hover:bg-chks-dark-gray-300 hover:dark:bg-chks-dark-gray-950
+  ;
+}
+.undernav .chks-dropdown div.chks-dropdown-menu li:first-child {
+  @apply
+    border-t border-b-0 rounded-b-none
+  ;
+}
+.undernav .chks-dropdown div.chks-dropdown-menu li:last-child {
+  @apply
+    border-t border-b-0 rounded-b
+  ;
+}
+.undernav .chks-dropdown > .chks-dropdown-menu.active li .chks-dropdown-menu {
+  @apply
+    !border-red-500 !text-red-500
+  ;
+}
