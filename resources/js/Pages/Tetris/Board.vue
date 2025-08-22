@@ -41,12 +41,12 @@
           '--calcHeight': 'calc((var(--cellSize) * (var(--rows) + 1)) + var(--cellSpacing) + (var(--extraPadding) * 3))',
           '--rows': Math.ceil(selectedPokedexLength / perRow),
           '--cellSize': cellSize + 'px',
-          '--extraPadding': '0.25rem',
-          '--cellSpacing': 'calc(0.25rem * var(--rows))',
+          '--extraPadding': (cellSpacing / 4) + 'rem',
+          '--cellSpacing': 'calc(var(--extraPadding) * var(--rows))',
         }"
       >
-        <div class="flex flex-col gap-1" @contextmenu.prevent="() => {}">
-          <div v-if="parseInt(showGridCoords) === 1" class="flex flex-row gap-1 ml-8">
+        <div class="flex flex-col gap-[--extraPadding]" @contextmenu.prevent="() => {}">
+          <div v-if="parseInt(showGridCoords) === 1" class="flex flex-row gap-[--extraPadding] ml-8">
             <div 
               v-for="i in perRow"
               class="flex justify-center items-center h-[--height] w-[--width]" 
@@ -56,7 +56,7 @@
             </div>
           </div>
           <div v-for="(col, y) in renderCells"
-            class="flex flex-row gap-1"
+            class="flex flex-row gap-[--extraPadding]"
             :data-row="y"
           >
             <div v-if="parseInt(showGridCoords) === 1" class="flex justify-center items-center w-[--cellSize]" :style="{ '--cellSize': (cellSize / 2) + 'px' }">
@@ -96,18 +96,31 @@
           '--calcHeight': 'calc((var(--cellSize) * (var(--rows) + 1)) + var(--cellSpacing) + (var(--extraPadding) * 3))',
           '--rows': Math.ceil(selectedPokedexLength / perRow),
           '--cellSize': cellSize + 'px',
-          '--extraPadding': '0.25rem',
-          '--cellSpacing': 'calc(0.25rem * var(--rows))',
+          '--extraPadding': (cellSpacing / 4) + 'rem',
+          '--cellSpacing': 'calc(var(--extraPadding) * var(--rows))',
         }"
       >
-        <p>History:</p>
+        <div class="flex">
+          <p>History:</p> 
+          <span 
+            v-if="selectedHistoryId !== null"
+            class="ml-2 cursor-pointer text-red-500"
+            @click="selectedHistoryId = null"
+          >
+            <CloseIcon />
+          </span>
+        </div>
         <ul>
           <li 
             v-for="(item, index) in getReverseHistory" 
             :key="index"
-            class="flex flex-row" 
+            class="flex flex-row p-1 rounded-md cursor-pointer hover:bg-blue-800"
+            :class="{
+              'bg-blue-500': selectedHistoryId === index
+            }"
+            @click="selectedHistoryId = index" 
           >
-            <span>
+            <span @click="selectedHistoryId = index" >
               {{ (getReverseHistory.length - index).toString().padStart(2, '0') }}: 
               <strong class="inline-block w-8">{{ item.type.toUpperCase() }}({{ item.rotation }})</strong> 
               : {{ item.x.toString().padStart(2, '0') }}, {{ item.y.toString().padStart(2, '0') }} 
@@ -164,6 +177,7 @@ export default {
     return {
       search: false,
       searchText: '',
+      selectedHistoryId: null,
     }
   },
 
@@ -323,6 +337,7 @@ export default {
       'perRow',
       'sort',
       'cellSize',
+      'cellSpacing',
       'history',
       'hoverCell',
       'showHistory',
@@ -348,6 +363,9 @@ export default {
           class: {
             'border-[--hoverBorderColor]': this.getHighlightedCells.some(cell => cell.x === x && cell.y === y),
             'opacity-20': this.search && !pokemon?.name.toLowerCase().includes(this.searchText.toLowerCase()),
+            'opacity-20': this.selectedHistoryId !== null && this.historyItemClass.includes(
+              [this.history[this.selectedHistoryId].x, this.history[this.selectedHistoryId].y].join(',')
+            ),
           },
           style: {
             '--width': this.cellSize + 'px',
@@ -370,6 +388,18 @@ export default {
       }
 
       return this.selectedCells.map(cell => `[${cell.x}, ${cell.y}]`).join(',');
+    },
+
+    historyItemClass() {
+      let item = this.history[this.selectedHistoryId];
+      if (!item) {
+        return [];
+      }
+
+      return this
+        .getTetriminoCoords(item.type, item.rotation, item.x, item.y)
+        .map(coord => coord.join(','))
+      ;
     },
   },
 };

@@ -15,6 +15,7 @@ const state = {
   perRow: 20,
   sort: 'random',
   cellSize: 60,
+  cellSpacing: 2,
   
   history: [],
   showHistory: 1,  
@@ -571,6 +572,7 @@ const actions = {
       perRow: 20,
       sort: 'random',
       cellSize: 60,
+      cellSpacing: 2,
       history: [],
       showHistory: 1,
       showGridCoords: 1,

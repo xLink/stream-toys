@@ -158,6 +158,15 @@
           />
         </div>
         <div class="flex w-1/3">
+          <RangeField2
+            v-model="cellSpacing"
+            name="cellSpacing"
+            label="Cell Spacing"
+            float-label
+            :min="1"
+            :max="40"
+            :step="1"
+          />
         </div>
       </div>
 
@@ -341,16 +350,16 @@ export default {
       console.groupEnd();
     },
 
-    loadSlot(index) {
-      this.activeSlot = index;
-      const slot = this.slots[index];
+    // loadSlot(index) {
+    //   this.activeSlot = index;
+    //   const slot = this.slots[index];
 
-      this.saveForm.name = slot.name || '';
-      this.saveForm.settings = JSON.stringify(slot.settings) || '{}';
-      this.$store.dispatch('tetris/setSettings', slot.settings);
-      this.$eventBus.$emit('tetris/loadSlot');
-      console.log('[loadSlot] Loaded slot', index, 'with settings:', slot.settings);
-    },
+    //   this.saveForm.name = slot.name || '';
+    //   this.saveForm.settings = JSON.stringify(slot.settings) || '{}';
+    //   this.$store.dispatch('tetris/setSettings', slot.settings);
+    //   this.$eventBus.$emit('tetris/loadSlot');
+    //   console.log('[loadSlot] Loaded slot', index, 'with settings:', slot.settings);
+    // },
 
     saveSlot() {
       let name = null;
@@ -395,6 +404,7 @@ export default {
       'sort',
       'selectionType',
       'cellSize',
+      'cellSpacing',
       'colors',
       'colorGrid',
       'useTetrisColors',
