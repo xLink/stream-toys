@@ -93,32 +93,27 @@
         :class="{
           '!w-0': showHistory === '0',
         }"
+        @mouseleave="() => { selectedHistoryId = null; }"
       >
         <div class="flex">
-          <p>History:</p> 
-          <span 
-            v-if="selectedHistoryId !== null"
-            class="ml-2 cursor-pointer text-red-500"
-            @click="selectedHistoryId = null"
-          >
-            <CloseIcon />
-          </span>
+          <p>History:</p>
         </div>
         <ul>
           <li 
             v-for="(item, index) in getReverseHistory" 
             :key="index"
-            class="flex flex-row p-1 rounded-md cursor-pointer hover:bg-blue-800"
+            class="flex flex-row p-1 rounded-md cursor-pointer hover:bg-blue-800 w-full"
             :class="{
-              'bg-blue-500': selectedHistoryId === index
+              'bg-blue-500': selectedHistoryId === getReverseHistory.length - (index+1)
             }"
-            @click="toggleHistorySelect(index)" 
+            :data-index="getReverseHistory.length - (index+1)"
+            @mouseover="toggleHistorySelect(getReverseHistory.length - (index+1))"
           >
-            <span>
+            <div @mouseover="toggleHistorySelect(getReverseHistory.length - (index+1))">
               {{ (getReverseHistory.length - index).toString().padStart(2, '0') }}: 
               <strong class="inline-block w-8">{{ item.type.toUpperCase() }}({{ item.rotation }})</strong> 
               : {{ item.x.toString().padStart(2, '0') }}, {{ item.y.toString().padStart(2, '0') }} 
-            </span>
+            </div>
           </li>
         </ul>
       </div>
@@ -127,16 +122,22 @@
 
   </div>
 
-  <div class="search absolute top-[11.5rem] h-40 w-40" v-if="search">
+  <div class="search absolute top-[3.5rem] h-40 w-60">
     <input
       id="searchInput"
       v-model="searchText"
       placeholder="Search Pokémon..."
-      class="w-full mb-2 text-black p-2 rounded"
+      class="w-full mb-2 text-white p-2 rounded-t bg-slate-800 border-white border-b-transparent"
       @keyup.enter="() => { search = false; searchText = ''; }"
       @blur="() => { search = false; searchText = ''; }"
       autofocus
     />
+  </div>
+
+  <div class="search absolute top-[3.5rem] right-[1rem] h-40">
+    <div class="flex text-white p-2 rounded-t bg-slate-800 border border-white border-b-transparent">
+      v1.0.3
+    </div>
   </div>
 
   <div class="flex flex-col ml-auto opacity-30">
