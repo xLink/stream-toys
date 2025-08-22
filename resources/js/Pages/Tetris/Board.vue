@@ -38,7 +38,7 @@
         id="pokeboard" 
         class="flex flex-col w-full p-2 overflow-auto scrollbar-thin max-h-[--calcHeight]"
         :style="{
-          '--calcHeight': 'calc((var(--cellSize) * var(--rows)) + var(--cellSpacing) + (var(--extraPadding) * 3))',
+          '--calcHeight': 'calc((var(--cellSize) * (var(--rows) + 1)) + var(--cellSpacing) + (var(--extraPadding) * 3))',
           '--rows': Math.ceil(selectedPokedexLength / perRow),
           '--cellSize': cellSize + 'px',
           '--extraPadding': '0.25rem',
@@ -46,10 +46,23 @@
         }"
       >
         <div class="flex flex-col gap-1" @contextmenu.prevent="() => {}">
+          <div v-if="parseInt(showGridCoords) === 1" class="flex flex-row gap-1 ml-8">
+            <div 
+              v-for="i in perRow"
+              class="flex justify-center items-center h-[--height] w-[--width]" 
+              :style="{ '--height': (cellSize / 2) + 'px', '--width': cellSize + 'px' }"
+            >
+              {{ (i - 1) ?.toString().padStart(2, '0') }}
+            </div>
+          </div>
           <div v-for="(col, y) in renderCells"
             class="flex flex-row gap-1"
             :data-row="y"
           >
+            <div v-if="parseInt(showGridCoords) === 1" class="flex justify-center items-center w-[--cellSize]" :style="{ '--cellSize': (cellSize / 2) + 'px' }">
+              {{ y.toString().padStart(2, '0') }}
+            </div>
+
             <div v-for="(pokemon, x) in col"
               class="flex rounded min-w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor] transition-all duration-200 ease-in-out"
               :key="pokemon.key" 
@@ -80,7 +93,7 @@
           '!w-0': showHistory === '0',
         }"
         :style="{
-          '--calcHeight': 'calc((var(--cellSize) * var(--rows)) + var(--cellSpacing) + (var(--extraPadding) * 3))',
+          '--calcHeight': 'calc((var(--cellSize) * (var(--rows) + 1)) + var(--cellSpacing) + (var(--extraPadding) * 3))',
           '--rows': Math.ceil(selectedPokedexLength / perRow),
           '--cellSize': cellSize + 'px',
           '--extraPadding': '0.25rem',
@@ -313,6 +326,7 @@ export default {
       'history',
       'hoverCell',
       'showHistory',
+      'showGridCoords',
 
       'colors',
       'pieceGeneration',
