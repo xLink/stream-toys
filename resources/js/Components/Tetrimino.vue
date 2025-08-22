@@ -1,12 +1,20 @@
 <template>
-  <div class="flex flex-row rounded-sm">
-    <div v-for="rows in activePiece" class="flex flex-col">
+  <div 
+    class="flex flex-row rounded-md border-2 border-transparent p-2 cursor-pointer gap-[0.2rem]"
+    :class="{
+      'border-yellow-500': active
+    }"
+  >
+    <div 
+      v-for="(rows, x) in activePiece" 
+      class="flex flex-col gap-[0.2rem]"
+    >
       <div 
-        v-for="block in rows"
+        v-for="(block, y) in rows"
         class="p-1 w-[--size] h-[--size] rounded-sm border-2 border-transparent bg-[--backgroundColor] transition-all ease-in-out"
         :style="{
-          '--backgroundColor': block === 1 ? blockColor : 'transparent',
-          '--size': '5px',
+          '--backgroundColor': block === 1 ? blockColor : 'rgba(0,0,0,0.4)',
+          '--size': '20px',
         }"
       />
     </div>
@@ -34,71 +42,36 @@ export default {
         return [0, 1, 2, 3].includes(value);
       },
     },
-  },
-
-  data() {
-    return {
-      activePiece: [
-        [0,0,0,0],
-        [0,0,0,0],
-        [0,0,0,0],
-        [0,0,0,0]
-      ],
-    };
-  },
-
-  created() {
-    this.buildPiece(this.type);
-  },
-
-  methods: {
-    buildPiece (type) {
-      let dir = typeof this.rotation == 'undefined' ? parseInt(this.random(0, 3)) : this.rotation;
-      let bit, result, row = 0, col = 0, blocks = this.pieceDef[type]?.blocks[dir];
-      for(bit = 0x8000 ; bit > 0 ; bit = bit >> 1) {
-        if (blocks & bit) {
-          this.activePiece[col][row] = 1;
-        }
-        if (++col === 4) {
-          col = 0;
-          ++row;
-        }
-      }
+    active: {
+      type: Boolean,
+      default: false,
     },
-
-    random: function(mn, mx) {
-      return Math.random() * (mx - mn) + mn;
-    },
-
-    rebuildPiece() {
-      this.activePiece = [
-        [0,0,0,0],
-        [0,0,0,0],
-        [0,0,0,0],
-        [0,0,0,0]
-      ];
-      this.buildPiece(this.type);
-    }
   },
 
   computed: {
-    ...mapFields('tetris', [
+    ...mapFields('tetris2', [
       'pieceDef',
+      'colors',
     ]),
 
     blockColor() {
-      return [
-        this.pieceDef[this.type].color
-      ];
-    },
-  },
+      if (!this.type) { return '#000000'; }
+      if (!this.pieceDef || !this.pieceDef[this.type]) {
+        return '#000000';
+      }
 
-  watch: {
-    'type': function() {
-      this.rebuildPiece();
+      if (this.type === '.') {
+        return this.colors.singleSelect;
+      }
+
+      return this.pieceDef[this.type].color;
     },
-    'rotation': function() {
-      this.rebuildPiece();
+
+    activePiece() {
+      if (!this.type || !this.pieceDef || !this.pieceDef[this.type]) {
+        return this.activePiece;
+      }
+      return this.pieceDef[this.type].blocks[this.rotation];
     },
   },
 };

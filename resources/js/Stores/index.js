@@ -1,11 +1,13 @@
 import { createStore } from 'vuex';
-import tetris from '@/Stores/modules/tetris.js';
+import app from '@/Stores/modules/app.js';
+import tetris2 from '@/Stores/modules/tetris2.js';
 
 const debug = process.env.NODE_ENV !== 'production';
 
 export default createStore({
   modules: {
-    tetris,
+    app,
+    tetris2,
   },
   strict: debug,
 });

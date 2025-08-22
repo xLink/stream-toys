@@ -2,16 +2,17 @@
   <Layout>
     <h3 class="text-4xl">Pokédex</h3>
 
-    <div class="flex flex-wrap gap-4">
+    <div class="flex flex-wrap gap-2">
       <div
         v-for="pokemon in pokedexData"
         :key="pokemon.id"
-        class="p-2"
+        class="rounded mb-1 min-w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor] transition-all duration-200 ease-in-out"
+        style="--width: 71px; --height: 71px; --backgroundColor: #000000; --borderColor: transparent; --hoverBorderColor: #FF00EC;"
       >
         <img
           :src="pokemon.image"
           :title="getTitle(pokemon)"
-          class="h-24 w-24"
+          class="w-full h-full object-contain"
           :class="{
             'grayscale contrast-0 brightness-50': !pokemon.is_owned,
           }"

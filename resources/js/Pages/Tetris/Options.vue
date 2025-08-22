@@ -2,13 +2,22 @@
   <div 
     class="flex flex-col gap-4 bg-black/30 rounded-lg p-4 w-full"
   >
-    <div class="flex justify-between">
+    <div v-if="showSlots" class="flex justify-between">
       <div class="flex text-lg mb-4">
         Active Slot: {{ this.slots[this.activeSlot]?.name || 'None' }}
       </div>
       <div class="flex gap-2">
         <Btn type="info" class="w-40" @click="showSettings = !showSettings">
           {{ showSettings ? 'Show Settings' : 'Show Save Slots' }}
+        </Btn>
+      </div>
+    </div>
+    <div class="flex justify-between">
+      <div class="flex text-lg mb-4">
+      </div>
+      <div class="flex gap-2">
+        <Btn type="warning" class="w-40" @click="defaults">
+          Reset Settings
         </Btn>
       </div>
     </div>
@@ -30,7 +39,7 @@
       </div>
 
       <div class="flex gap-2 items-center">
-        <label class="text-lg">Select Pokedex:</label>
+        <label class="text-lg">Select Pokedex ({{ selectedPokedexLength }}):</label>
         <div class="flex space-x-4">
           <div v-for="(label, key) in dexOptions" :key="'dex'+key" class="flex items-center">
             <label :for="'dexc'+key">
@@ -60,6 +69,48 @@
             <div v-for="(label, key) in selectionOptions" :key="'select'+key" class="flex items-center">
               <label :for="'selectr'+key">
                 <input type="radio" :id="'selectr'+key" v-model="selectionType" :value="key">
+                {{ label }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-2 items-center">
+        <div class="flex gap-2 items-center">
+          <label class="text-lg">Color Grid Selections:</label>
+          <div class="flex space-x-4">
+            <div v-for="(label, key) in useTetrisColorsOptions" :key="'grid'+key" class="flex items-center">
+              <label :for="'gridc'+key">
+                <input type="radio" :id="'gridc'+key" :name="'gridc'+key" v-model="useTetrisColors" :value="key">
+                {{ label }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-2 items-center">
+        <div class="flex gap-2 items-center">
+          <label class="text-lg">Show History:</label>
+          <div class="flex space-x-4">
+            <div v-for="(label, key) in showHistoryOptions" :key="'history'+key" class="flex items-center">
+              <label :for="'historyc'+key">
+                <input type="radio" :id="'historyc'+key" :name="'historyc'+key" v-model="showHistory" :value="key">
+                {{ label }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex gap-2 items-center">
+        <div class="flex gap-2 items-center">
+          <label class="text-lg">Show Grid Co-ords:</label>
+          <div class="flex space-x-4">
+            <div v-for="(label, key) in showHistoryOptions" :key="'gridcoords'+key" class="flex items-center">
+              <label :for="'gridcoordsc'+key">
+                <input type="radio" :id="'gridcoordsc'+key" :name="'gridcoordsc'+key" v-model="showGridCoords" :value="key">
                 {{ label }}
               </label>
             </div>
@@ -106,17 +157,7 @@
             :step="1"
           />
         </div>
-        <div class="flex w-1/3 flex-col">
-          <label class="text-lg">Color Grid Selections:</label>
-          <div class="flex space-x-4">
-            <div v-for="(label, key) in gridColorOptions" :key="'grid'+key" class="flex items-center">
-              <label :for="'gridc'+key">
-                <input type="radio" :id="'gridc'+key" :name="'gridc'+key" v-model="colorGrid" :value="key">
-                {{ label }}
-              </label>
-            </div>
-          </div>
-
+        <div class="flex w-1/3">
         </div>
       </div>
 
@@ -131,25 +172,25 @@
         </div>
         <div class="flex w-1/3">
           <ColorField
-            v-model="colors.text"
-            name="textColor"
-            label="Text Color"
-            float-label
-          />
-        </div>
-        <div class="flex w-1/3">
-          <ColorField
-            v-model="colors.border"
-            name="borderColor"
-            label="Border Color"
-            float-label
-          />
-        </div>
-        <div class="flex w-1/3">
-          <ColorField
             v-model="colors.hoverBorder"
             name="hoverBorderColor"
             label="Hover Border Color"
+            float-label
+          />
+        </div>
+        <div class="flex w-1/3">
+          <ColorField
+            v-model="colors.singleSelect"
+            name="singleSelectColor"
+            label="Single Select Color"
+            float-label
+          />
+        </div>
+        <div class="flex w-1/3">
+          <ColorField
+            v-model="colors.trackColor"
+            name="trackColor"
+            label="Track Color"
             float-label
           />
         </div>
@@ -163,7 +204,7 @@
         type="info" 
         class="p-2 h-fit truncate text-ellipsis rounded border-2 border-r-0 border-transparent bg-purple-950 cursor-pointer absolute inset-0 top-[--top] z-10 transition-all ease-in-out"
         :class="{ 
-          'border-white w-[200.5px] rounded-r-none': activeSlot === index,
+          'border-white w-[201px] rounded-r-none': activeSlot === index,
           'w-[180px]': activeSlot !== index,
         }"
         :style="{
@@ -229,11 +270,17 @@ export default {
         'tetris': 'Tetris',
       },
 
-      gridColorOptions: {
-        'no': 'No',
-        'tetris': 'Use Tetrimino Colors',
+      useTetrisColorsOptions: {
+        0: 'No',
+        1: 'Use Tetrimino Colors',
       },
 
+      showHistoryOptions: {
+        0: 'No',
+        1: 'Yes',
+      },
+
+      showSlots: false,
       showSettings: false,
       availableSlots: 5,
       slots: [],
@@ -246,13 +293,13 @@ export default {
   },
 
   created() {
-    this.activeSlot = parseInt(localStorage.getItem('settings_activeSlot')) || 0;
-    this.populateSlots();
-    this.loadSlot(this.activeSlot);
+    // this.activeSlot = parseInt(localStorage.getItem('settings_activeSlot')) || 0;
+    // this.populateSlots();
+    // this.loadSlot(this.activeSlot);
 
-    this.$eventBus.$on('tetris/saveBoard', () => {
-      this.saveSlot();
-    });
+    // this.$eventBus.$on('tetris/saveBoard', () => {
+    //   this.saveSlot();
+    // });
   },
 
   methods: {
@@ -331,21 +378,28 @@ export default {
       }
 
 
+    },
+
+    defaults() {
+      this.$store.dispatch('tetris2/setDefaults');
     }
   },
 
   computed: {
-    ...mapFields('tetris', [
-      'autosaveToLocalStorage',
+    ...mapFields('tetris2', [
       'tetriminosToGenerate',
       'seed',
       'pokedex',
+      'selectedPokedexLength',
       'perRow',
       'sort',
       'selectionType',
       'cellSize',
       'colors',
       'colorGrid',
+      'useTetrisColors',
+      'showHistory',
+      'showGridCoords',
     ]),
     ...mapGetters('tetris', ['settingsStr']),
   },

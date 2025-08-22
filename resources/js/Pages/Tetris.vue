@@ -6,20 +6,12 @@
     </div>
 
     <div class="flex items-center justify-center bg-slate-700 h-20 gap-x-2">
-      <div class="flex gap-x-2">
-        <Tetrimino :type="headerTetris[0]?.type" :rotation="headerTetris[0]?.rotation" />
-        <Tetrimino :type="headerTetris[1]?.type" :rotation="headerTetris[1]?.rotation" />
-      </div>
       <div class="flex">
         <h1 class="text-4xl font-bold text-center">xLinks Catch 'em all</h1>
       </div>
-      <div class="flex gap-x-2">
-        <Tetrimino :type="headerTetris[2]?.type" :rotation="headerTetris[2]?.rotation" />
-        <Tetrimino :type="headerTetris[3]?.type" :rotation="headerTetris[3]?.rotation" />
-      </div>
     </div>
 
-    <div class="flex flex-col w-full p-4">
+    <div class="flex flex-col w-full p-4 gap-2">
       <Options v-show="showOptions" />
       <Board :pokedexData="pokedexData" />
     </div>
@@ -28,7 +20,6 @@
 
 <script>
 import { mapFields } from 'vuex-map-fields';
-import { prng_alea as RNG } from 'esm-seedrandom';
 
 export default {
   name: 'TetrisIndex',
@@ -43,30 +34,43 @@ export default {
   data() {
     return {
       showOptions: false,
-      headerTetris: [{}, {}, {}, {}],
-      rng: null,
     }
   },
 
   created() {
-    this.rng = RNG(this.seed);
-    this.headerTetris[0] = this.pickRandomTetrimino();
-    this.headerTetris[1] = this.pickRandomTetrimino();
-    this.headerTetris[2] = this.pickRandomTetrimino();
-    this.headerTetris[3] = this.pickRandomTetrimino();
-  },
+    let localData = localStorage.getItem('tetris2_save');
 
-  methods: {
-    pickRandomTetrimino() {
-      const types = Object.keys(this.pieceDef).filter(type => type !== '.');
-      const randomType = types[Math.floor(this.rng() * types.length)];
-      const randomRotation = Math.floor(this.rng() * 4);
-      return { type: randomType, rotation: randomRotation };
-    },
+    // if we have some local data, try to load it
+    let loaded = false;
+    if (localData?.trim() !== '') {
+      try {
+        this.$store.dispatch('tetris2/loadBoard');
+        loaded = true;
+      } catch (e) {
+        // console.error('Failed to parse saved Tetris data:', e);
+      }
+    }
+
+    if (!loaded) {
+      if (this.seed === 0) {
+        this.$store.dispatch('tetris2/setSeed', Math.floor(Math.random() * 1000000));
+      }
+      if (this.rng === null) {
+        this.$store.dispatch('tetris2/setRNG');
+      }
+      if (this.defaultTetriminos && Object.keys(this.pieceDef).length === 0) {
+        this.$store.dispatch('tetris2/setPieceDef', this.defaultTetriminos);
+      }
+    }
   },
 
   computed: {
-    ...mapFields('tetris', ['seed', 'pieceDef']),
+    ...mapFields('app', ['defaultTetriminos']),
+    ...mapFields('tetris2', [
+      'seed', 
+      'rng', 
+      'pieceDef',
+    ]),
   },
 };
 </script>
