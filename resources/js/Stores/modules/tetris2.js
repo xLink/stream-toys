@@ -413,7 +413,7 @@ const actions = {
     });
   },
 
-  addSelectedCell({ state, commit, getters, dispatch }, cell) {
+  addSelectedCell({ state, commit, getters }, cell) {
     if (!cell || typeof cell !== 'object' || !('x' in cell) || !('y' in cell) || !('type' in cell) || !('rotation' in cell)) {
       if (debug) console.error('Invalid cell object provided', cell);
       return;
@@ -430,12 +430,19 @@ const actions = {
     } 
 
     let selectedCells = [...state.selectedCells];
+    let trackedCells = [...state.trackedCells];
     newCells.forEach(newCell => { 
       newCell.type = cell.type || '.';
       selectedCells.push(newCell);
+
+      // remove from trackedCells
+      if (trackedCells.findIndex(trackedCell => trackedCell.x === newCell.x && trackedCell.y === newCell.y) > -1) {
+        trackedCells = trackedCells.filter(trackedCell => trackedCell.x !== newCell.x || trackedCell.y !== newCell.y);
+      }
     });
 
     commit('updateField', { path: 'selectedCells', value: selectedCells });
+    commit('updateField', { path: 'trackedCells', value: trackedCells });
   },
 
   toggleTrackCell({ state, commit }, cell) {
@@ -543,7 +550,6 @@ const actions = {
       // reinitialize the RNG
       dispatch('setRNG');
       dispatch('regeneratePieces');
-      dispatch('setPieceSelection', 0);
 
       // regenerate the pieces
       saveData.history.forEach((item) => {
@@ -572,6 +578,7 @@ const actions = {
       name: 'Slot 1',
       rng: null,
       step: 0,
+      lastSaved: null,
       pokedex: ['gen1'],
       selectedPokedexLength: 151,
       board: [],

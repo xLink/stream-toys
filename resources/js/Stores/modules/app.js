@@ -1,6 +1,7 @@
 import { getField, updateField } from 'vuex-map-fields';
 
 const state = {
+  catchEmAllVersion: '1.0.4',
   defaultTetriminos: {
     'i': {
       'blocks': [

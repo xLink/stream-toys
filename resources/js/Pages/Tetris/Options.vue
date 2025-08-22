@@ -411,7 +411,6 @@ export default {
       'showHistory',
       'showGridCoords',
     ]),
-    ...mapGetters('tetris', ['settingsStr']),
   },
 };
 </script>

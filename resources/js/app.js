@@ -9,6 +9,15 @@ import emitter from 'tiny-emitter/instance';
 import GlobalComponents from './global.js';
 import CHKSVue from '@chks/vue';
 import Store from './Stores';
+import { library } from '@fortawesome/fontawesome-svg-core';
+
+import {
+  faRetweet,
+} from '@fortawesome/pro-regular-svg-icons';
+
+library.add(
+  faRetweet,
+);
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 const EventBus = {

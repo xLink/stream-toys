@@ -4,10 +4,10 @@
       <div 
         class="flex flex-col w-32" 
       >
-        <div class="flex">Seed: {{ seed }}</div>
-        <div class="flex">Step: {{ step }}</div>
+        <div class="flex">Seed: {{ seed +':'+ step }}</div>
         <div class="flex">Caught: {{ selectedCells.length }} / {{ selectedPokedexLength }}</div>
-        <div class="flex">Unknown: {{ selectedPokedexLength - selectedCells.length - trackedCells.length }}</div>
+        <div class="flex">Tracked: {{ trackedCells.length }}</div>
+        <div class="flex">Remaining: {{ selectedPokedexLength - selectedCells.length - trackedCells.length }}</div>
         <div class="flex">Hover: ({{ hoverCell.x.toString().padStart(2, '0') }}, {{ hoverCell.y.toString().padStart(2, '0') }})</div>
       </div>
 
@@ -26,7 +26,7 @@
       </div>
 
       <div class="flex flex-row text-3xl ml-auto">
-        <RefreshIcon title="Rotate Tetriminos" class="cursor-pointer" @click="$store.dispatch('tetris2/rotateTetrimino')" />
+        <RotateIcon title="Rotate Tetriminos" class="cursor-pointer" @click="$store.dispatch('tetris2/rotateTetrimino')" />
         <component :is="saveIcon" 
           :title="`Last Saved: ${lastSaved}`" 
           class="cursor-pointer text-green-500" 
@@ -39,7 +39,7 @@
 
     <div class="flex flex-row overflow-auto scrollbar-thin"
       :style="{
-        '--calcHeight': 'calc((var(--cellSize) * (var(--rows) + 1)) + var(--cellSpacing) + (var(--extraPadding) * 3))',
+        '--calcHeight': 'calc((var(--cellSize) * (var(--rows) + 0.6)) + var(--cellSpacing) + (var(--extraPadding) * 3))',
         '--rows': Math.ceil(selectedPokedexLength / perRow),
         '--cellSize': cellSize + 'px',
         '--extraPadding': (cellSpacing / 4) + 'rem',
@@ -126,21 +126,21 @@
 
   </div>
 
-  <div class="search absolute top-[3.5rem] h-40 w-60">
+  <div class="search absolute top-[3.5rem] w-60">
     <input
       id="searchInput"
       v-model="searchText"
       placeholder="Search Pokémon..."
-      class="w-full mb-2 text-white p-2 rounded-t bg-slate-800 border-white border-b-transparent"
+      class="w-full mb-2 text-white p-2 rounded-t bg-slate-800 border-white border-b-transparent focus:ring-offset-0 focus:ring-0"
       @keyup.enter="() => { search = false; searchText = ''; }"
       @blur="() => { search = false; searchText = ''; }"
       autofocus
     />
   </div>
 
-  <div class="search absolute top-[3.5rem] right-[1rem] h-40">
+  <div class="search absolute top-[3.5rem] right-[1rem]">
     <div class="flex text-white p-2 rounded-t bg-slate-800 border border-white border-b-transparent">
-      v1.0.3
+      v{{ catchEmAllVersion }}
     </div>
   </div>
 
@@ -347,6 +347,9 @@ export default {
       'selectedPiece',
       'getReverseHistory',
     ]),
+    ...mapFields('app', [
+      'catchEmAllVersion',
+    ]),
     ...mapFields('tetris2', [
       'step',
       'seed',
@@ -384,8 +387,8 @@ export default {
           key: [x, y].join(','),
           class: {
             'border-[--hoverBorderColor]': this.getHighlightedCells.some(cell => cell.x === x && cell.y === y),
-            'opacity-20': this.search && !pokemon?.name.toLowerCase().includes(this.searchText.toLowerCase()),
-            'opacity-20': this.selectedHistoryId && !this.historyCheck(x, y),
+            'opacity-30': this.search && !pokemon?.name.toLowerCase().includes(this.searchText.toLowerCase()),
+            'opacity-30': this.selectedHistoryId && !this.historyCheck(x, y),
           },
           style: {
             '--width': this.cellSize + 'px',
