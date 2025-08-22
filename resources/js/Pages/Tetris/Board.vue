@@ -112,9 +112,9 @@
             :class="{
               'bg-blue-500': selectedHistoryId === index
             }"
-            @click="selectedHistoryId = index" 
+            @click="toggleHistorySelect(index)" 
           >
-            <span @click="selectedHistoryId = index" >
+            <span>
               {{ (getReverseHistory.length - index).toString().padStart(2, '0') }}: 
               <strong class="inline-block w-8">{{ item.type.toUpperCase() }}({{ item.rotation }})</strong> 
               : {{ item.x.toString().padStart(2, '0') }}, {{ item.y.toString().padStart(2, '0') }} 
@@ -306,6 +306,14 @@ export default {
 
       // default background color
       return this.colors.background;
+    },
+
+    toggleHistorySelect(index) {
+      if (this.selectedHistoryId === index) {
+        this.selectedHistoryId = null;
+      } else {
+        this.selectedHistoryId = index;
+      }
     },
 
     historyCheck(x, y) {
