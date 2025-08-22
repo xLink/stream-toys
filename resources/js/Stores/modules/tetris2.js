@@ -1,7 +1,7 @@
 import { getField, updateField } from 'vuex-map-fields';
 import { prng_alea as RNG } from 'esm-seedrandom';
 
-const debug = false;
+const debug = !true;
 
 const state = {
   name: 'Slot 1',
@@ -15,7 +15,7 @@ const state = {
   perRow: 20,
   sort: 'random',
   cellSize: 60,
-  cellSpacing: 2,
+  cellSpacing: 1,
   
   history: [],
   showHistory: 1,  
@@ -138,7 +138,7 @@ const getters = {
     }
     return state.pieceGeneration[state.pieceSelection] || { type: '.', rotation: state.rotation };
   },
-  getTetriminoCoords: (state, getters) => (type, rotation, x, y) => {
+  getTetriminoCoords: (state, getters) => (type, rotation, x, y, ignoreChecks=false) => {
     if (state.selectionType !== 'tetris') {
       type = '.';
       rotation = 0;
@@ -194,6 +194,10 @@ const getters = {
     if (returnCells.length === 0) {
       if (debug) console.error('No valid hover cells generated for Tetrimino:', returnCells.map(cell => `${cell.x}, ${cell.y}`));
       return [];
+    }
+
+    if (ignoreChecks) {
+      return returnCells;
     }
 
     // if any of the returnCells are out of bounds, return empty array
@@ -572,7 +576,7 @@ const actions = {
       perRow: 20,
       sort: 'random',
       cellSize: 60,
-      cellSpacing: 2,
+      cellSpacing: 1,
       history: [],
       showHistory: 1,
       showGridCoords: 1,

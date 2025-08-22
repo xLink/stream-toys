@@ -163,8 +163,8 @@
             name="cellSpacing"
             label="Cell Spacing"
             float-label
-            :min="1"
-            :max="40"
+            :min="0"
+            :max="20"
             :step="1"
           />
         </div>

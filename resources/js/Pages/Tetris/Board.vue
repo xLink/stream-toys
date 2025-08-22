@@ -33,17 +33,18 @@
 
     </div>
 
-    <div class="flex flex-row overflow-auto scrollbar-thin">
+    <div class="flex flex-row overflow-auto scrollbar-thin"
+      :style="{
+        '--calcHeight': 'calc((var(--cellSize) * (var(--rows) + 1)) + var(--cellSpacing) + (var(--extraPadding) * 3))',
+        '--rows': Math.ceil(selectedPokedexLength / perRow),
+        '--cellSize': cellSize + 'px',
+        '--extraPadding': (cellSpacing / 4) + 'rem',
+        '--cellSpacing': 'calc(var(--extraPadding) * var(--rows))',
+      }"
+    >
       <div 
         id="pokeboard" 
         class="flex flex-col w-full p-2 overflow-auto scrollbar-thin max-h-[--calcHeight]"
-        :style="{
-          '--calcHeight': 'calc((var(--cellSize) * (var(--rows) + 1)) + var(--cellSpacing) + (var(--extraPadding) * 3))',
-          '--rows': Math.ceil(selectedPokedexLength / perRow),
-          '--cellSize': cellSize + 'px',
-          '--extraPadding': (cellSpacing / 4) + 'rem',
-          '--cellSpacing': 'calc(var(--extraPadding) * var(--rows))',
-        }"
       >
         <div class="flex flex-col gap-[--extraPadding]" @contextmenu.prevent="() => {}">
           <div v-if="parseInt(showGridCoords) === 1" class="flex flex-row gap-[--extraPadding] ml-8">
@@ -91,13 +92,6 @@
         class="flex flex-col grow-0 w-2/12 p-2 bg-slate-800 text-white overflow-auto scrollbar-thin max-h-[--calcHeight] transition-all duration-200 ease-in-out"
         :class="{
           '!w-0': showHistory === '0',
-        }"
-        :style="{
-          '--calcHeight': 'calc((var(--cellSize) * (var(--rows) + 1)) + var(--cellSpacing) + (var(--extraPadding) * 3))',
-          '--rows': Math.ceil(selectedPokedexLength / perRow),
-          '--cellSize': cellSize + 'px',
-          '--extraPadding': (cellSpacing / 4) + 'rem',
-          '--cellSpacing': 'calc(var(--extraPadding) * var(--rows))',
         }"
       >
         <div class="flex">
@@ -313,6 +307,19 @@ export default {
       // default background color
       return this.colors.background;
     },
+
+    historyCheck(x, y) {
+      if (this.selectedHistoryId === null) {
+        return false;
+      }
+      
+      return this.historyItemClass
+        .map(cell => [cell.x, cell.y].join(','))
+        .includes(
+          [x, y].join(',')
+        )
+      ;
+    }
   },
 
   computed: {
@@ -363,9 +370,7 @@ export default {
           class: {
             'border-[--hoverBorderColor]': this.getHighlightedCells.some(cell => cell.x === x && cell.y === y),
             'opacity-20': this.search && !pokemon?.name.toLowerCase().includes(this.searchText.toLowerCase()),
-            'opacity-20': this.selectedHistoryId !== null && this.historyItemClass.includes(
-              [this.history[this.selectedHistoryId].x, this.history[this.selectedHistoryId].y].join(',')
-            ),
+            'opacity-20': this.selectedHistoryId && !this.historyCheck(x, y),
           },
           style: {
             '--width': this.cellSize + 'px',
@@ -395,10 +400,10 @@ export default {
       if (!item) {
         return [];
       }
+      console.log('history item', item);
 
       return this
-        .getTetriminoCoords(item.type, item.rotation, item.x, item.y)
-        .map(coord => coord.join(','))
+        .getTetriminoCoords(item.type, item.rotation, item.x, item.y, true)
       ;
     },
   },
