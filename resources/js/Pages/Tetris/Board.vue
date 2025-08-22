@@ -27,7 +27,11 @@
 
       <div class="flex flex-row text-3xl ml-auto">
         <RefreshIcon title="Rotate Tetriminos" class="cursor-pointer" @click="$store.dispatch('tetris2/rotateTetrimino')" />
-        <SaveIcon title="Save Tetriminos" class="cursor-pointer text-green-500" @click="$store.dispatch('tetris2/saveBoard')" />
+        <component :is="saveIcon" 
+          :title="`Last Saved: ${lastSaved}`" 
+          class="cursor-pointer text-green-500" 
+          @click="$store.dispatch('tetris2/saveBoard')" 
+        />
         <DeleteIcon title="Clear Board" class="cursor-pointer text-red-500" @click="clearBoard" /> 
       </div>
 
@@ -173,6 +177,7 @@ export default {
       search: false,
       searchText: '',
       selectedHistoryId: null,
+      saveIcon: 'SaveIcon',
     }
   },
 
@@ -222,7 +227,6 @@ export default {
         this.search = true;
         setTimeout(() => {
           document.getElementById('searchInput')?.focus();
-          console.log('Search activated', document.getElementById('searchInput'));
         }, 100);
         return;
       }   
@@ -265,7 +269,6 @@ export default {
     selectCell(x, y) {
       let lastHistoryAction = this.getReverseHistory[0];
       if (lastHistoryAction && lastHistoryAction.x === x && lastHistoryAction.y === y) {
-        console.log('Last action is the same cell, undoing last action');
         // if the last action is the same cell, we can just remove it
         this.$store.dispatch('tetris2/undoLastAction');
         return;
@@ -288,10 +291,12 @@ export default {
       this.$store.dispatch('tetris2/addHistory', cell);
       this.$store.dispatch('tetris2/regeneratePieces');
       this.$store.dispatch('tetris2/rotateTetrimino', parseInt(0));
+      this.$store.dispatch('tetris2/saveBoard');
     },
 
     trackCell(x, y) {
       this.$store.dispatch('tetris2/toggleTrackCell', { x: parseInt(x), y: parseInt(y) });
+      this.$store.dispatch('tetris2/saveBoard');
     },
 
     figureBgColor(x, y) {
@@ -345,6 +350,7 @@ export default {
     ...mapFields('tetris2', [
       'step',
       'seed',
+      'lastSaved',
       'rng',
       'pieceDef',
       'pokedex',
@@ -409,11 +415,19 @@ export default {
       if (!item) {
         return [];
       }
-      console.log('history item', item);
 
       return this
         .getTetriminoCoords(item.type, item.rotation, item.x, item.y, true)
       ;
+    },
+  },
+
+  watch: {
+    lastSaved(newVal) {
+      this.saveIcon = 'CheckIcon';
+      setTimeout(() => {
+        this.saveIcon = 'SaveIcon';
+      }, 500);
     },
   },
 };

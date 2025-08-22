@@ -8,6 +8,7 @@ const state = {
   seed: null,
   rng: null,
   step: 0,
+  lastSaved: new Date().toISOString(),
 
   pokedex: ['gen1'],
   selectedPokedexLength: 151,
@@ -412,7 +413,7 @@ const actions = {
     });
   },
 
-  addSelectedCell({ state, commit, getters }, cell) {
+  addSelectedCell({ state, commit, getters, dispatch }, cell) {
     if (!cell || typeof cell !== 'object' || !('x' in cell) || !('y' in cell) || !('type' in cell) || !('rotation' in cell)) {
       if (debug) console.error('Invalid cell object provided', cell);
       return;
@@ -520,6 +521,7 @@ const actions = {
     saveData = btoa(saveData);
 
     localStorage.setItem('tetris2_save', saveData);
+    commit('updateField', { path: 'lastSaved', value: new Date().toISOString() });
   },
 
   loadBoard({ state, commit, dispatch }) {
