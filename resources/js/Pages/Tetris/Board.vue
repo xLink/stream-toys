@@ -50,21 +50,32 @@
         id="pokeboard" 
         class="flex flex-col w-full p-2 overflow-auto scrollbar-thin max-h-[--calcHeight]"
       >
-        <div class="flex flex-col gap-[--extraPadding]" @contextmenu.prevent="() => {}">
-          <div v-if="parseInt(showGridCoords) === 1" class="flex flex-row gap-[--extraPadding] ml-8">
+        <div 
+          class="flex flex-col gap-[--extraPadding]" 
+          @contextmenu.prevent="() => {}"
+          :style="{
+            '--width': this.cellSize + 'px',
+            '--height': this.cellSize + 'px',
+            '--borderColor': 'transparent',
+            '--hoverBorderColor': this.colors.hoverBorder,
+            '--halfCellSize': (this.cellSize / 2) + 'px',
+          }"
+        >
+          <div v-if="parseInt(showGridCoords) === 1" class="flex flex-row gap-[--extraPadding]">
+            <div class="flex min-w-[--halfCellSize]">&nbsp;</div>
             <div 
-              v-for="i in perRow"
-              class="flex justify-center items-center h-[--height] w-[--width]" 
-              :style="{ '--height': (cellSize / 2) + 'px', '--width': cellSize + 'px' }"
+              v-for="i in perRowKeys"
+              :key="i.toString().padStart(2, '0')"
+              class="flex justify-center items-center min-w-[--width]" 
             >
-              {{ (i - 1) ?.toString().padStart(2, '0') }}
+              {{ i.toString().padStart(2, '0') }}
             </div>
           </div>
           <div v-for="(col, y) in renderCells"
             class="flex flex-row gap-[--extraPadding]"
             :data-row="y"
           >
-            <div v-if="parseInt(showGridCoords) === 1" class="flex justify-center items-center w-[--cellSize]" :style="{ '--cellSize': (cellSize / 2) + 'px' }">
+            <div v-if="parseInt(showGridCoords) === 1" class="flex justify-center items-center min-w-[--halfCellSize]">
               {{ y.toString().padStart(2, '0') }}
             </div>
 
@@ -111,9 +122,9 @@
               'bg-blue-500': selectedHistoryId === getReverseHistory.length - (index+1)
             }"
             :data-index="getReverseHistory.length - (index+1)"
-            @mouseover="toggleHistorySelect(getReverseHistory.length - (index+1))"
+            @mouseover="toggleHistorySelect(parseInt(getReverseHistory.length - (index+1)))"
           >
-            <div @mouseover="toggleHistorySelect(getReverseHistory.length - (index+1))">
+            <div @mouseover="toggleHistorySelect(parseInt(getReverseHistory.length - (index+1)))">
               {{ (getReverseHistory.length - index).toString().padStart(2, '0') }}: 
               <strong class="inline-block w-8">{{ item.type.toUpperCase() }}({{ item.rotation }})</strong> 
               : {{ item.x.toString().padStart(2, '0') }}, {{ item.y.toString().padStart(2, '0') }} 
@@ -121,9 +132,7 @@
           </li>
         </ul>
       </div>
-
     </div>
-
   </div>
 
   <div class="search absolute top-[3.5rem] w-60">
@@ -131,10 +140,10 @@
       id="searchInput"
       v-model="searchText"
       placeholder="Search Pokémon..."
-      class="w-full mb-2 text-white p-2 rounded-t bg-slate-800 border-white border-b-transparent focus:ring-offset-0 focus:ring-0"
+      class="w-full mb-2 text-white p-2 rounded-t bg-slate-800 border-white border-b-transparent ring-transparent focus:ring-0 focus:ring-offset-0 "
+      @click="() => { search = true; }"
       @keyup.enter="() => { search = false; searchText = ''; }"
       @blur="() => { search = false; searchText = ''; }"
-      autofocus
     />
   </div>
 
@@ -387,15 +396,11 @@ export default {
           key: [x, y].join(','),
           class: {
             'border-[--hoverBorderColor]': this.getHighlightedCells.some(cell => cell.x === x && cell.y === y),
-            'opacity-30': this.search && !pokemon?.name.toLowerCase().includes(this.searchText.toLowerCase()),
-            'opacity-30': this.selectedHistoryId && !this.historyCheck(x, y),
+            'opacity-30': (this.search && !pokemon?.name.toLowerCase().includes(this.searchText.toLowerCase())) 
+              || (this.selectedHistoryId !== null && !this.historyCheck(x, y)),
           },
           style: {
-            '--width': this.cellSize + 'px',
-            '--height': this.cellSize + 'px',
             '--backgroundColor': this.figureBgColor(x, y),
-            '--borderColor': 'transparent',
-            '--hoverBorderColor': this.colors.hoverBorder,
           },
         }))
       );
@@ -414,14 +419,26 @@ export default {
     },
 
     historyItemClass() {
+      if (this.selectedHistoryId === null) {
+        return [];
+      }
+
       let item = this.history[this.selectedHistoryId];
       if (!item) {
         return [];
       }
 
-      return this
-        .getTetriminoCoords(item.type, item.rotation, item.x, item.y, true)
-      ;
+      return this.getTetriminoCoords(item.type, item.rotation, item.x, item.y, true);
+    },
+
+    perRowKeys() {
+      let keys = [];
+
+      for (let i = 0; i < this.perRow; i++) {
+        keys.push(i);
+      }
+
+      return keys;
     },
   },
 

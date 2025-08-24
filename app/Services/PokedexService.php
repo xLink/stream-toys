@@ -8,23 +8,21 @@ use App\Models\PokedexPokemon;
 
 class PokedexService 
 {
+    public $dexById = [
+      'kanto'   => [0,   151],
+      'johto'   => [151, 251],
+      'hoenn'   => [251, 386],
+      'sinnoh'  => [386, 493],
+      'unova'   => [493, 649],
+      'kalos'   => [649, 721],
+      'alola'   => [721, 809],
+      'galar'   => [809, 905],
+      'paldea'  => [905, 1025],
+    ];
 
-    
-    public function getData(string $stream): array
+    public function getData(string $stream, string $generation = 'all'): array
     {
-        $pokemon = Pokemon::query()
-            ->get()
-            ->map(function ($pokemon) {
-                return [
-                    'id' => $pokemon->id,
-                    'name' => $pokemon->name,
-                    'image' => '/'. implode('/', ['images', 'sprites', $pokemon->id.'.png']),
-                    'is_owned' => false,
-                ];
-            })
-            ->keyBy('id')
-            ->toArray()
-        ;
+        $pokemon = $this->getPokemonByDex($generation);
 
         Pokedex::query()
             ->with('pokemon.exists')
@@ -40,7 +38,7 @@ class PokedexService
 
         return $pokemon;
     }
-
+    
     public function catchPokemon(string $pokedexName, int $pokemonId): bool
     {
         $pokedex = Pokedex::where('name', $pokedexName)->firstOrFail();
@@ -59,5 +57,24 @@ class PokedexService
         } catch (\Exception $e) {
             return false;
         }
+    }
+
+    public function getPokemonByDex(string $generation = null): array
+    {
+        return Pokemon::query()
+            ->when($generation !== null, function ($query) use ($generation) {
+                $query->whereBetween('id', $this->dexById[$generation]);
+            })
+            ->get()
+            ->map(function ($pokemon) {
+                return [
+                    'id' => $pokemon->id,
+                    'name' => $pokemon->name,
+                    'image' => '/'. implode('/', ['images', 'sprites', $pokemon->id.'.png']),
+                    'is_owned' => false,
+                ];
+            })
+            ->keyBy('id')
+            ->toArray();
     }
 }

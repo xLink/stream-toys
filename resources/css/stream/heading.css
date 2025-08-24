@@ -1,23 +1,23 @@
 @layer components {
-  .chks-heading {
-    @apply font-medium leading-tight mt-0 mb-2 text-chks-bright-green-500 dark:text-chks-light-blue-600;
+  .heading {
+    @apply font-medium leading-tight mt-0 mb-2 text-green-500 dark:text-sky-600;
   }
-  h1.chks-heading {
+  h1.heading {
     @apply text-5xl;
   }
-  h2.chks-heading {
+  h2.heading {
     @apply text-4xl;
   }
-  h3.chks-heading {
+  h3.heading {
     @apply text-3xl;
   }
-  h4.chks-heading {
+  h4.heading {
     @apply text-2xl;
   }
-  h5.chks-heading {
+  h5.heading {
     @apply text-xl;
   }
-  h6.chks-heading {
+  h6.heading {
     @apply text-lg;
   }
 }

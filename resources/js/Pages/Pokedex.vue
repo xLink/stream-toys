@@ -1,8 +1,13 @@
 <template>
   <Layout>
-    <h3 class="text-4xl">Pokédex</h3>
+    
+    <div class="flex items-center justify-center bg-slate-700 h-20 gap-x-2">
+      <div class="flex">
+        <h1 class="text-4xl font-bold text-center">Pokédex</h1>
+      </div>
+    </div>
 
-    <div class="flex flex-wrap gap-2">
+    <div class="flex w-[90%] mx-auto mt-4 flex-wrap gap-2">
       <div
         v-for="pokemon in pokedexData"
         :key="pokemon.id"

@@ -1,0 +1,7 @@
+export default {
+  DEFAULT: 'SUBMIT',
+  SUBMIT: 'SUBMIT',
+  SUCCESS: 'SUCCESS',
+  WARNING: 'WARNING',
+  INFO: 'INFO',
+};

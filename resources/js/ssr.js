@@ -6,8 +6,18 @@ import { createSSRApp, h } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import emitter from 'tiny-emitter/instance';
 import GlobalComponents from './global.js';
-import CHKSVue from '@chks/vue';
 import Store from './Stores';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon, FontAwesomeLayers } from '@fortawesome/vue-fontawesome';
+
+import {
+  faBars, faBarsStaggered, faRetweet, faFloppyDisk, faArrowsRotate,
+  faTrash as fasTrash, 
+} from '@fortawesome/free-solid-svg-icons';
+
+library.add(
+  faRetweet, faBars, faBarsStaggered, faFloppyDisk, faArrowsRotate, fasTrash
+);
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 const EventBus = {
@@ -38,9 +48,11 @@ createServer((page) =>
           ...page.props.ziggy,
           location: new URL(page.props.ziggy.location),
         })
-        .use(CHKSVue)
         .use(GlobalComponents)
-      ;
+        .component('fa', FontAwesomeIcon)
+        .component('FaLayers', FontAwesomeLayers)
+      ;      
+
       return VueApp;
     },
   }),

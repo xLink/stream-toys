@@ -120,7 +120,7 @@
 
       <div class="flex gap-4 items-center" v-if="selectionType === 'tetris'">
         <div class="flex space-x-4 w-1/3">
-          <RangeField2
+          <RangeField
             v-model="tetriminosToGenerate"
             name="tetriminosToGenerate"
             id="tetriminosToGenerate"
@@ -136,18 +136,18 @@
 
       <div class="flex gap-4 items-center">
         <div class="flex w-1/3">
-          <RangeField2
+          <RangeField
             v-model="perRow"
             name="perRow"
             id="perRow"
-            label="Per Row"
+            label="Pokémon Per Row"
             float-label
             :min="1"
             :max="40"
           />
         </div>
         <div class="flex w-1/3">
-          <RangeField2
+          <RangeField
             v-model="cellSize"
             name="cellSize"
             label="Cell Size"
@@ -158,7 +158,7 @@
           />
         </div>
         <div class="flex w-1/3">
-          <RangeField2
+          <RangeField
             v-model="cellSpacing"
             name="cellSpacing"
             label="Cell Spacing"

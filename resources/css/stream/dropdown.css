@@ -1,11 +1,11 @@
 @layer components {
-  .chks-dropdown:hover > .chks-dropdown-menu,
-  .chks-dropdown.active > .chks-dropdown-menu
+  .dropdown:hover > .dropdown-menu,
+  .dropdown.active > .dropdown-menu
   {
     display: block !important;
   }
 
-  .chks-dropdown > .chks-dropdown-menu li:active .chks-dropdown-menu
+  .dropdown > .dropdown-menu li:active .dropdown-menu
   {
     display: block !important;
   }
