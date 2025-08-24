@@ -12,7 +12,7 @@ class WhosThatPokemonController extends Controller
 
     public function getIndex($generation = null): Response
     {
-        $pokedexData = app(PokedexService::class)->getPokemonByDex($generation);
+        $pokedexData = app(PokedexService::class)->getPokemonByDex($generation === null ? 'all' : $generation);
 
         return Inertia::render('Pages/WhosThatPokemon', [
             'generation' => $generation,

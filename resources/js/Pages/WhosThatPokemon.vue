@@ -8,21 +8,22 @@
 
     <div class="absolute top-1 right-2">
       <div class="star"></div>
-      <div class="relative z-50 text-6xl -top-40 -left-2 text-center my-auto ">
+      <div class="relative z-50 text-6xl -top-40 -left-1 text-center my-auto ">
         {{ guessedPokemon.length }}
       </div>
     </div>
 
     <div class="flex flex-col w-[80%] mx-auto mt-4 p-2">
-      <div v-if="stage === 1" class="flex">
-        <RadioGroup
-          name="generation"
-          v-model="form.generation"
-          :options="generationOptions"
-          class="ml-4"
-          label="Pick a Generation..."
-          floatLabel
-        />
+      <div v-if="stage === 1" class="flex w-full flex-wrap gap-2 justify-center">
+        <div v-for="(option, key) in genOptions" class="flex flex-col w-[30%]">
+          <Btn
+            type="info"
+            @click="loadPokedex(key)"
+            class="flex w-full ml-2"
+          >
+            {{ option }}
+          </Btn>
+        </div>
       </div>
 
       <div v-if="stage === 2" class="flex flex-col w-full">
@@ -64,6 +65,8 @@
 </template>
 
 <script>
+import { document } from 'postcss';
+
 export default {
   name: 'WhosThatPokemonIndex',
 
@@ -90,7 +93,6 @@ export default {
       },
 
       genOptions: {
-        'all':    'All Generations',
         'kanto':  'Generation 1 (Kanto)',
         'johto':  'Generation 2 (Johto)',
         'hoenn':  'Generation 3 (Hoenn)',
@@ -100,6 +102,7 @@ export default {
         'alola':  'Generation 7 (Alola)',
         'galar':  'Generation 8 (Galar)',
         'paldea': 'Generation 9 (Paldea)',
+        'all':    'All Generations',
       },
 
       guessedPokemon: [],
@@ -157,6 +160,9 @@ export default {
         this.guessSuccess = null;
         this.currentPokemon = this.getRandomPokemon();
       }, 800);
+    },
+    loadPokedex(gen) {
+      window.location = `/whos-that-pokemon/${gen}`;
     }
   },
 

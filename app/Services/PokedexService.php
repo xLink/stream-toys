@@ -22,7 +22,7 @@ class PokedexService
 
     public function getData(string $stream, string $generation = 'all'): array
     {
-        $pokemon = $this->getPokemonByDex($generation);
+        $pokemon = $this->getPokemonByDex($generation === 'all' ? null : $generation);
 
         Pokedex::query()
             ->with('pokemon.exists')
@@ -59,10 +59,10 @@ class PokedexService
         }
     }
 
-    public function getPokemonByDex(string $generation = null): array
+    public function getPokemonByDex(?string $generation): array
     {
         return Pokemon::query()
-            ->when($generation !== null, function ($query) use ($generation) {
+            ->when(!in_array($generation, ['all', null]), function ($query) use ($generation) {
                 $query->whereBetween('id', $this->dexById[$generation]);
             })
             ->get()
