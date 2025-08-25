@@ -70,7 +70,7 @@ class PokedexService
                 return [
                     'id' => $pokemon->id,
                     'name' => $pokemon->name,
-                    'image' => '/'. implode('/', ['images', 'sprites', $pokemon->id.'.png']),
+                    'image' => '/'. implode('/', ['images', 'sprites', 'home', $pokemon->id.'.png']),
                     'is_owned' => false,
                 ];
             })
