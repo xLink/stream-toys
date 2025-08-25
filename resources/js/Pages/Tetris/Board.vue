@@ -142,7 +142,7 @@
       placeholder="Search Pokémon..."
       class="w-full mb-2 text-white p-2 rounded-t bg-slate-800 border-white border-b-transparent ring-transparent focus:ring-0 focus:ring-offset-0 "
       @click="() => { search = true; }"
-      @keyup.enter="() => { search = false; searchText = ''; }"
+      @keyup.enter="() => { searchText = ''; }"
       @blur="() => { search = false; searchText = ''; }"
     />
   </div>
