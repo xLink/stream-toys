@@ -11,15 +11,27 @@ Route::group(['prefix' => 'pokedex'], function($router) {
             ->where('pokemonId', '[0-9]+');
         Route::get('/stream-label', [Controllers\PokedexController::class, 'getPokedexNumber'])->name('pokedex.stream-label');
     })->where('pokedex', '[a-zA-Z-]+');
-
-
 });
 
 Route::group(['prefix' => 'tetris'], function() {
     Route::get('/', [Controllers\TetrisController::class, 'getIndex'])->name('tetris.index');
+
+    Route::group(['prefix' => '{room}'], function() {
+        Route::get('/', [Controllers\TetrisController::class, 'getIndex'])->name('tetris.mp-index');
+        Route::post('/online-users', [Controllers\TetrisController::class, 'postOnlineUsers']);
+    })->where('room', '[a-zA-Z0-9]+');
 });
 
 Route::group(['prefix' => 'whos-that-pokemon'], function() {
     Route::get('/', [Controllers\WhosThatPokemonController::class, 'getIndex'])->name('whos-that-pokemon.index');
     Route::get('/{generation}', [Controllers\WhosThatPokemonController::class, 'getIndex'])->name('whos-that-pokemon.index');
+});
+
+Route::group(['prefix' => 'hp-bar'], function() {
+    Route::get('/', [Controllers\HPBarController::class, 'getIndex'])->name('hp-bar.index');
+
+    Route::group(['prefix' => '{bar}'], function() {
+        Route::get('/', [Controllers\HPBarController::class, 'getIndex'])->name('hp-bar.index');
+        Route::get('/update', [Controllers\HPBarController::class, 'update'])->name('hp-bar.update');
+    })->where('bar', '[a-zA-Z0-9-_]+');
 });

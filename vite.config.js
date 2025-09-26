@@ -36,7 +36,7 @@ export default ({ mode }) => {
     ],
 
     server: {
-      host: '10.0.0.167',
+      host: process.env.VITE_HMR_URL,
       port: process.env.VITE_HMR_PORT,
       watch: {
         ignored: ['**/vendor/**', '**/storage/**'],
