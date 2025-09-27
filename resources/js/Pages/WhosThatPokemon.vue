@@ -30,7 +30,7 @@
         <div v-if="currentPokemon" class="flex flex-col w-full">
           <div class="flex justify-center">
             <img
-              :src="`/images/sprites/${currentPokemon.id}.png`"
+              :src="pokemonImage"
               alt="Who's that Pokémon?"
               class="h-64"
               :class="randomClasses"
@@ -189,19 +189,14 @@ export default {
     },
 
     randomClasses() {
-      return [];
+      let guesses = this.guessedPokemon.length;
+      let classes = {
+        '': guesses < 10,
+        'grayscale': guesses >= 10,
+        'grayscale contrast-0 brightness-50': guesses >= 25,
+      };
 
-
-      let classes = [
-        ['']
-        ['grayscale'],
-        ['grayscale contrast-0 brightness-50'],
-        // ['contrast-50 brightness-50']
-      ];
-
-      // pick a random set of classes
-      const randomIndex = Math.floor(Math.random() * classes.length);
-      return classes[randomIndex];
+      return classes;
     },
 
     pokedexOptions() {
@@ -212,6 +207,26 @@ export default {
       return Object.values(this.pokedexData).filter(pokemon => {
         return !this.guessedPokemon?.includes(pokemon.id);
       });
+    },
+
+    pokemonImage() {
+      let guesses = this.guessedPokemon.length;
+
+      let id = this.currentPokemon.id;
+      let paddedId = String(id).padStart(3, '0');
+      let name = this.currentPokemon.name.toLowerCase();
+
+
+      let urls = [];
+      urls.push(`/images/sprites/${id}.png`);
+
+      if (guesses <= 35) {
+        return `/images/sprites/${this.currentPokemon.id}.png`;
+      } 
+
+      if (guesses <= 50) {
+        return `/images/sprites/${this.currentPokemon.id}.png`;
+      }
     }
   },
 }

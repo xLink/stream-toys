@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models;
 use App\Services\PokedexService;
+use App\Events\Tetris\UpdateBoard;
 
 class test extends Command
 {
@@ -27,6 +28,13 @@ class test extends Command
      */
     public function handle()
     {
+        dump('here');
+        broadcast(
+            new UpdateBoard('test123')
+        )->toOthers();
+        dump('here 2');
+        return;
+
         $pokedexData = (new PokedexService())->catchPokemon('linky-stream', 25);
         dd($pokedexData);
 

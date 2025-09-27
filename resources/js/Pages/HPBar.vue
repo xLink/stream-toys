@@ -52,7 +52,7 @@
                   label="Max HP"
                   :float-label="true"
                   min="0"
-                  max="0"
+                  :max="maxHP"
                   class="!text-black !w-96"
                   @change="sendUpdates"
                 />

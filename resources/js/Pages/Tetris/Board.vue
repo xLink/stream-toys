@@ -293,6 +293,7 @@ export default {
         rotation: this.rotation,
         x: parseInt(x),
         y: parseInt(y),
+        username: this.username || 'Guest',
       };
       this.$store.dispatch('tetris2/increaseStep');
       this.$store.dispatch('tetris2/addSelectedCell', cell);    
@@ -301,6 +302,7 @@ export default {
       this.$store.dispatch('tetris2/regeneratePieces');
       this.$store.dispatch('tetris2/rotateTetrimino', parseInt(0));
       this.$store.dispatch('tetris2/saveBoard');
+      // send history websocket
     },
 
     trackCell(x, y) {
