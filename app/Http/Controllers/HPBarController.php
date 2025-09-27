@@ -21,6 +21,7 @@ class HPBarController extends Controller
             'bar' => $bar,
             'current' => $hpBar->current_hp,
             'max' => $hpBar->max_hp,
+            'update' => request()->boolean('update', false),
         ]);
     }
 
