@@ -19,8 +19,8 @@ class HPBarController extends Controller
 
         return Inertia::render('Pages/HPBar', [
             'bar' => $bar,
-            'current' => $hpBar->current_hp,
-            'max' => $hpBar->max_hp,
+            'current' => $hpBar->current_hp ?? 0,
+            'max' => $hpBar->max_hp ?? 0,
             'update' => request()->boolean('update', false),
         ]);
     }

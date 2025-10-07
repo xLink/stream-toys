@@ -13,7 +13,7 @@
                   name="currentHP"
                   label="Current HP"
                   :float-label="true"
-                  min="0"
+                  :min="0"
                   :max="maxHP"
                   class="!w-32"
                   @change="sendUpdates"
@@ -73,6 +73,7 @@
 <script>
 import RangeField from '@/Components/Forms/RangeField.vue';
 import Gen3HP from './HPBar/Gen3HP.vue';
+import axios from 'axios';
 
 export default {
   name: 'HPBarIndex',
@@ -125,14 +126,10 @@ export default {
 
   methods: {
     sendUpdates() {
-      this.$inertia.post(this.route('hpbar.update', { bar: this.bar }), {
+      axios.post(this.route('hp-bar.update', { bar: this.bar }), {
         current: this.currentHP,
         max: this.maxHP,
         update: true,
-      }, {
-        preserveState: true,
-        preserveScroll: true,
-        only: ['current', 'max'],
       });
     },
   },
