@@ -21,6 +21,7 @@ class HPBarController extends Controller
             'bar' => $bar,
             'current' => $hpBar->current_hp ?? 0,
             'max' => $hpBar->max_hp ?? 0,
+            'shield' => $hpBar->shield ?? 0,
             'update' => request()->boolean('update', false),
         ]);
     }
@@ -31,6 +32,7 @@ class HPBarController extends Controller
         $update = request()->validate([
             'current' => ['sometimes', 'integer', 'min:0'],
             'max' => ['sometimes', 'integer', 'min:1'],
+            'shield' => ['sometimes', 'integer', 'min:0'],
             'update' => ['sometimes', 'boolean'],
         ]);
 
@@ -54,6 +56,9 @@ class HPBarController extends Controller
         }
         if (isset($update['max'])) {
             $hpBar->max_hp = (int) $update['max'];
+        }
+        if (isset($update['shield'])) {
+            $hpBar->shield = (int) $update['shield'];
         }
         $hpBar->save();
 

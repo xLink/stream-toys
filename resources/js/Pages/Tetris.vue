@@ -7,7 +7,7 @@
 
     <div class="flex items-center justify-center bg-slate-700 h-20 gap-x-2">
       <div class="flex">
-        <h1 class="text-4xl font-bold text-center">xLinks Catch 'em all - {{ room }}</h1>
+        <h1 class="text-4xl font-bold text-center">xLinks Catch 'em all</h1>
       </div>
     </div>
 
@@ -27,10 +27,6 @@ export default {
   props: {
     pokedexData: {
       type: Object,
-      required: true,
-    },
-    room: {
-      type: String,
       required: true,
     },
   },
