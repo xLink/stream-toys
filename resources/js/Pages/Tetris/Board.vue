@@ -118,6 +118,13 @@
               ></span> 
               {{ selectedPokedexLength - selectedCells.length - trackedCells.length }} Unknown
             </div>
+            <div class="flex gap-1 items-center justify-center">
+              <span 
+                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor] items-center justify-center" 
+                :style="{'--backgroundColor': colors.background}"
+              >%</span> 
+              {{ (selectedCells.length / selectedPokedexLength * 100).toFixed(0) }}% Complete
+            </div>
           </div>
           <div class="flex ml-auto">
             ({{ hoverCell.x.toString().padStart(2, '0') }}, {{ hoverCell.y.toString().padStart(2, '0') }})
