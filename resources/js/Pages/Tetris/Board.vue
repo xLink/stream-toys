@@ -102,21 +102,21 @@
                 class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]" 
                 :style="{'--backgroundColor': colors.trackColor}"
               ></span> 
-              ({{ trackedCells.length }}) Tracked
+              {{ trackedCells.length }} Tracked
             </div>
             <div class="flex gap-1 items-center justify-center">
               <span 
                 class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]" 
                 :style="{'--backgroundColor': colors.singleSelect}"
               ></span> 
-              ({{ selectedCells.length }}) Caught
+              {{ selectedCells.length }} Caught
             </div>
             <div class="flex gap-1 items-center justify-center">
               <span 
                 class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]" 
                 :style="{'--backgroundColor': colors.background}"
               ></span> 
-              ({{ selectedPokedexLength - selectedCells.length - trackedCells.length }}) Unknown
+              {{ selectedPokedexLength - selectedCells.length - trackedCells.length }} Unknown
             </div>
           </div>
           <div class="flex ml-auto">
