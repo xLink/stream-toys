@@ -2,16 +2,6 @@
   <div class="flex flex-col border border-white">
     <div class="flex w-full bg-slate-800 p-2 gap-2 items-center">
       <div 
-        class="flex flex-col w-32" 
-      >
-        <div class="flex">Seed: {{ seed +':'+ step }}</div>
-        <div class="flex">Caught: {{ selectedCells.length }} / {{ selectedPokedexLength }}</div>
-        <div class="flex">Tracked: {{ trackedCells.length }}</div>
-        <div class="flex">Remaining: {{ selectedPokedexLength - selectedCells.length - trackedCells.length }}</div>
-        <div class="flex">Hover: ({{ hoverCell.x.toString().padStart(2, '0') }}, {{ hoverCell.y.toString().padStart(2, '0') }})</div>
-      </div>
-
-      <div 
         v-if="selectionType === 'tetris'"
         class="flex flex-row gap-2" 
       >
@@ -101,7 +91,7 @@
           </div>
         </div>
         
-        <div class="flex flex-col mt-2">
+        <div class="flex flex-row mt-2">
           <div class="flex flex-row gap-2" :style="{
             '--width': '30px',
             '--height': '30px',
@@ -112,22 +102,25 @@
                 class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]" 
                 :style="{'--backgroundColor': colors.trackColor}"
               ></span> 
-              Tracked
+              ({{ trackedCells.length }}) Tracked
             </div>
             <div class="flex gap-1 items-center justify-center">
               <span 
                 class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]" 
                 :style="{'--backgroundColor': colors.singleSelect}"
               ></span> 
-              Caught
+              ({{ selectedCells.length }}) Caught
             </div>
             <div class="flex gap-1 items-center justify-center">
               <span 
                 class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]" 
                 :style="{'--backgroundColor': colors.background}"
               ></span> 
-              Unknown
+              ({{ selectedPokedexLength - selectedCells.length - trackedCells.length }}) Unknown
             </div>
+          </div>
+          <div class="flex ml-auto">
+            ({{ hoverCell.x.toString().padStart(2, '0') }}, {{ hoverCell.y.toString().padStart(2, '0') }})
           </div>
         </div>
 
@@ -141,7 +134,8 @@
         }"
         @mouseleave="() => { selectedHistoryId = null; }"
       >
-        <div class="flex">
+        <div class="flex flex-col">
+          <p>Seed: {{ seed +':'+ step }}</p>
           <p>History:</p>
         </div>
         <ul>
