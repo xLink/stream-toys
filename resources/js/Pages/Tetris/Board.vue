@@ -123,7 +123,7 @@
                 class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor] items-center justify-center" 
                 :style="{'--backgroundColor': colors.background}"
               >%</span> 
-              {{ (selectedCells.length / selectedPokedexLength * 100).toFixed(0) }}% Complete
+              {{ ((selectedCells.length / selectedPokedexLength) * 100).toFixed(0) }}% Complete
             </div>
           </div>
           <div class="flex ml-auto">
