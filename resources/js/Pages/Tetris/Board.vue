@@ -39,7 +39,7 @@
 
     <div class="flex flex-row overflow-auto scrollbar-thin"
       :style="{
-        '--calcHeight': 'calc((var(--cellSize) * (var(--rows) + 0.6)) + var(--cellSpacing) + (var(--extraPadding) * 3))',
+        '--calcHeight': 'calc((var(--cellSize) * (var(--rows) + 0.6)) + var(--cellSpacing) + (var(--extraPadding) * 3) + 2rem)',
         '--rows': Math.ceil(selectedPokedexLength / perRow),
         '--cellSize': cellSize + 'px',
         '--extraPadding': (cellSpacing / 4) + 'rem',
@@ -100,6 +100,37 @@
             </div>
           </div>
         </div>
+        
+        <div class="flex flex-col mt-2">
+          <div class="flex flex-row gap-2" :style="{
+            '--width': '30px',
+            '--height': '30px',
+            '--borderColor': colors.selectedBorder,
+          }">
+            <div class="flex gap-1 items-center justify-center">
+              <span 
+                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]" 
+                :style="{'--backgroundColor': colors.trackColor}"
+              ></span> 
+              Tracked
+            </div>
+            <div class="flex gap-1 items-center justify-center">
+              <span 
+                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]" 
+                :style="{'--backgroundColor': colors.singleSelect}"
+              ></span> 
+              Caught
+            </div>
+            <div class="flex gap-1 items-center justify-center">
+              <span 
+                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]" 
+                :style="{'--backgroundColor': colors.background}"
+              ></span> 
+              Unknown
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div 
