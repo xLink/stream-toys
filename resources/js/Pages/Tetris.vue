@@ -7,7 +7,7 @@
 
     <div class="flex items-center justify-center bg-slate-700 h-20 gap-x-2">
       <div class="flex">
-        <h1 class="text-4xl font-bold text-center">xLinks Catch 'em all - {{ room }}</h1>
+        <h1 class="text-4xl font-bold text-center">xLinks Catch 'em all</h1>
       </div>
     </div>
 
@@ -29,10 +29,6 @@ export default {
       type: Object,
       required: true,
     },
-    room: {
-      type: String,
-      required: true,
-    },
   },
 
   data() {
@@ -42,32 +38,8 @@ export default {
     }
   },
 
-  beforeMount() {
-    
-    if (this.room !== '_personal') {
-      window.title = `Catch em All - Room: ${this.room}`;
-      let username = localStorage.getItem('username') || 'Guest';
-      if (username === 'Guest') {
-        username = prompt('Enter your name:', 'Guest');
-        localStorage.setItem('username', username);
-      }
-    }
-    this.$store.dispatch('tetris2/setRoom', 'tetris-' + this.room);
-
-    window.Echo.channel('App.Tetris.test123')
-        .listen('Tetris\UpdateBoard', (event) => {
-            console.log('UpdateBoard event received:', event);
-        })
-        .listenToAll((event, data) => {
-            console.log('Uncaught event received:', event, data);
-        });
-
-  },
-
   created() {
-    // Echo.broadcast('player-connected', { room: this.room, username: this.username });
-    console.log('Tetris created hook - room:', this.room);
-    let localData = localStorage.getItem(this.room);
+    let localData = localStorage.getItem('tetris2_save');
 
     // if we have some local data, try to load it
     let loaded = false;
@@ -92,11 +64,7 @@ export default {
       }
     }
   },
-
-  beforeUnmount() {
-    // Echo.broadcast('player-disconnected', { room: this.room, username: this.username });
-  },
-
+  
   computed: {
     ...mapFields('app', ['defaultTetriminos']),
     ...mapFields('tetris2', [

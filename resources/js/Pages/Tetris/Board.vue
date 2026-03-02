@@ -2,16 +2,6 @@
   <div class="flex flex-col border border-white">
     <div class="flex w-full bg-slate-800 p-2 gap-2 items-center">
       <div 
-        class="flex flex-col w-32" 
-      >
-        <div class="flex">Seed: {{ seed +':'+ step }}</div>
-        <div class="flex">Caught: {{ selectedCells.length }} / {{ selectedPokedexLength }}</div>
-        <div class="flex">Tracked: {{ trackedCells.length }}</div>
-        <div class="flex">Remaining: {{ selectedPokedexLength - selectedCells.length - trackedCells.length }}</div>
-        <div class="flex">Hover: ({{ hoverCell.x.toString().padStart(2, '0') }}, {{ hoverCell.y.toString().padStart(2, '0') }})</div>
-      </div>
-
-      <div 
         v-if="selectionType === 'tetris'"
         class="flex flex-row gap-2" 
       >
@@ -39,7 +29,7 @@
 
     <div class="flex flex-row overflow-auto scrollbar-thin"
       :style="{
-        '--calcHeight': 'calc((var(--cellSize) * (var(--rows) + 0.6)) + var(--cellSpacing) + (var(--extraPadding) * 3))',
+        '--calcHeight': 'calc((var(--cellSize) * (var(--rows) + 0.6)) + var(--cellSpacing) + (var(--extraPadding) * 3) + 2rem)',
         '--rows': Math.ceil(selectedPokedexLength / perRow),
         '--cellSize': cellSize + 'px',
         '--extraPadding': (cellSpacing / 4) + 'rem',
@@ -100,6 +90,47 @@
             </div>
           </div>
         </div>
+        
+        <div class="flex flex-row mt-2">
+          <div class="flex flex-row gap-2" :style="{
+            '--width': '30px',
+            '--height': '30px',
+            '--borderColor': colors.selectedBorder,
+          }">
+            <div class="flex gap-1 items-center justify-center">
+              <span 
+                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]" 
+                :style="{'--backgroundColor': colors.trackColor}"
+              ></span> 
+              {{ trackedCells.length }} Tracked
+            </div>
+            <div class="flex gap-1 items-center justify-center">
+              <span 
+                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]" 
+                :style="{'--backgroundColor': colors.singleSelect}"
+              ></span> 
+              {{ selectedCells.length }} Caught
+            </div>
+            <div class="flex gap-1 items-center justify-center">
+              <span 
+                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]" 
+                :style="{'--backgroundColor': colors.background}"
+              ></span> 
+              {{ selectedPokedexLength - selectedCells.length - trackedCells.length }} Unknown
+            </div>
+            <div class="flex gap-1 items-center justify-center">
+              <span 
+                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor] items-center justify-center" 
+                :style="{'--backgroundColor': colors.background}"
+              >%</span> 
+              {{ ((selectedCells.length / selectedPokedexLength) * 100).toFixed(0) }}% Complete
+            </div>
+          </div>
+          <div class="flex ml-auto">
+            ({{ hoverCell.x.toString().padStart(2, '0') }}, {{ hoverCell.y.toString().padStart(2, '0') }})
+          </div>
+        </div>
+
       </div>
 
       <div 
@@ -110,7 +141,8 @@
         }"
         @mouseleave="() => { selectedHistoryId = null; }"
       >
-        <div class="flex">
+        <div class="flex flex-col">
+          <p>Seed: {{ seed +':'+ step }}</p>
           <p>History:</p>
         </div>
         <ul>
@@ -293,7 +325,6 @@ export default {
         rotation: this.rotation,
         x: parseInt(x),
         y: parseInt(y),
-        username: this.username || 'Guest',
       };
       this.$store.dispatch('tetris2/increaseStep');
       this.$store.dispatch('tetris2/addSelectedCell', cell);    
@@ -302,7 +333,6 @@ export default {
       this.$store.dispatch('tetris2/regeneratePieces');
       this.$store.dispatch('tetris2/rotateTetrimino', parseInt(0));
       this.$store.dispatch('tetris2/saveBoard');
-      // send history websocket
     },
 
     trackCell(x, y) {

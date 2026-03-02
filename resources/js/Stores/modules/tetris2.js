@@ -272,16 +272,6 @@ const getters = {
 };
 
 const actions = {
-  setRoom({ commit }, room) {
-    if (room.trim() === '') {
-      console.log('Invalid room identifier', room);
-      return;
-    }
-
-    console.log('setting room', room);
-    commit('updateField', { path: 'room', value: room });
-  },
-
   setSeed({ commit }, seed) {
     if (typeof seed !== 'number' || seed < 0) {
       if (debug) console.error('Invalid seed value provided');
@@ -530,10 +520,6 @@ const actions = {
   },
 
   saveBoard({ state, commit }) {
-    if (state.room.trim() === '') {
-      console.error('Invalid room identifier');
-      return;
-    }
     let saveData = {...state };
     delete saveData.rng; // Remove RNG from save data
     delete saveData.selectedCells;
@@ -541,16 +527,12 @@ const actions = {
     saveData = JSON.stringify(saveData);
     saveData = btoa(saveData);
 
-    localStorage.setItem(state.room, saveData);
+    localStorage.setItem('tetris2_save', saveData);
     commit('updateField', { path: 'lastSaved', value: new Date().toISOString() });
   },
 
   loadBoard({ state, commit, dispatch }) {
-    if (state.room.trim() === '') {
-      console.error('Invalid room identifier', state.room);
-      return;
-    }
-    let saveData = localStorage.getItem(state.room);
+    let saveData = localStorage.getItem('tetris2_save');
     if (saveData) {
       saveData = atob(saveData);
       saveData = JSON.parse(saveData);

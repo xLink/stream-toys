@@ -65,8 +65,6 @@
 </template>
 
 <script>
-import { document } from 'postcss';
-
 export default {
   name: 'WhosThatPokemonIndex',
 
