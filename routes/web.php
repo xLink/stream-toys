@@ -15,6 +15,10 @@ Route::group(['prefix' => 'pokedex'], function($router) {
 
 Route::group(['prefix' => 'tetris'], function() {
     Route::get('/', [Controllers\TetrisController::class, 'getIndex'])->name('tetris.index');
+});
+
+Route::group(['prefix' => 'tetris-mp'], function() {
+    Route::get('/', [Controllers\TetrisMPController::class, 'getIndex'])->name('tetris.index');
 
     Route::group(['prefix' => '{room}'], function() {
         Route::get('/', [Controllers\TetrisController::class, 'getIndex'])->name('tetris.mp-index');

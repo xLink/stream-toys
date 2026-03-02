@@ -77,4 +77,16 @@ class PokedexService
             ->keyBy('id')
             ->toArray();
     }
+
+    public function getAll() {
+        return Pokemon::query()
+            ->get()
+            ->map(function($pokemon) {
+                return [
+                    'name' => $pokemon->name,
+                    'image' => '/'. implode('/', ['images', 'sprites', 'home', $pokemon->id.'.png']),
+                ];
+            });
+        ;
+    }
 }

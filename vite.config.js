@@ -41,7 +41,9 @@ export default ({ mode }) => {
       watch: {
         ignored: ['**/vendor/**', '**/storage/**'],
       },
-      cors: true,
+      cors: {
+        origin: '*'
+      },
     },
   });
 };

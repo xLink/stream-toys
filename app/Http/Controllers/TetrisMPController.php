@@ -13,24 +13,20 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Tetris\Room;
 use Illuminate\Support\Str;
 
-class TetrisController extends Controller
+class TetrisMPController extends Controller
 {
 
-    public function getIndex(): iResponse
+    public function getIndex(string|null $room = null): iResponse
     {
-        $pokedexData = app(PokedexService::class)->getData('_tetris');
+        
+
+
+        $pokedexData = app(PokedexService::class)-> getAll();
 
         // Logic to show the Tetris game board
-        return Inertia::render('Pages/Tetris', [
+        return Inertia::render('Pages/TetrisMP', [
             'pokedexData' => $pokedexData,
-            'room' => '_personal',
+            'room' => $room ?? '_personal',
         ]);
     }
-
-    public function getPokemonData(string $pokedex): JsonResponse
-    {
-        $pokedexData = app(PokedexService::class)->getData($pokedex);
-
-        return response()->json($pokedexData);
-    }    
 }
