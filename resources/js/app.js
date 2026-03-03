@@ -16,8 +16,12 @@ import {
   faTrash as fasTrash, 
 } from '@fortawesome/free-solid-svg-icons';
 
+import {
+  faDiscord, 
+} from '@fortawesome/free-brands-svg-icons';
+
 library.add(
-  faRetweet, faBars, faBarsStaggered, faFloppyDisk, faArrowsRotate, fasTrash
+  faRetweet, faBars, faBarsStaggered, faFloppyDisk, faArrowsRotate, fasTrash, faDiscord
 );
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';

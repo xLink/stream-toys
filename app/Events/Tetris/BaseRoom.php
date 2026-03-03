@@ -12,7 +12,7 @@ class BaseRoom
     public function __construct(
         public string $room
     ) {
-        $this->roomStr = implode('.', ['App', 'Tetris', $room]);
+        $this->roomStr = implode('.', ['App', 'TetrisMP', $room]);
     }
 
 }

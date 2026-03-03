@@ -3,6 +3,14 @@
 use App\Http\Controllers;
 use Illuminate\Support\Facades\Route;
 
+Route::group(['prefix' => 'auth'], function() {
+    Route::get('/discord', [Controllers\AuthController::class, 'login'])->name('auth.discord');
+    Route::get('/discord/callback', [Controllers\AuthController::class, 'callback'])->name('auth.discord.callback');
+    Route::get('/logout', [Controllers\AuthController::class, 'logout'])->name('auth.logout');
+
+    Route::get('/{uid}', [Controllers\AuthController::class, 'getUser'])->name('auth.user')->whereUuid('uid');
+});
+
 Route::group(['prefix' => 'pokedex'], function($router) {
 
     Route::group(['prefix' => '{pokedex}'], function() {
@@ -18,12 +26,15 @@ Route::group(['prefix' => 'tetris'], function() {
 });
 
 Route::group(['prefix' => 'tetris-mp'], function() {
-    Route::get('/', [Controllers\TetrisMPController::class, 'getIndex'])->name('tetris.index');
+    Route::get('/', [Controllers\TetrisMPController::class, 'getIndex'])->name('tetris-mp.index');
+    Route::post('/', [Controllers\TetrisMPController::class, 'postCreateRoom']);
 
     Route::group(['prefix' => '{room}'], function() {
-        Route::get('/', [Controllers\TetrisController::class, 'getIndex'])->name('tetris.mp-index');
-        Route::post('/online-users', [Controllers\TetrisController::class, 'postOnlineUsers']);
-    })->where('room', '[a-zA-Z0-9]+');
+        Route::get('/', [Controllers\TetrisMPController::class, 'loadMPRoom'])->name('tetris-mp.room');
+
+        Route::post('/join', [Controllers\TetrisMPController::class, 'postJoinRoom'])->name('tetris-mp.room-join');
+        // Route::post('/online-users', [Controllers\TetrisMPController::class, 'postOnlineUsers']);
+    })->whereUuid('room');
 });
 
 Route::group(['prefix' => 'whos-that-pokemon'], function() {

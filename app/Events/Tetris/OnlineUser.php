@@ -18,7 +18,7 @@ class OnlineUser extends BaseRoom implements ShouldBroadcastNow
 
     public function __construct(
         public string $room,
-        public User $user,
+        public array $user,
     ) {}
 
     public function broadcastOn(): PresenceChannel
