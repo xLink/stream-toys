@@ -11,6 +11,8 @@
           :type="piece.type"
           :rotation="rotation === null ? piece.rotation : rotation"
           :active="pieceSelection === index"
+          :pieceDef="pieceDef"
+          :colors="colors"
           @click="$store.dispatch('tetris2/setPieceSelection', index)"
         />
       </div>

@@ -6,9 +6,11 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
 
-Broadcast::channel('App.TetrisMP.{uuid}', function ($room, $uuid) {
-    logger( 'Broadcasting App.TetrisMP.{uuid} channel', func_get_args());
-    return ['username' => $room->username, 'color' => $room->color];
+Broadcast::channel('App.TetrisMP.{uuid}', function ($user, $uuid) {
+    return [
+        'id' => $user->id, 
+        'username' => $user->username,
+    ];
 });
 
 // Broadcast::channel('App.Tetris.{room}', fn() => 'true');

@@ -22,8 +22,6 @@
 </template>
 
 <script>
-import { mapFields } from 'vuex-map-fields';
-
 export default {
   name: 'Tetrimino',
 
@@ -46,14 +44,17 @@ export default {
       type: Boolean,
       default: false,
     },
+    pieceDef: {
+      type: Object,
+      required: true,
+    },
+    colors: {
+      type: Object,
+      required: true,
+    },
   },
 
   computed: {
-    ...mapFields('tetris2', [
-      'pieceDef',
-      'colors',
-    ]),
-
     blockColor() {
       if (!this.type) { return '#000000'; }
       if (!this.pieceDef || !this.pieceDef[this.type]) {

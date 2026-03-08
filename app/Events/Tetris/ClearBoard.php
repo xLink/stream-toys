@@ -23,7 +23,7 @@ class ClearBoard extends BaseRoom implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('channel-name'),
+            new PrivateChannel($this->roomStr),
         ];
     }
 }

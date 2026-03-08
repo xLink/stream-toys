@@ -12,17 +12,17 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use App\Models\Tetris\Room;
 
-class UpdateBoard extends BaseRoom implements ShouldBroadcastNow 
+class NewCell extends BaseRoom implements ShouldBroadcastNow 
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
     
     public function __construct(
         public string $room, 
-        public Room $objRoom
+        public array $cell
     )
     {
         parent::__construct($room);
-    }  
+    }
 
     /**
      * Get the channels the event should broadcast on.

@@ -41,8 +41,8 @@ class AuthController extends Controller
         return redirect()->route('tetris-mp.index');
     }
 
-    public function getUser(User $user) {
-        Auth::login($user);
+    public function getUser(User $uid) {
+        Auth::login($uid);
         return redirect()->route('tetris-mp.index');
     }
 }

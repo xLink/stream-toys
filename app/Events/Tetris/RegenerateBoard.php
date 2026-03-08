@@ -10,20 +10,19 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use App\Models\Tetris\Room;
 
-class AddUser extends BaseRoom implements ShouldBroadcastNow
+class RegenerateBoard extends BaseRoom implements ShouldBroadcastNow 
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-
+    
     /**
      * Get the channels the event should broadcast on.
      *
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
-    public function broadcastOn(): array
+    public function broadcastOn(): PresenceChannel
     {
-        return [
-            new PrivateChannel('channel-name'),
-        ];
+        return new PresenceChannel($this->roomStr);
     }
 }

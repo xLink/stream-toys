@@ -78,6 +78,28 @@ class PokedexService
             ->toArray();
     }
 
+    public function getPokemonByMultiDex(array $generations): array
+    {
+        return Pokemon::query()
+            ->when(!empty($generations), function ($query) use ($generations) {
+                $query->where(function ($query) use ($generations) {
+                    foreach ($generations as $generation) {
+                        $query->orWhereBetween('id', $this->dexById[$generation]);
+                    }
+                });
+            })
+            ->get()
+            ->map(function ($pokemon) {
+                return [
+                    'id' => $pokemon->id,
+                    'name' => $pokemon->name,
+                    'image' => '/'. implode('/', ['images', 'sprites', 'home', $pokemon->id.'.png']),
+                ];
+            })
+            ->keyBy('id')
+            ->toArray();
+    }
+
     public function getAll() {
         return Pokemon::query()
             ->get()

@@ -33,6 +33,10 @@ Route::group(['prefix' => 'tetris-mp'], function() {
         Route::get('/', [Controllers\TetrisMPController::class, 'loadMPRoom'])->name('tetris-mp.room');
 
         Route::post('/join', [Controllers\TetrisMPController::class, 'postJoinRoom'])->name('tetris-mp.room-join');
+        Route::post('/save', [Controllers\TetrisMPController::class, 'postSaveRoom'])->name('tetris-mp.room-save');
+        Route::post('/add-new-cell', [Controllers\TetrisMPController::class, 'postAddNewCell'])->name('tetris-mp.room-add-new-cell');
+        Route::post('/remove-last-cell', [Controllers\TetrisMPController::class, 'postRemoveLastCell'])->name('tetris-mp.room-remove-last-cell');
+        Route::get('/regenerate-board', [Controllers\TetrisMPController::class, 'postRegenerateBoard'])->name('tetris-mp.room-regenerate');
         // Route::post('/online-users', [Controllers\TetrisMPController::class, 'postOnlineUsers']);
     })->whereUuid('room');
 });
