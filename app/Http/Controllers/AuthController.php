@@ -15,23 +15,23 @@ class AuthController extends Controller
     }
 
     public function callback() {
-        $user = Socialite::driver('discord')->user();
+        $discordUser = (array) Socialite::driver('discord')->user();
 
-        $objUser = User::updateOrCreate(
+        $user = User::updateOrCreate(
             [
-                'auth_id' => $user->id,
+                'auth_id' => $discordUser['id'],
             ],
             [
                 'id' => Str::uuid(),
-                'auth_id' => $user->id,
-                'username' => $user->name,
-                'avatar' => $user->avatar,
-                'token' => $user->token,
-                'refresh_token' => $user->refreshToken,
+                'auth_id' => $discordUser['id'],
+                'username' => $discordUser['nickname'] ?? $discordUser['name'],
+                'avatar' => $discordUser['avatar'],
+                'token' => $discordUser['token'],
+                'refresh_token' => $discordUser['refreshToken'],
             ]
         );
 
-        Auth::login($objUser);
+        Auth::login($user);
 
         return redirect()->intended(route('tetris-mp.index'));
     }
