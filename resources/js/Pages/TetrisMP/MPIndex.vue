@@ -239,7 +239,7 @@ export default {
     ]),
 
     loadedUserInfo() {
-      if (this.$attrs.auth.user === null) {
+      if (Object.values(this.$attrs.auth).length === 0 || this.$attrs.auth.user === null) {
         return false;
       }
 
