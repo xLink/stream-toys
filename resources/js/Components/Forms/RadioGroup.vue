@@ -30,7 +30,7 @@
         :key="'radiogroup_' + data[0]"
       >
         <RadioField
-          :name="fieldName + '[]'"
+          :name="fieldName + '['+data[0]+']'"
           :model-value="model"
           :value="data[0]"
           :label="data[1]"
@@ -39,6 +39,11 @@
           class="form-radio-group-input flex-1 border border-zinc-500 text-center p-2 cursor-pointer"
           :class="{
             'active': model === data[0],
+            '!bg-[--bgColor] !text-transparent': useColorValue,
+            '!border-white': useColorValue && model === data[0],
+          }"
+          :style="{
+            '--bgColor': data[0],
           }"
           @update:modelValue="model = $event"
         />
@@ -87,6 +92,11 @@ export default {
     options: {
       type: [Array, Object],
       required: true,
+    },
+    useColorValue: {
+      type: Boolean,
+      required: false,
+      default: () => false,
     },
   },
   emits: ['update:modelValue'],

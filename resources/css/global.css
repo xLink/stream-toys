@@ -70,7 +70,4 @@
   .datatable-table[data-sticky-footer="true"] tfoot {
     inset-block-end: 0;
   }
-  .md-editor-preview-wrapper{
-    @apply !border-l border-red-500;
-  }
 }

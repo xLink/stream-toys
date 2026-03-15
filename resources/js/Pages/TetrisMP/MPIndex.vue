@@ -1,6 +1,7 @@
 <template>
   <layout>
     <div class="absolute top-4 right-4 cursor-pointer z-50">
+      <OptionsIcon class="text-white" @click="toggleOptions" />
       <MenuOpenIcon v-if="showSidebar" class="text-white" @click="toggleSidebar" />
       <MenuCloseIcon v-if="!showSidebar" class="text-white" @click="toggleSidebar" />
     </div>
@@ -67,6 +68,7 @@
         <RadioGroup
           v-model="color"
           :options="optionsObjects.colors"
+          :use-color-value="true"
           name="color"
           label="Select Color"
           float-label
@@ -84,6 +86,7 @@
           'w-full': !showSidebar,
         }"
       >
+        <MPOptions v-if="showOptions" :options-objects="optionsObjects" />
         <MPBoard />
         <code>
           <pre>{{ debug }}</pre>
@@ -104,11 +107,12 @@ import { mapFields } from 'vuex-map-fields';
 import { mapGetters } from 'vuex';
 import MPSidebar from '@/Pages/TetrisMP/MPSidebar.vue';
 import MPBoard from '@/Pages/TetrisMP/MPBoard.vue';
+import MPOptions from '@/Pages/TetrisMP/MPOptions.vue';
 
 export default {
   name: 'MPIndex',
   components: {
-    MPSidebar, MPBoard,
+    MPSidebar, MPBoard, MPOptions,
   },
 
   props: {
@@ -141,9 +145,9 @@ export default {
 
   data() {
     return {
-      showOptions: false,
       username: '',
       color: 'red',
+      showOptions: false,
       showSidebar: true,
 
       onlineUsers: [],
@@ -198,7 +202,6 @@ export default {
       let channelString = ['App', 'TetrisMP', this.uuid].join('.');
       window.Echo.join(channelString)
         .here((users) => {
-
           this.onlineUsers = users;
         })
         .joining((user) => {
@@ -217,6 +220,9 @@ export default {
         .listen('Tetris\\UpdateHistory', (event) => {
           this.$store.dispatch('tetrismp/setHistory', event.history);
         })
+        .listen('Tetris\\UpdateUsers', (event) => {
+          this.$store.dispatch('tetrismp/setPlayers', event.users);
+        })
       ;
     },
 
@@ -227,7 +233,12 @@ export default {
     toggleSidebar() {
       localStorage.setItem('showSidebar', !this.showSidebar);
       this.showSidebar = !this.showSidebar;
-    }
+    },
+
+    toggleOptions() {
+      localStorage.setItem('showOptions', !this.showOptions);
+      this.showOptions = !this.showOptions;
+    },
   },
 
   computed: {

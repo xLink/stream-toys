@@ -14,6 +14,7 @@ import { FontAwesomeIcon, FontAwesomeLayers } from '@fortawesome/vue-fontawesome
 import {
   faBars, faBarsStaggered, faRetweet, faFloppyDisk, faArrowsRotate,
   faTrash as fasTrash, 
+  faCog as fasCog
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -21,7 +22,7 @@ import {
 } from '@fortawesome/free-brands-svg-icons';
 
 library.add(
-  faRetweet, faBars, faBarsStaggered, faFloppyDisk, faArrowsRotate, fasTrash, faDiscord
+  faRetweet, faBars, faBarsStaggered, faFloppyDisk, faArrowsRotate, fasTrash, faDiscord, fasCog
 );
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';

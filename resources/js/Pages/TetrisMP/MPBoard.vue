@@ -123,14 +123,14 @@
             ></span> 
             {{ selectedPokedexLength - selectedCells.length - trackedCells.length }} Unknown
           </div>
-          <div v-if="mode === null" class="flex gap-1 items-center justify-center">
+          <div v-if="mode === 'coop' || mode === null" class="flex gap-1 items-center justify-center">
             <span 
               class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor] items-center justify-center" 
               :style="{'--backgroundColor': colors.background}"
             >%</span> 
             {{ ((selectedCells.length / selectedPokedexLength) * 100).toFixed(0) }}% Complete
           </div>
-          <div v-if="mode === 'lockout'" class="flex gap-1 items-center justify-center">
+          <div v-if="mode !== 'coop'" class="flex gap-1 items-center justify-center">
             <template v-for="(value, color) in percentByColors">
               <span  
                 class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor] items-center justify-center" 
@@ -172,7 +172,6 @@ export default {
     return {
       search: false,
       searchText: '',
-      selectedHistoryId: null,
     }
   },
 
@@ -303,14 +302,6 @@ export default {
       return this.colors.background;
     },
 
-    toggleHistorySelect(index) {
-      if (this.selectedHistoryId === index) {
-        this.selectedHistoryId = null;
-      } else {
-        this.selectedHistoryId = index;
-      }
-    },
-
     historyCheck(x, y) {
       if (this.selectedHistoryId === null) {
         return false;
@@ -359,6 +350,8 @@ export default {
       'selectedCells',
       'trackedCells',
       'colors',
+      'history',
+      'selectedHistoryId',
 
       'pieceGeneration',
       'pieceSelection',
@@ -429,7 +422,20 @@ export default {
       });
 
       return colors;
-    }
+    },
+
+    historyItemClass() {
+      if (this.selectedHistoryId === null) {
+        return [];
+      }
+
+      let item = this.history[this.selectedHistoryId];
+      if (!item) {
+        return [];
+      }
+
+      return this.getTetriminoCoords(item.type, item.rotation, item.x, item.y, true);
+    },
   }
 }
 </script>

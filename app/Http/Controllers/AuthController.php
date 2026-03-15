@@ -33,7 +33,11 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect()->intended(route('tetris-mp.index'));
+        $roomId = session()->get('tetris-mp-room', null);
+        if ($roomId !== null) {
+            return redirect()->route('tetris-mp.room', ['room' => $roomId]);
+        }
+        return redirect()->route('tetris-mp.index');
     }
 
     public function logout() {

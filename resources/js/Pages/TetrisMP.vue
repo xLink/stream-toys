@@ -1,10 +1,5 @@
 <template>
   <Layout>
-    <div class="absolute top-4 right-4 cursor-pointer z-50">
-      <MenuOpenIcon v-if="showOptions" class="text-white" @click="showOptions = !showOptions" />
-      <MenuCloseIcon v-if="!showOptions" class="text-white" @click="showOptions = !showOptions" />
-    </div>
-
     <div class="flex items-center justify-center bg-slate-700 h-20 gap-x-2">
       <div class="flex">
         <h1 class="text-4xl font-bold text-center">xLinks Catch 'em all</h1>
@@ -90,6 +85,19 @@
                 </Btn>
               </div>
             </div>
+                  
+            <div class="flex flex-col gap-2">
+              <label class="text-lg">Game Mode:</label>
+              <div class="flex flex-col gap-4 flex-wrap">
+                <div v-for="(value, key) in optionsObjects.mode" :key="'mode'+key" class="flex items-center">
+                  <label :for="'modec'+key">
+                    <input type="radio" :id="'modec'+key" v-model="roomConfig.mode" :value="key">
+                    {{ value.label }}
+                    <span class="text-sm text-gray-500">{{ value.info }}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
 
             <div class="flex flex-col gap-2">
               <label class="text-lg">Select Pokedex(es):</label>
@@ -130,28 +138,6 @@
               :step="1"
             />
 
-            <RangeField
-              v-model="roomConfig.cellSize"
-              name="cellSize"
-              id="cellSize"
-              label="Pokémon Cell Size"
-              float-label
-              :min="10"
-              :max="100"
-              :step="1"
-            />
-
-            <RangeField
-              v-model="roomConfig.cellSpacing"
-              name="cellSpacing"
-              id="cellSpacing"
-              label="Pokémon Cell Spacing"
-              float-label
-              :min="0"
-              :max="20"
-              :step="1"
-            />
-
           </div>
 
           <Btn 
@@ -159,7 +145,7 @@
             class="self-center mt-1 w-full" 
             @click.prevent="createRoom()"
           >
-            Start Game
+            Create Room
           </Btn>
         </div>
 
@@ -190,11 +176,9 @@ export default {
 
         username: null,
         color: '#ff0000',
-        pokedex: ['gen1'],
+        pokedex: ['kanto'],
         tetriminosToGenerate: 3,
         perRow: 10,
-        cellSize: 30,
-        cellSpacing: 2,
       },
       options: {
         ...this.optionsObjects,
@@ -224,6 +208,13 @@ export default {
       lsUser = {};
     }
     this.roomConfig.username = this.$attrs.auth.user?.username || '';
+
+    let lsKey = ['tetrismp', this.uuid, 'settings'].join('-');
+    let localSettings = localStorage.getItem(lsKey);
+    if (localSettings) {
+      localSettings = JSON.parse(localSettings);
+      this.$store.dispatch('tetrismp/setSettings', localSettings);
+    }
 
     this.randomSeed();
   },

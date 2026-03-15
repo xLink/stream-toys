@@ -8,10 +8,10 @@
       <li 
         v-for="user in players" 
         :key="user.id" 
-        class="flex gap-x-2 px-4 py-2 w-full bg-slate-800 rounded-lg"
+        class="flex gap-x-2 px-4 py-2 w-full bg-slate-800 rounded-lg text-ellipsis whitespace-nowrap overflow-hidden"
       >
         <div 
-          class="w-4 h-4 mt-1 rounded-lg" 
+          class="min-w-4 h-4 mt-1 rounded-lg" 
           :style="{ 
             'backgroundColor': user.color 
           }"
@@ -23,11 +23,10 @@
 
   <div 
     ref="history"
-    class="flex flex-col grow-0 p-2 text-white overflow-auto scrollbar-thin max-h-[--calcHeight] transition-all duration-200 ease-in-out"
+    class="flex flex-col grow-0 text-white overflow-auto scrollbar-thin max-h-[--calcHeight] transition-all duration-200 ease-in-out"
     :class="{
       '!w-0': showHistory === false,
     }"
-    @mouseleave="() => { selectedHistoryId = null; }"
   >
     <div class="flex flex-col">
       <h2 class="text-2xl font-bold text-center">
@@ -35,7 +34,9 @@
       </h2>
       <p>Seed: {{ seed +':'+ step }}</p>
     </div>
-    <ul>
+    <ul
+      class="flex flex-col gap-x-2 px-2 py-2 w-full bg-slate-800 rounded-lg text-ellipsis whitespace-nowrap overflow-hidden"
+    >
       <li 
         v-for="(item, index) in getReverseHistory" 
         :key="index"
@@ -44,9 +45,10 @@
           'bg-blue-500': selectedHistoryId === getReverseHistory.length - (index+1)
         }"
         :data-index="getReverseHistory.length - (index+1)"
-        @mouseover="toggleHistorySelect(parseInt(getReverseHistory.length - (index+1)))"
+        @mouseover="selectedHistoryId = parseInt(getReverseHistory.length - (index+1));"
+        @mouseleave="selectedHistoryId = null;"
       >
-        <div class="flex w-full">
+        <div class="flex w-full text-ellipsis whitespace-nowrap overflow-hidden">
           <span>{{ (getReverseHistory.length - index).toString().padStart(2, '0') }}: </span>
           <span class="ml-1">{{ item.type.toUpperCase() }} ({{ item.x.toString().padStart(2, '0') }}, {{ item.y.toString().padStart(2, '0') }})</span> 
           <span>: ({{ item.username }})</span>
@@ -64,23 +66,6 @@ import { mapGetters } from 'vuex';
 export default {
   name: 'MPSidebar',
 
-  data() {
-    return {
-      selectedHistoryId: null,
-    };
-  },
-
-  methods: {
-    
-    toggleHistorySelect(index) {
-      if (this.selectedHistoryId === index) {
-        this.selectedHistoryId = null;
-      } else {
-        this.selectedHistoryId = index;
-      }
-    },
-  },
-
   computed: {
     ...mapGetters('tetrismp', [
       'getReverseHistory',
@@ -91,6 +76,7 @@ export default {
       'seed',
       'step',
       'showHistory',
+      'selectedHistoryId',
     ]),
   },
 }

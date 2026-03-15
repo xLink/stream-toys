@@ -9,7 +9,7 @@ const state = {
   uuid: null,
   seed: null,
   lastSaved: new Date().toISOString(),
-  mode: 'lockout',
+  mode: 'blackout',
   roomCreator: null,
   currentPlayer: null,
   playerColor: 'blue',
@@ -24,7 +24,7 @@ const state = {
     pokedex: ['kanto'],
     selectedPokedexLength: 151,
     selectionType: 'tetris',
-    perPlayer: true,
+    perPlayer: !true,
   },
   cellSize: 60,
   cellSpacing: 1,
@@ -33,6 +33,7 @@ const state = {
   board: [],
   showHistory: true,
   history: [],
+  selectedHistoryId: null,
   selectedCells: [],
   trackedCells: [], 
   hoverCell: { x: -1, y: -1 },
@@ -262,7 +263,7 @@ const getters = {
 
     const cell = state.selectedCells?.find(cell => cell.x === x && cell.y === y);
     switch (state.mode.toLowerCase()) {
-      case 'lockout': 
+      case 'blackout': 
         let user = cell.username;
 
         if (Object.values(state.players).length === 0) {
@@ -295,9 +296,9 @@ const getters = {
 
   getRandomPiece: (state) => (index) => {
     let seed = ['piece', state.seed, state.step, index].join(':');
-    if (state.settings.perPlayer === true) {
-      seed = [seed, state.currentPlayer].join(':');
-    }
+    // if (state.settings.perPlayer === true) {
+    //   seed = [seed, state.currentPlayer].join(':');
+    // }
     let rng = new RNG(seed);
     let number = rng();
     
@@ -352,11 +353,25 @@ const actions = {
       });
     });
   },
+  updatePlayer({ commit }, data) {
+    return new Promise((resolve, reject) => {
+      PostRequest(`/tetris-mp/${state.uuid}/update-player`, {
+        username: data.username,
+        color: data.color
+      }, (response) => {
+        commit('SET_PLAYERS', response.data.players);
+        resolve(response);
+      }, (error) => {
+        reject(error);
+      });
+    });
+  },
   
   saveBoard({ state, commit }) {
     let saveData = new FormData();
     saveData.append('name', state.name);
     saveData.append('seed', state.seed);
+    saveData.append('mode', state.mode);
     saveData.append('pokedex', JSON.stringify(state.settings.pokedex));
     saveData.append('perRow', state.settings.perRow);
     saveData.append('tetriminosToGenerate', state.settings.tetriminosToGenerate);
@@ -480,10 +495,26 @@ const actions = {
     commit('updateField', { path: 'settings', value: settings });
     commit('updateField', { path: 'name', value: data.name });
     commit('updateField', { path: 'seed', value: data.seed });
+    commit('updateField', { path: 'mode', value: data.mode || 'blackout' });
     commit('updateField', { path: 'step', value: 0 });
     dispatch('setRNG');
     commit('updateField', { path: 'trackedCells', value: data.trackedCells });
     dispatch('setHistory', data.history);
+  },
+
+  setSettings({ commit }, settings) {
+    if (settings.showGridCoords !== undefined) {
+      commit('updateField', { path: 'showGridCoords', value: settings.showGridCoords });
+    }
+    if (settings.cellSize !== undefined) {
+      commit('updateField', { path: 'cellSize', value: settings.cellSize });
+    }
+    if (settings.cellSpacing !== undefined) {
+      commit('updateField', { path: 'cellSpacing', value: settings.cellSpacing });
+    }
+    if (settings.playerColor !== undefined) {
+      commit('updateField', { path: 'playerColor', value: settings.playerColor });
+    }
   },
 
   setHistory({ commit, dispatch }, history) {
@@ -674,10 +705,10 @@ const actions = {
     commit('updateField', { path: 'trackedCells', value: [] });
     commit('updateField', { path: 'hoverCell', value: { x: -1, y: -1 } });
     commit('updateField', { path: 'history', value: [] });
-    commit('updateField', { path: 'step', value: 0 });
     commit('updateField', { path: 'pieceSelection', value: 0 });
     commit('updateField', { path: 'rotation', value: 0 });
     commit('updateField', { path: 'pieceGeneration', value: [] });
+    commit('updateField', { path: 'step', value: 0 });
     dispatch('setRNG');
     dispatch('regeneratePieces');
     dispatch('saveBoard');

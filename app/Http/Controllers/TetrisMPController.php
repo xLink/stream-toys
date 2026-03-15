@@ -19,14 +19,14 @@ class TetrisMPController extends Controller
 
     protected array $options = [
         'colors' => [
-            'red'     => 'Red',
-            'blue'    => 'Blue',
-            'green'   => 'Green',
-            'yellow'  => 'Yellow',
-            'purple'  => 'Purple',
-            'orange'  => 'Orange',
-            'cyan'    => 'Cyan',
-            'magenta' => 'Magenta',
+            '#00ffff' => '1',
+            '#0000ff' => '2',
+            '#ffa500' => '3',
+            '#ffff00' => '4',
+            '#00ff00' => '5',
+            '#800080' => '6',
+            '#ff0000' => '7',
+            '#138e57' => '8',
         ],
         'pokedexes' => [
             'kanto'   => 'Kanto (Gen 1)',
@@ -38,6 +38,21 @@ class TetrisMPController extends Controller
             'alola'   => 'Alola (Gen 7)',
             'galar'   => 'Galar (Gen 8)',
             'paldea'  => 'Paldea (Gen 9)',
+        ],
+
+        'mode' => [
+            'coop'     => [
+                'label' => 'Co-op', 
+                'info' => 'Players work together to clear the board.'
+            ],
+            'blackout' => [
+                'label' => 'Blackout', 
+                'info' => 'Players work against eachother to catch pokemon and claim the most pieces on the board.'
+            ],
+            'vs'       => [
+                'label' => 'Versus', 
+                'info' => 'Players race to catch pokemon and fill in their own board.'
+            ],
         ],
         'sort' => [
             'random'  => 'Random',
@@ -52,7 +67,6 @@ class TetrisMPController extends Controller
             'i', 'j', 'l', 'o', 's', 'z', 't'
         ],
     ];
-
 
     public function getIndex(string|null $room = null): iResponse
     {
@@ -86,14 +100,14 @@ class TetrisMPController extends Controller
         // Create a new room with the validated data
         $room = Room::create([
             'uuid' => Str::uuid(),
-            'players' => json_encode([
+            'players' => [
                 [
                     'username' => $data['username'],
                     'color' => $data['color'],
                     'owner' => true,
                 ]
-            ]),
-            'state' => json_encode([
+            ],
+            'state' => [
                 'name' => $data['name'],
                 'seed' => $data['seed'] ?? Str::random(10),
                 // 'mode' => $data['mode'],
@@ -102,7 +116,7 @@ class TetrisMPController extends Controller
                 'perRow' => $data['perRow'],
                 'board' => [],
                 'history' => [],
-            ]),
+            ],
         ]);
 
         return response()->json([
@@ -112,6 +126,8 @@ class TetrisMPController extends Controller
 
     public function loadMPRoom(Room $room): iResponse
     {
+        session()->put('tetris-mp-room', $room);
+
         $pokedexData = app(PokedexService::class)
             ->getPokemonByMultiDex($room['state']['pokedex'])
         ;
@@ -143,7 +159,6 @@ class TetrisMPController extends Controller
 
         $players = $room->players;
 
-        logger('$players', $players);
         // Check if the player is already in the room
         foreach ($players as $player) {
             if ($player['username'] === $data['username']) {
@@ -206,6 +221,45 @@ class TetrisMPController extends Controller
         broadcast(
             new Tetris\UpdateBoard($room->uuid, $room)
         )->toOthers();
+    }
+
+    public function postUpdatePlayer(Room $room, Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|string|max:255',
+            'color' => 'required|string|in:' . implode(',', array_keys($this->options['colors'])),
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $players = $room->players;
+        $data = $validator->validated();
+
+        //update player based on username
+        foreach ($players as $index => $player) {
+            if (strtolower($player['username']) !== strtolower($data['username'])) {
+                continue;
+            }
+            $players[$index]['color'] = $data['color'];
+        }
+
+        $room->players = $players;
+        if ($room->save()) {
+            logger('Player updated successfully', $room->players);
+            broadcast(
+                new Tetris\UpdateUsers($room->uuid, $room->players)
+            );
+            return response()->json([
+                'message' => 'Saved successfully',
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'Failed to save',
+        ], 500);
     }
 
     public function postAddNewCell(Room $room, Request $request)

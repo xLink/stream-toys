@@ -26,12 +26,12 @@ class Room extends Model
     {
         return Attribute::make(
             get: function ($value) {
-                $json = json_decode($value, true) ?? [];
+                $value = $this->jsonOrArray($value) ?? [];
                 return [
-                    ...$json,
-                    'pokedex' => $this->jsonOrArray($json['pokedex'] ?? []),
-                    'trackedCells' => $this->jsonOrArray($json['trackedCells'] ?? []),
-                    'history' => $this->jsonOrArray($json['history'] ?? []),
+                    ...$value,
+                    'pokedex' => $this->jsonOrArray($value['pokedex'] ?? []),
+                    'trackedCells' => $this->jsonOrArray($value['trackedCells'] ?? []),
+                    'history' => $this->jsonOrArray($value['history'] ?? []),
                 ];
             },
             set: fn ($value) => json_encode($value),
