@@ -10,6 +10,9 @@ export default ({ mode }) => {
   process.env = {...process.env, ...loadEnv(mode, process.cwd(), '')};
 
   return defineConfig({
+    define: {
+      __VUE_PROD_DEVTOOLS__: true,
+    },
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./resources/js', import.meta.url)),

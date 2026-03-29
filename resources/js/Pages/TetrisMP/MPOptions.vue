@@ -99,19 +99,6 @@
         </div>
       </div>
 
-      <div v-if="false" class="flex gap-2 items-center">
-        <div class="flex gap-2 items-center">
-          <label class="text-lg">Color Grid Selections:</label>
-          <div class="flex space-x-4">
-            <div v-for="(label, key) in useTetrisColorsOptions" :key="'grid'+key" class="flex items-center">
-              <label :for="'gridc'+key">
-                <input type="radio" :id="'gridc'+key" :name="'gridc'+key" v-model="useTetrisColors" :value="key">
-                {{ label }}
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <div class="flex gap-4 items-center" v-if="selectionType === 'tetris'">
         <div class="flex space-x-4 w-1/3">
@@ -207,6 +194,23 @@
           />
         </div>
       </div>
+
+      <div v-if="mode === 'coop' || mode === 'vs'" class="flex gap-2 items-center">
+        <label class="text-md">Cell Colors:</label>
+        <div class="flex space-x-4">
+          <div v-for="(label, key) in cellColorOptions" :key="'cellcolor'+key" class="flex items-center">
+            <label :for="'cellcolorc'+key">
+              <input type="radio" :id="'cellcolorc'+key" :name="'cellcolorc'" v-model="useTetrisColors" :value="key">
+              {{ label }}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-2 items-center">
+        <label class="text-md">Tracked Cell Color:</label>
+        <input type="color" v-model="trackColor" class="cursor-pointer rounded" />
+      </div>
     </div>
   </div>
 </template>
@@ -232,6 +236,10 @@ export default {
         'single': 'Single',
         'tetris': 'Tetris',
       },
+      cellColorOptions: {
+        'player':    'Player Colors',
+        'tetrimino': 'Tetrimino Colors',
+      },
     };
   },
 
@@ -242,6 +250,9 @@ export default {
   methods: {
     randomizeSeed() {
       this.seed = Math.floor(Math.random() * 1000000);
+      if (this.isOwner) {
+        this.$store.dispatch('tetrismp/clearBoard');
+      }
     },
 
     syncToDB() {
@@ -254,6 +265,8 @@ export default {
         cellSize: this.cellSize,
         cellSpacing: this.cellSpacing,
         playerColor: this.playerColor,
+        trackColor: this.trackColor,
+        useTetrisColors: this.useTetrisColors,
       };
       localStorage.setItem(this.lsKey, JSON.stringify(settingsToSave));
     },
@@ -278,7 +291,9 @@ export default {
       'cellSize',
       'cellSpacing',
       'colors',
+      'colors.trackColor',
       'useTetrisColors',
+
       'showHistory',
       'showGridCoords',
       'currentPlayer',
@@ -295,6 +310,55 @@ export default {
         });
       }
     },
+
+    seed() {
+      if (this.isOwner) {
+        this.$store.dispatch('tetrismp/clearBoard');
+      }
+    },
+
+    mode() {
+      if (this.isOwner) {
+        this.$store.dispatch('tetrismp/clearBoard');
+      }
+    },
+
+    'settings.selectionType'() {
+      if (this.isOwner) {
+        this.$store.dispatch('tetrismp/clearBoard');
+      }
+    },
+
+    'settings.pokedex': {
+      deep: true,
+      async handler() {
+        if (this.isOwner) {
+          await this.$store.dispatch('tetrismp/clearBoard');
+          this.$inertia.reload({ only: ['pokedexData'] });
+        }
+      },
+    },
+
+    'settings.perRow'() {
+      if (this.isOwner) {
+        this.$store.dispatch('tetrismp/clearBoard');
+      }
+    },
+
+    'settings.tetriminosToGenerate'() {
+      if (this.isOwner) {
+        this.$store.dispatch('tetrismp/clearBoard');
+      }
+    },
+
+    trackColor() {
+      this.saveToLS();
+    },
+
+    useTetrisColors() {
+      this.saveToLS();
+    },
+
   },
 };
 </script>

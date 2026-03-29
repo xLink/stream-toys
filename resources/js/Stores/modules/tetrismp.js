@@ -10,8 +10,8 @@ const state = {
   seed: null,
   lastSaved: new Date().toISOString(),
   mode: 'blackout',
-  roomCreator: null,
   currentPlayer: null,
+  viewingPlayer: null,
   playerColor: 'blue',
   step: 0,
   
@@ -38,7 +38,7 @@ const state = {
   trackedCells: [], 
   hoverCell: { x: -1, y: -1 },
 
-  useTetrisColors: true,
+  useTetrisColors: 'player',
   pieceSelection: 0,
   rotation: 0,
   pieceGeneration: [
@@ -63,6 +63,8 @@ const state = {
 
 const getters = {
   getField,
+
+  viewingUsername: (state) => state.viewingPlayer || state.currentPlayer,
 
   isOwner: (state) => {
     if (!state.currentPlayer || !state.players) {
@@ -239,15 +241,14 @@ const getters = {
   },
 
   isCellSelected: (state) => (x, y) => {
-    let cells = [];
-
-    state.selectedCells.forEach((cell) => {
-      if (cell.x === x && cell.y === y) {
-        cells.push(cell);
+    return state.selectedCells.some(cell => {
+      if (cell.x !== x || cell.y !== y) return false;
+      if (state.mode === 'vs') {
+        const viewer = (state.viewingPlayer || state.currentPlayer)?.toLowerCase();
+        return cell.username?.toLowerCase() === viewer;
       }
+      return true;
     });
-
-    return cells.length > 0;
   },
   isCellTracked: (state) => (x, y) => {
     return state.trackedCells.some(cell => cell.x === x && cell.y === y);
@@ -257,48 +258,32 @@ const getters = {
   },
 
   getSelectedCellColor: (state) => (x, y) => {
-    if (state.useTetrisColors !== true) {
-      return state.colors.singleSelect;
+    let cell;
+    if (state.mode === 'vs') {
+      const viewer = (state.viewingPlayer || state.currentPlayer)?.toLowerCase();
+      cell = state.selectedCells?.find(c => c.x === x && c.y === y && c.username?.toLowerCase() === viewer);
+    } else {
+      cell = state.selectedCells?.find(c => c.x === x && c.y === y);
     }
 
-    const cell = state.selectedCells?.find(cell => cell.x === x && cell.y === y);
-    switch (state.mode.toLowerCase()) {
-      case 'blackout': 
-        let user = cell.username;
-
-        if (Object.values(state.players).length === 0) {
-          return state.colors.singleSelect;
-        }
-
-        // find the player with this username
-        let player = Object.values(state.players).find(player => player.username === user);
-        if (player) {
-          return player.color || state.colors.singleSelect;
-        }
-
-        return state.colors.singleSelect;
-      break;
-
-      case 'coop':
-
-      break;
-
-      default:
-        if (cell?.type === '.') {
-          return state.colors.singleSelect;
-        }
-
-        const cellType = state.pieceDef[cell?.type];
-        return cellType?.color ?? state.colors.singleSelect;
-      break;
+    if (state.useTetrisColors === 'tetrimino') {
+      return state.pieceDef[cell?.type]?.color || state.colors.singleSelect;
     }
+
+    if (state.useTetrisColors === 'player' || state.useTetrisColors === true) {
+      const players = Object.values(state.players);
+      const player = players.find(p => p.username === cell?.username);
+      return player?.color || state.colors.singleSelect;
+    }
+
+    return state.colors.singleSelect;
   },
 
   getRandomPiece: (state) => (index) => {
     let seed = ['piece', state.seed, state.step, index].join(':');
-    // if (state.settings.perPlayer === true) {
-    //   seed = [seed, state.currentPlayer].join(':');
-    // }
+    if (state.mode !== 'vs' && state.currentPlayer) {
+      seed = [seed, state.currentPlayer].join(':');
+    }
     let rng = new RNG(seed);
     let number = rng();
     
@@ -367,7 +352,7 @@ const actions = {
     });
   },
   
-  saveBoard({ state, commit }) {
+  saveBoard({ state, commit }, { clearAll = false } = {}) {
     let saveData = new FormData();
     saveData.append('name', state.name);
     saveData.append('seed', state.seed);
@@ -380,6 +365,7 @@ const actions = {
     saveData.append('perPlayer', state.settings.perPlayer);
     saveData.append('trackedCells', JSON.stringify(state.trackedCells));
     saveData.append('history', JSON.stringify(state.history));
+    saveData.append('clearAll', clearAll ? 'true' : 'false');
 
     commit('updateField', { path: 'lastSaved', value: new Date().toISOString() });
     return new Promise((resolve, reject) => {
@@ -397,7 +383,7 @@ const actions = {
 
   sendNewCell({ state }, cell) {
     return new Promise((resolve, reject) => {
-      PostRequest(`/tetris-mp/${state.uuid}/add-cell`, 
+      PostRequest(`/tetris-mp/${state.uuid}/add-new-cell`,
         cell, 
         (response) => {
           resolve(response);
@@ -457,10 +443,8 @@ const actions = {
       });
     });
 
-    let settings = { ...state.settings };
-    settings.perRow = perRow;
-    settings.selectedPokedexLength = boardLength;
-    commit('updateField', { path: 'settings', value: settings });
+    commit('updateField', { path: 'settings.perRow', value: perRow });
+    commit('updateField', { path: 'settings.selectedPokedexLength', value: boardLength });
   },
 
   setUuid({ commit }, uuid) {
@@ -472,33 +456,21 @@ const actions = {
   },
 
   setState({ state, commit, dispatch }, data) {
-    let settings = { ...state.settings };
-    if (data.perRow) {
-      settings.perRow = parseInt(data.perRow);
-    }
-    if (data.tetriminosToGenerate) {
-      settings.tetriminosToGenerate = parseInt(data.tetriminosToGenerate);
-    }
-    if (data.pokedex) {
-      settings.pokedex = data.pokedex;
-    }
-    if (data.sort) {
-      settings.sort = data.sort;
-    }
-    if (data.selectionType) {
-      settings.selectionType = data.selectionType;
-    }
-    if (data.perPlayer !== undefined) {
-      settings.perPlayer = data.perPlayer;
-    }
+    if (data.perRow) commit('updateField', { path: 'settings.perRow', value: parseInt(data.perRow) });
+    if (data.tetriminosToGenerate) commit('updateField', { path: 'settings.tetriminosToGenerate', value: parseInt(data.tetriminosToGenerate) });
+    if (data.pokedex) commit('updateField', { path: 'settings.pokedex', value: data.pokedex });
+    if (data.sort) commit('updateField', { path: 'settings.sort', value: data.sort });
+    if (data.selectionType) commit('updateField', { path: 'settings.selectionType', value: data.selectionType });
+    if (data.perPlayer !== undefined) commit('updateField', { path: 'settings.perPlayer', value: data.perPlayer });
 
-    commit('updateField', { path: 'settings', value: settings });
     commit('updateField', { path: 'name', value: data.name });
     commit('updateField', { path: 'seed', value: data.seed });
     commit('updateField', { path: 'mode', value: data.mode || 'blackout' });
     commit('updateField', { path: 'step', value: 0 });
     dispatch('setRNG');
-    commit('updateField', { path: 'trackedCells', value: data.trackedCells });
+    if ('trackedCells' in data) {
+      commit('updateField', { path: 'trackedCells', value: data.trackedCells });
+    }
     dispatch('setHistory', data.history);
   },
 
@@ -515,6 +487,12 @@ const actions = {
     if (settings.playerColor !== undefined) {
       commit('updateField', { path: 'playerColor', value: settings.playerColor });
     }
+    if (settings.trackColor !== undefined) {
+      commit('updateField', { path: 'colors.trackColor', value: settings.trackColor });
+    }
+    if (settings.useTetrisColors !== undefined) {
+      commit('updateField', { path: 'useTetrisColors', value: settings.useTetrisColors });
+    }
   },
 
   setHistory({ commit, dispatch }, history) {
@@ -527,12 +505,17 @@ const actions = {
     commit('updateField', { path: 'selectedCells', value: [] });
     commit('updateField', { path: 'history', value: [] });
     history.forEach((item) => {
-      dispatch('addSelectedCell', item);
+      dispatch('addSelectedCell', { ...item, ignoreChecks: true });
       dispatch('addHistory', item);
       if (item?.username.toLowerCase() === state.currentPlayer?.toLowerCase()) {
         dispatch('increaseStep');
       }
     });
+  },
+
+  setViewingPlayer({ commit }, username) {
+    commit('updateField', { path: 'viewingPlayer', value: username ?? null });
+    commit('updateField', { path: 'selectedHistoryId', value: null });
   },
 
   setCurrentPlayer({ commit }, player) {
@@ -623,6 +606,9 @@ const actions = {
       pieces.push({ type: 'l', rotation: 0 });
     }
     commit('updateField', { path: 'pieceGeneration', value: pieces });
+    if (state.pieceSelection >= pieces.length) {
+      commit('updateField', { path: 'pieceSelection', value: 0 });
+    }
   },
 
   rotateTetrimino({ state, commit }, rotation) {
@@ -652,15 +638,16 @@ const actions = {
       return;
     }
 
+    const ignoreChecks = cell.ignoreChecks === true;
     let newCells;
     if (state.settings.selectionType !== 'tetris') {
-      newCells = getters.getTetriminoCoords('.', 0, cell.x, cell.y);
+      newCells = getters.getTetriminoCoords('.', 0, cell.x, cell.y, ignoreChecks);
     } else {
       if (!state.pieceDef[cell.type]) {
         cell.type = '.';
       }
       newCells = getters.getTetriminoCoords(cell.type, cell.rotation, cell.x, cell.y, true);
-    } 
+    }
 
     let selectedCells = [...state.selectedCells];
     let trackedCells = [...state.trackedCells];
@@ -709,9 +696,10 @@ const actions = {
     commit('updateField', { path: 'rotation', value: 0 });
     commit('updateField', { path: 'pieceGeneration', value: [] });
     commit('updateField', { path: 'step', value: 0 });
+    commit('updateField', { path: 'viewingPlayer', value: null });
     dispatch('setRNG');
     dispatch('regeneratePieces');
-    dispatch('saveBoard');
+    return dispatch('saveBoard', { clearAll: true });
   },
 
   undoLastAction({ state, commit, dispatch, getters }) {
@@ -753,10 +741,9 @@ const actions = {
 const mutations = {
   updateField,
   SET_PLAYERS: (state, players) => {
-    state.players = {
-      ...state.players, 
-      ...players
-    };
+    if (players !== undefined && players !== null) {
+      state.players = players;
+    }
   }
 };
 

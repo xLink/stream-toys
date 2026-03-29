@@ -7,10 +7,14 @@ export default (endPoint, formData, successCB, failureCB, contentType = 'applica
     console.log('[API_SERVICE][POST] loading ', endPoint, formData);
   }
   store.dispatch('app/setLoading', true);
+  const headers = { 'Content-Type': contentType };
+  const socketId = window.Echo?.socketId?.();
+  if (socketId) {
+    headers['X-Socket-ID'] = socketId;
+  }
+
   axios
-    .post(endPoint, formData, {
-      headers: { 'Content-Type': contentType },
-    })
+    .post(endPoint, formData, { headers })
     .then((response) => {
       if (DebugFlag('ajax')) {
         console.log('[API_SERVICE][POST] success ', endPoint, response.data);

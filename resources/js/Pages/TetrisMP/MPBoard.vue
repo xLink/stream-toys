@@ -1,5 +1,6 @@
 <template>
-  <div class="flex w-full bg-slate-800 p-2 gap-2 items-center">
+  <div class="flex flex-col flex-1 min-h-0 h-full">
+  <div class="flex w-full bg-slate-800 p-2 gap-2 items-center shrink-0">
     <div 
       v-if="selectionType === 'tetris'"
       class="flex flex-row gap-2" 
@@ -18,32 +19,31 @@
     </div>
 
     <div class="flex flex-row text-3xl ml-auto">
-      <RotateIcon 
-        title="Rotate Tetriminos" 
-        class="cursor-pointer" 
-        @click="$store.dispatch('tetrismp/rotateTetrimino')" 
+      <RotateIcon
+        title="Rotate Tetriminos"
+        class="cursor-pointer"
+        @click="$store.dispatch('tetrismp/rotateTetrimino')"
       />
       <SaveIcon
-        :title="`Last Saved: ${lastSaved}`" 
-        class="cursor-pointer text-green-500" 
-        @click="$store.dispatch('tetrismp/saveBoard')" 
+        :title="`Last Saved: ${lastSaved}`"
+        class="cursor-pointer text-green-500"
+        @click="$store.dispatch('tetrismp/saveBoard')"
       />
-      <DeleteIcon v-if="isOwner" title="Clear Board" class="cursor-pointer text-red-500" @click="clearBoard" /> 
+      <DeleteIcon v-if="isOwner" title="Clear Board" class="cursor-pointer text-red-500" @click="clearBoard" />
+      <CompressIcon v-if="boardPopout" title="Close Popup" class="cursor-pointer text-yellow-400" @click="$emit('toggle-popout')" />
+      <ExpandIcon v-else title="Pop Out Board" class="cursor-pointer text-yellow-400" @click="$emit('toggle-popout')" />
     </div>
   </div>
 
-  <div class="flex flex-row overflow-auto scrollbar-thin"
-    :style="{
-      '--calcHeight': 'calc((var(--cellSize) * (var(--rows) + 0.6)) + var(--cellSpacing) + (var(--extraPadding) * 3) + 2.5rem)',
-      '--rows': Math.ceil(selectedPokedexLength / perRow),
-      '--cellSize': cellSize + 'px',
-      '--extraPadding': (cellSpacing / 4) + 'rem',
-      '--cellSpacing': 'calc(var(--extraPadding) * var(--rows))',
-    }"
-  >
-    <div 
-      id="pokeboard" 
-      class="flex flex-col w-full p-2 overflow-auto scrollbar-thin max-h-[--calcHeight]"
+  <div v-if="isReadOnly" class="text-center text-yellow-400 text-sm py-1 bg-slate-900 shrink-0">
+    Viewing {{ viewingPlayer }}'s board (read-only)
+  </div>
+
+  <div class="flex flex-row flex-1 overflow-auto scrollbar-thin min-h-0">
+    <div
+      id="pokeboard"
+      class="flex flex-col w-full p-2 overflow-auto scrollbar-thin"
+      :style="{ '--extraPadding': (cellSpacing / 4) + 'rem' }"
     >
       <div 
         class="flex flex-col gap-[--extraPadding]" 
@@ -56,7 +56,7 @@
           '--halfCellSize': (this.cellSize / 2) + 'px',
         }"
       >
-        <div v-if="showGridCoords === true" class="flex flex-row gap-[--extraPadding]">
+        <div v-if="showGridCoords === true || showGridCoords === 'true'" class="flex flex-row gap-[--extraPadding]">
           <div class="flex min-w-[--halfCellSize]">&nbsp;</div>
           <div 
             v-for="i in perRowKeys"
@@ -70,7 +70,7 @@
           class="flex flex-row gap-[--extraPadding]"
           :data-row="y"
         >
-          <div v-if="showGridCoords === true" class="flex justify-center items-center min-w-[--halfCellSize]">
+          <div v-if="showGridCoords === true || showGridCoords === 'true'" class="flex justify-center items-center min-w-[--halfCellSize]">
             {{ y.toString().padStart(2, '0') }}
           </div>
 
@@ -110,11 +110,11 @@
             {{ trackedCells.length }} Tracked
           </div>
           <div class="flex gap-1 items-center justify-center">
-            <span 
-              class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]" 
+            <span
+              class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]"
               :style="{'--backgroundColor': colors.singleSelect}"
-            ></span> 
-            {{ selectedCells.length }} Caught
+            ></span>
+            {{ viewedSelectedCells.length }} Caught
           </div>
           <div class="flex gap-1 items-center justify-center">
             <span 
@@ -159,6 +159,7 @@
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <script>
@@ -167,6 +168,15 @@ import { mapGetters } from 'vuex';
 
 export default {
   name: 'MPBoard',
+
+  props: {
+    boardPopout: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
+  emits: ['toggle-popout'],
 
   data() {
     return {
@@ -197,9 +207,8 @@ export default {
       }
 
       if (this.search) {
-        if (key === 'Escape') {
-          this.search = false;
-          this.searchText = '';
+        if (key === 'escape') {
+          document.getElementById('searchInput')?.blur();
         }
         if (e.ctrlKey && key === 'f') {
           document.getElementById('searchInput')?.focus();
@@ -255,6 +264,8 @@ export default {
     },
 
     selectCell(x, y) {
+      if (this.isReadOnly) return;
+
       let lastHistoryAction = this.getReverseHistory[0];
       if (lastHistoryAction && lastHistoryAction.x === x && lastHistoryAction.y === y) {
         // if the last action is the same cell, we can just remove it
@@ -267,7 +278,7 @@ export default {
       }
 
       let cell = {
-        type: this.selectionType === 'tetris' ? this.pieceGeneration[this.pieceSelection].type : '.',
+        type: this.selectionType === 'tetris' ? (this.pieceGeneration[this.pieceSelection]?.type ?? '.') : '.',
         rotation: this.rotation,
         x: parseInt(x),
         y: parseInt(y),
@@ -279,10 +290,11 @@ export default {
       this.$store.dispatch('tetrismp/addHistory', cell);
       this.$store.dispatch('tetrismp/regeneratePieces');
       this.$store.dispatch('tetrismp/rotateTetrimino', parseInt(0));
-      this.$store.dispatch('tetrismp/saveBoard');
+      this.$store.dispatch('tetrismp/sendNewCell', cell);
     },
 
     trackCell(x, y) {
+      if (this.isReadOnly) return;
       this.$store.dispatch('tetrismp/toggleTrackCell', { x: parseInt(x), y: parseInt(y) });
       this.$store.dispatch('tetrismp/saveBoard');
     },
@@ -330,6 +342,7 @@ export default {
       'isCellHovered',
       'getReverseHistory',
       'getSelectedCellColor',
+      'viewingUsername',
     ]),
     ...mapFields('tetrismp', [
       'settings.perRow',
@@ -340,11 +353,12 @@ export default {
       'settings.selectionType',
       'mode',
       'currentPlayer',
+      'viewingPlayer',
       'playerColor',
       'lastSaved',
       'cellSize',
       'cellSpacing',
-      'showGridCoords', 
+      'showGridCoords',
       'board',
       'hoverCell',
       'selectedCells',
@@ -361,6 +375,18 @@ export default {
       'players',
     ]),
 
+    isReadOnly() {
+      return this.mode === 'vs'
+        && this.viewingPlayer !== null
+        && this.viewingPlayer?.toLowerCase() !== this.currentPlayer?.toLowerCase();
+    },
+
+    viewedSelectedCells() {
+      if (this.mode !== 'vs') return this.selectedCells;
+      const viewer = this.viewingUsername?.toLowerCase();
+      return this.selectedCells.filter(c => c.username?.toLowerCase() === viewer);
+    },
+
     renderCells() {
       return this.board?.map((row, y) => 
         row.map((pokemon, x) => ({
@@ -368,7 +394,7 @@ export default {
           key: [x, y].join(','),
           class: {
             'border-[--hoverBorderColor]': this.getHighlightedCells.some(cell => cell.x === x && cell.y === y),
-            'opacity-30': (this.search && !pokemon?.name.toLowerCase().includes(this.searchText.toLowerCase())) 
+            'opacity-30': (this.search && !(pokemon?.name ?? '').toLowerCase().includes(this.searchText.toLowerCase()))
               || (this.selectedHistoryId !== null && !this.historyCheck(x, y)),
           },
           style: {
@@ -379,6 +405,7 @@ export default {
     },
 
     getHighlightedCells() {
+      if (this.isReadOnly) return [];
       return this.getTetriminoCoords(this.selectedPiece.type, this.rotation, this.hoverCell.x, this.hoverCell.y);
     },
 

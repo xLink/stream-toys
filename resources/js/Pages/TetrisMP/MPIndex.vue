@@ -9,7 +9,7 @@
     <div class="flex items-center justify-center bg-slate-700 h-20 gap-x-2">
       <div class="flex flex-col">
         <h1 class="text-4xl font-bold text-center">xLinks Catch 'em all</h1>
-        <h5 v-if="loadedUserInfo" class="text-lg text-center">{{ state.name }} - {{ username }}</h5>
+        <h5 v-if="loadedUserInfo" class="text-lg text-center">{{ mode }} - {{ state.name }} - {{ username }}</h5>
       </div>
     </div>
 
@@ -79,23 +79,27 @@
         </Btn>
       </div>
     </section>
-    <section v-else class="flex flex-row w-full">
-      <div class="flex h-screen flex-col transition-all"
+    <section v-else class="flex flex-row w-full overflow-hidden" style="height: calc(100vh - 5rem)">
+      <div class="flex flex-col h-full overflow-hidden transition-all"
         :class="{
           'w-10/12': showSidebar,
           'w-full': !showSidebar,
         }"
       >
         <MPOptions v-if="showOptions" :options-objects="optionsObjects" />
-        <MPBoard />
-        <code>
-          <pre>{{ debug }}</pre>
-        </code>
+        <Teleport to="body" :disabled="!boardPopout">
+          <div
+            :class="boardPopout
+              ? 'fixed inset-0 z-50 bg-slate-900 flex flex-col'
+              : 'flex flex-col flex-1 min-h-0'"
+          >
+            <MPBoard :board-popout="boardPopout" @toggle-popout="boardPopout = !boardPopout" />
+          </div>
+        </Teleport>
       </div>
-      <div v-if="showSidebar" class="relative h-screen bg-slate-700 w-2/12">
+      <div v-if="showSidebar" class="relative bg-slate-700 w-2/12 overflow-y-auto">
         <MPSidebar />
       </div>
-
     </section>
     
 
@@ -104,7 +108,6 @@
 
 <script>
 import { mapFields } from 'vuex-map-fields';
-import { mapGetters } from 'vuex';
 import MPSidebar from '@/Pages/TetrisMP/MPSidebar.vue';
 import MPBoard from '@/Pages/TetrisMP/MPBoard.vue';
 import MPOptions from '@/Pages/TetrisMP/MPOptions.vue';
@@ -149,6 +152,7 @@ export default {
       color: 'red',
       showOptions: false,
       showSidebar: true,
+      boardPopout: false,
 
       onlineUsers: [],
     };
@@ -193,8 +197,23 @@ export default {
     }
 
     this.showSidebar = (localStorage.getItem('showSidebar') === 'true');
-    
+    this.boardPopout = window.location.hash === '#popout';
+
+    const lsKey = ['tetrismp', this.uuid, 'settings'].join('-');
+    const savedSettings = localStorage.getItem(lsKey);
+    if (savedSettings) {
+      try {
+        this.$store.dispatch('tetrismp/setSettings', JSON.parse(savedSettings));
+      } catch (e) {}
+    }
+
+    window.addEventListener('hashchange', this.onHashChange);
+
     this.joinRoom();
+  },
+
+  unmounted() {
+    window.removeEventListener('hashchange', this.onHashChange);
   },
 
   methods: {
@@ -211,8 +230,13 @@ export default {
           this.onlineUsers = this.onlineUsers.filter(u => u.id !== user.id);
         })
         .listen('Tetris\\UpdateBoard', (event) => {
+          const oldPokedex = JSON.stringify(this.$store.state.tetrismp.settings.pokedex);
           this.$store.dispatch('tetrismp/setState', event.objRoom.state);
           this.$store.dispatch('tetrismp/setPlayers', event.objRoom.players);
+          this.$store.dispatch('tetrismp/regeneratePieces');
+          if (JSON.stringify(event.objRoom.state.pokedex) !== oldPokedex) {
+            this.$inertia.reload({ only: ['pokedexData'] });
+          }
         })
         .listen('Tetris\\ClearBoard', (event) => {
           this.$store.dispatch('tetrismp/clearBoard');
@@ -222,6 +246,10 @@ export default {
         })
         .listen('Tetris\\UpdateUsers', (event) => {
           this.$store.dispatch('tetrismp/setPlayers', event.users);
+        })
+        .listen('Tetris\\NewCell', (event) => {
+          this.$store.dispatch('tetrismp/addSelectedCell', { ...event.cell, ignoreChecks: true });
+          this.$store.dispatch('tetrismp/addHistory', event.cell);
         })
       ;
     },
@@ -239,11 +267,46 @@ export default {
       localStorage.setItem('showOptions', !this.showOptions);
       this.showOptions = !this.showOptions;
     },
+
+    onHashChange() {
+      this.boardPopout = window.location.hash === '#popout';
+    },
+  },
+
+  watch: {
+    boardPopout(val) {
+      if (val) {
+        history.replaceState(null, '', '#popout');
+      } else {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    },
+    '$store.state.tetrismp.seed'() {
+      this.$store.dispatch('tetrismp/setBoard', {
+        board: Object.values(this.pokedexData),
+        perRow: this.$store.state.tetrismp.settings.perRow,
+      });
+    },
+
+    '$store.state.tetrismp.settings.perRow'(perRow) {
+      this.$store.dispatch('tetrismp/setBoard', {
+        board: Object.values(this.pokedexData),
+        perRow,
+      });
+    },
+
+    pokedexData(newData) {
+      this.$store.dispatch('tetrismp/setBoard', {
+        board: Object.values(newData),
+        perRow: this.$store.state.tetrismp.settings.perRow,
+      });
+    },
   },
 
   computed: {
     ...mapFields('app', ['defaultTetriminos']),
     ...mapFields('tetrismp', [
+      'mode',
       'pieceDef',
       'pieceGeneration',
       'currentPlayer',

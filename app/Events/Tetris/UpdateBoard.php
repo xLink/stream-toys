@@ -17,12 +17,31 @@ class UpdateBoard extends BaseRoom implements ShouldBroadcastNow
     use Dispatchable, InteractsWithSockets, SerializesModels;
     
     public function __construct(
-        public string $room, 
-        public Room $objRoom
+        public string $room,
+        public Room $objRoom,
+        public bool $clearAll = false,
     )
     {
         parent::__construct($room);
-    }  
+    }
+
+    public function broadcastWith(): array
+    {
+        $this->objRoom->load('players.user', 'pieces.user');
+
+        $state = $this->objRoom->toStateArray();
+
+        if ($this->clearAll) {
+            $state['trackedCells'] = [];
+        }
+
+        return [
+            'objRoom' => [
+                'state'   => $state,
+                'players' => $this->objRoom->toPlayersArray(),
+            ],
+        ];
+    }
 
     /**
      * Get the channels the event should broadcast on.

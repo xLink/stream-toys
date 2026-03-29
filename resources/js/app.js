@@ -14,7 +14,9 @@ import { FontAwesomeIcon, FontAwesomeLayers } from '@fortawesome/vue-fontawesome
 import {
   faBars, faBarsStaggered, faRetweet, faFloppyDisk, faArrowsRotate,
   faTrash as fasTrash, 
-  faCog as fasCog
+  faCog as fasCog,
+  faExpand as fasExpand,
+  faCompress as fasCompress,
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -22,7 +24,8 @@ import {
 } from '@fortawesome/free-brands-svg-icons';
 
 library.add(
-  faRetweet, faBars, faBarsStaggered, faFloppyDisk, faArrowsRotate, fasTrash, faDiscord, fasCog
+  faRetweet, faBars, faBarsStaggered, faFloppyDisk, faArrowsRotate, fasTrash, faDiscord, fasCog,
+  fasExpand, fasCompress
 );
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -58,6 +61,6 @@ createInertiaApp({
     return VueApp;
   },
   progress: {
-      color: '#4B5563',
+    color: '#4B5563',
   },
 });
