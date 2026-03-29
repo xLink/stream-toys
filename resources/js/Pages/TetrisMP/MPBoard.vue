@@ -189,7 +189,7 @@ export default {
     window.addEventListener('keydown', this.handleKeydown);
   },
 
-  destroyed() {
+  unmounted() {
     window.removeEventListener('keydown', this.handleKeydown);
   },
 
@@ -246,7 +246,6 @@ export default {
 
       // ability to select the tetrimino by number key
       if (this.selectionType === 'tetris' && [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].includes(parseInt(key))) {
-        let keys = Object.keys(this.pieceGeneration).map((key) => parseInt(key));
         if (parseInt(key) === 0) {
           this.$store.dispatch('tetrismp/setPieceSelection', 9);
         } else {

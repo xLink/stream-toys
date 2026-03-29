@@ -153,16 +153,14 @@ const getters = {
       return [];
     }
 
-    // console.info('Hover cell x:', state.hoverCell.x, 'perRow:', state.perRow, state.hoverCell.x > state.perRow)
-    if (state.hoverCell.x > state.perRow) {
+    if (state.hoverCell.x >= state.settings.perRow) {
       if (debug) console.error('Hover cell is out of bounds 2:', state.hoverCell.x, state.settings.perRow);
       return [];
     }
 
-    let rowLength = (state.selectedPokedexLength / state.perRow);
-    // console.info('Hover cell y:', state.hoverCell.y, 'rowLength:', rowLength, state.hoverCell.y >= rowLength);
+    let rowLength = Math.ceil(state.settings.selectedPokedexLength / state.settings.perRow);
     if (state.hoverCell.y >= rowLength) {
-      if (debug) console.error('Hover cell is out of bounds 3:', state.hoverCell.y, (state.settings.selectedPokedexLength / state.settings.perRow));
+      if (debug) console.error('Hover cell is out of bounds 3:', state.hoverCell.y, rowLength);
       return [];
     }
 
@@ -218,7 +216,7 @@ const getters = {
 
     let sorted = [...pokedex];
 
-    switch (state.sort) {
+    switch (state.settings.sort) {
       case 'byId':
         sorted.sort((a, b) => a.id - b.id);
         break;
@@ -396,7 +394,8 @@ const actions = {
 
   removeLastCell({ state }) {
     return new Promise((resolve, reject) => {
-      PostRequest(`/tetris-mp/${state.uuid}/remove-last-cell`, 
+      PostRequest(`/tetris-mp/${state.uuid}/remove-last-cell`,
+        {},
         (response) => {
           resolve(response);
         }, (error) => {
