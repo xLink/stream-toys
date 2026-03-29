@@ -65,15 +65,6 @@
           class="w-64"
         />
 
-        <RadioGroup
-          v-model="color"
-          :options="optionsObjects.colors"
-          :use-color-value="true"
-          name="color"
-          label="Select Color"
-          float-label
-          class="w-64 mt-4"
-        />
         <Btn type="success" @click="saveUserToLS()">
           Join Room
         </Btn>
@@ -149,7 +140,7 @@ export default {
   data() {
     return {
       username: '',
-      color: 'red',
+      color: '#ff0000',
       showOptions: false,
       showSidebar: true,
       boardPopout: false,

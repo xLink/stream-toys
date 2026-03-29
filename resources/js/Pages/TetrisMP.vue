@@ -46,6 +46,7 @@
             <RadioGroup
               v-model="roomConfig.color"
               :options="options.colors"
+              :use-color-value="true"
               name="color"
               label="Select Color"
               float-label
