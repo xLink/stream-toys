@@ -17,19 +17,25 @@ class AuthController extends Controller
     public function callback() {
         $discordUser = (array) Socialite::driver('discord')->user();
 
-        $user = User::updateOrCreate(
-            [
-                'auth_id' => $discordUser['id'],
-            ],
-            [
-                'id' => Str::uuid(),
-                'auth_id' => $discordUser['id'],
-                'username' => $discordUser['nickname'] ?? $discordUser['name'],
-                'avatar' => $discordUser['avatar'],
-                'token' => $discordUser['token'],
+        $user = User::where('auth_id', $discordUser['id'])->first();
+
+        if ($user) {
+            $user->update([
+                'username'      => $discordUser['nickname'] ?? $discordUser['name'],
+                'avatar'        => $discordUser['avatar'],
+                'token'         => $discordUser['token'],
                 'refresh_token' => $discordUser['refreshToken'],
-            ]
-        );
+            ]);
+        } else {
+            $user = User::create([
+                'id'            => Str::uuid(),
+                'auth_id'       => $discordUser['id'],
+                'username'      => $discordUser['nickname'] ?? $discordUser['name'],
+                'avatar'        => $discordUser['avatar'],
+                'token'         => $discordUser['token'],
+                'refresh_token' => $discordUser['refreshToken'],
+            ]);
+        }
 
         Auth::login($user);
 
