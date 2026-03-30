@@ -16,17 +16,16 @@ use Illuminate\Support\Facades\Auth;
 
 class TetrisMPController extends Controller
 {
-
     protected array $options = [
         'colors' => [
-            '#00ffff' => '1',
-            '#0000ff' => '2',
-            '#ffa500' => '3',
-            '#ffff00' => '4',
-            '#00ff00' => '5',
-            '#800080' => '6',
-            '#ff0000' => '7',
-            '#138e57' => '8',
+            '#93c5fd' => '1',
+            '#0ea5e9' => '2',
+            '#f97316' => '3',
+            '#eab308' => '4',
+            '#22c55e' => '5',
+            '#ef4444' => '6',
+            '#a855f7' => '7',
+            '#6b7280' => '8',
         ],
         'pokedexes' => [
             'kanto'   => 'Kanto (Gen 1)',
