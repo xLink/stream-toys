@@ -49,9 +49,12 @@ Route::group(['prefix' => 'whos-that-pokemon'], function() {
 
 Route::group(['prefix' => 'hp-bar'], function() {
     Route::get('/', [Controllers\HPBarController::class, 'getIndex'])->name('hp-bar.index');
+    Route::get('/setup', [Controllers\HPBarController::class, 'getSetup'])->name('hp-bar.setup');
+    Route::post('/setup', [Controllers\HPBarController::class, 'postSetup']);
 
     Route::group(['prefix' => '{bar}'], function() {
         Route::get('/', [Controllers\HPBarController::class, 'getIndex'])->name('hp-bar.index');
         Route::any('/update', [Controllers\HPBarController::class, 'update'])->name('hp-bar.update');
+        Route::post('/options', [Controllers\HPBarController::class, 'postOptions'])->name('hp-bar.options');
     })->where('bar', '[a-zA-Z0-9-_]+');
 });

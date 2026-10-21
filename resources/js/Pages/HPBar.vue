@@ -1,6 +1,56 @@
 <template>
   <Layout>
-    <Gen3HP :bar="bar" :max="maxHP" :current="currentHP" :shield="currentShield" />
+    <Gen3HP :bar="bar" :max="maxHP" :current="currentHP" :shield="currentShield" :options="localOptions" />
+
+    <template v-if="showOptions">
+      <div class="flex flex-col gap-4 mt-4 p-4 bg-white dark:bg-slate-800 shadow sm:rounded-lg">
+        <OptionsForm v-model="localOptions">
+          <template #general>
+            <NumberField
+              v-model="maxHP"
+              name="options_max"
+              label="Max HP"
+              :float-label="true"
+              :min="1"
+            />
+            <NumberField
+              v-model="currentHP"
+              name="options_current"
+              label="Current HP"
+              :float-label="true"
+              :min="0"
+              :max="maxHP"
+            />
+            <NumberField
+              v-model="currentShield"
+              name="options_shield"
+              label="Shield"
+              :float-label="true"
+              :min="0"
+            />
+          </template>
+        </OptionsForm>
+
+        <ul
+          v-if="optionErrors.length"
+          class="text-red-500 text-sm list-disc pl-5"
+        >
+          <li
+            v-for="error in optionErrors"
+            :key="error"
+          >
+            {{ error }}
+          </li>
+        </ul>
+
+        <div class="flex items-center gap-4">
+          <Btn type="submit" class="!bg-green-600 hover:!bg-green-700" :disabled="savingOptions" @click="saveOptions">
+            Save Options
+          </Btn>
+          <span v-if="optionsMessage" class="text-sm">{{ optionsMessage }}</span>
+        </div>
+      </div>
+    </template>
 
     <template v-if="update">
       <div class="flex flex-row mt-4 p-4 bg-white dark:bg-slate-800 shadow sm:rounded-lg">
@@ -36,8 +86,7 @@
                   name="shield"
                   label="Shield"
                   :float-label="true"
-                  :min="currentHP"
-                  :max="maxHP"
+                  :min="0"
                   class="!w-32"
                   @change="sendUpdates"
                 />
@@ -86,12 +135,16 @@
 <script>
 import Btn from '@/Components/Forms/Btn.vue';
 import Gen3HP from './HPBar/Gen3HP.vue';
+import OptionsForm from './HPBar/OptionsForm.vue';
+import { applyDamage } from '@/Helpers/hpBar.js';
 import axios from 'axios';
 
 export default {
   name: 'HPBarIndex',
   components: {
+    Btn,
     Gen3HP,
+    OptionsForm,
   },
 
   props: {
@@ -120,6 +173,15 @@ export default {
       required: false,
       default: false,
     },
+    options: {
+      type: Object,
+      required: true,
+    },
+    showOptions: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
 
   data() {
@@ -128,6 +190,10 @@ export default {
       maxHP: 0,
       currentShield: 0,
       modifyHP: 0,
+      localOptions: JSON.parse(JSON.stringify(this.options)),
+      savingOptions: false,
+      optionsMessage: '',
+      optionErrors: [],
     }
   },
 
@@ -142,6 +208,9 @@ export default {
         this.currentHP = parseInt(event.hpBar.current_hp);
         this.maxHP = parseInt(event.hpBar.max_hp);
         this.currentShield = parseInt(event.hpBar.shield);
+        if (event.hpBar.options) {
+          this.localOptions = event.hpBar.options;
+        }
       })
     ;
   },
@@ -154,6 +223,30 @@ export default {
         shield: this.currentShield,
         update: true,
       });
+    },
+    saveOptions() {
+      this.savingOptions = true;
+      this.optionsMessage = '';
+      this.optionErrors = [];
+
+      axios.post(this.route('hp-bar.options', { bar: this.bar }), {
+        max: parseInt(this.maxHP) || 0,
+        current: parseInt(this.currentHP) || 0,
+        shield: parseInt(this.currentShield) || 0,
+        options: this.localOptions,
+      })
+        .then(() => {
+          this.optionsMessage = 'Options saved!';
+        })
+        .catch((error) => {
+          const errors = error.response?.data?.errors;
+          this.optionErrors = errors
+            ? Object.values(errors).flat()
+            : ['Failed to save options.'];
+        })
+        .finally(() => {
+          this.savingOptions = false;
+        });
     },
     addHP(amount) {
       if (amount <= 0) {
@@ -168,19 +261,14 @@ export default {
         amount = 1;
       }
 
-      if (this.currentShield > 0) {
-        // get current shield value
-        let shieldLeft = this.currentShield - parseInt(amount);
-        if (shieldLeft < 0) {
-          // if we go below 0 shield, remove the rest from HP
-          this.currentShield = 0;
-          this.currentHP = Math.max(this.currentHP + shieldLeft, 0);
-        } else {
-          this.currentShield = shieldLeft;
-        }
-      } else {
-        this.currentHP = Math.max(this.currentHP - parseInt(amount), 0);
-      }
+      // shield first, then HP (clamped to the current bar when damage is capped)
+      const result = applyDamage({
+        current: this.currentHP,
+        max: this.maxHP,
+        shield: this.currentShield,
+      }, amount, this.localOptions);
+      this.currentHP = result.current;
+      this.currentShield = result.shield;
 
       this.sendUpdates();
       this.modifyHP = 0;
