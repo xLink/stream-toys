@@ -95,7 +95,7 @@
           class="absolute inset-0 flex items-center pointer-events-none"
           :class="vertical ? 'justify-center items-start pt-1' : 'justify-center'"
         >
-          <div class="shield-text font-extrabold leading-none" :style="{ color: shieldForeground }">
+          <div class="shield-text font-extrabold leading-none px-2 py-0.5 rounded" :style="{ color: shieldForeground, backgroundColor: 'rgba(0, 0, 0, 0.75)' }">
             +{{ shield }}
           </div>
         </div>

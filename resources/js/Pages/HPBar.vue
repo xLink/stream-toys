@@ -27,6 +27,7 @@
               label="Shield"
               :float-label="true"
               :min="0"
+              @change="sendUpdates"
             />
 
             <div class="flex flex-col gap-2 pt-2 border-t border-zinc-300 dark:border-zinc-600">
