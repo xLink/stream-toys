@@ -32,6 +32,9 @@ class HPBars extends Model
 
         return [
             'orientation' => 'horizontal',
+            'shield' => [
+                'display' => 'overlay',
+            ],
             'multi' => [
                 'enabled' => false,
                 'layout' => 'stacked',
@@ -41,6 +44,7 @@ class HPBars extends Model
             'text' => [
                 'position' => 'outside',
                 'font_size' => 36,
+                'shield_position' => 'bar',
             ],
             'bar' => [
                 'thickness' => 80,
@@ -52,6 +56,8 @@ class HPBars extends Model
                 'mode' => 'phases',
                 'solid' => '#22c55e',
                 'background' => '#d1d5db',
+                'shield_background' => '#000000',
+                'shield_foreground' => '#e1e1e1',
                 'phases' => $phases,
             ],
         ];

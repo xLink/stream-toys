@@ -160,8 +160,11 @@ class HPBarController extends Controller
         $hex = 'regex:/^#[0-9a-fA-F]{6}$/';
 
         return [
-            'options' => ['required', 'array:orientation,multi,text,bar,colors'],
+            'options' => ['required', 'array:orientation,shield,multi,text,bar,colors'],
             'options.orientation' => ['required', 'in:horizontal,vertical'],
+
+            'options.shield' => ['required', 'array'],
+            'options.shield.display' => ['required', 'in:overlay,separate,none'],
 
             'options.multi' => ['required', 'array'],
             'options.multi.enabled' => ['required', 'boolean'],
@@ -180,6 +183,7 @@ class HPBarController extends Controller
             'options.text' => ['required', 'array'],
             'options.text.position' => ['required', 'in:inline,outside'],
             'options.text.font_size' => ['required', 'integer', 'min:8', 'max:200'],
+            'options.text.shield_position' => ['required', 'in:bar,text,none'],
 
             'options.bar' => ['required', 'array'],
             'options.bar.thickness' => ['required', 'integer', 'min:10', 'max:200'],
@@ -191,6 +195,8 @@ class HPBarController extends Controller
             'options.colors.mode' => ['required', 'in:solid,phases'],
             'options.colors.solid' => ['required', $hex],
             'options.colors.background' => ['required', $hex],
+            'options.colors.shield_background' => ['required', $hex],
+            'options.colors.shield_foreground' => ['required', $hex],
             'options.colors.phases' => ['required', 'array', 'size:' . HPBars::PHASE_SLOTS],
             'options.colors.phases.*.enabled' => ['required', 'boolean'],
             'options.colors.phases.*.threshold' => ['required', 'integer', 'min:0', 'max:100'],

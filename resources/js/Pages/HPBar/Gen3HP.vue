@@ -39,10 +39,10 @@
               :style="fillStyle(0, seg.fill, seg.color)"
             />
             <div
-              v-if="i === activeIndex && shieldPercent(seg) > 0"
-              class="absolute shield-pattern"
+              v-if="shieldDisplay === 'overlay' && i === activeIndex && shieldPercent(seg) > 0"
+              class="absolute"
               :class="animationClass"
-              :style="shieldStyle(seg)"
+              :style="{ ...shieldStyle(seg), ...shieldPatternStyle }"
             />
           </div>
         </template>
@@ -67,10 +67,10 @@
                 :style="fillStyle(0, seg.fill, seg.color)"
               />
               <div
-                v-if="i === activeIndex && shieldPercent(seg) > 0"
-                class="absolute shield-pattern"
+                v-if="shieldDisplay === 'overlay' && i === activeIndex && shieldPercent(seg) > 0"
+                class="absolute"
               :class="animationClass"
-                :style="shieldStyle(seg)"
+                :style="{ ...shieldStyle(seg), ...shieldPatternStyle }"
               />
             </div>
             <div
@@ -89,6 +89,40 @@
             {{ hpText }}
           </div>
         </div>
+
+        <div
+          v-if="shieldTextPosition === 'bar' && shield > 0"
+          class="absolute inset-0 flex items-center pointer-events-none"
+          :class="vertical ? 'justify-center items-start pt-1' : 'justify-center'"
+        >
+          <div class="shield-text font-extrabold leading-none" :style="{ color: shieldForeground }">
+            +{{ shield }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- separate shield bar -->
+    <div
+      v-if="shieldDisplay === 'separate' && shield > 0"
+      class="flex gap-2"
+      :class="{
+        'flex-row w-full': !vertical,
+        'flex-col items-center': vertical,
+      }"
+    >
+      <div class="flex text-transparent bg-clip-text font-extrabold bg-gradient-to-b from-gray-200 to-gray-500 items-center leading-none">
+        SP:
+      </div>
+      <div
+        class="relative overflow-hidden"
+        :style="shieldTrackStyle"
+      >
+        <div
+          class="absolute"
+          :class="animationClass"
+          :style="{ ...shieldBarFillStyle, ...shieldPatternStyle }"
+        />
       </div>
     </div>
 
@@ -226,21 +260,55 @@ export default {
       const index = this.bars.findIndex((seg) => this.current > seg.from);
       return index === -1 ? this.bars.length - 1 : index;
     },
+    shieldDisplay() {
+      return this.options?.shield?.display ?? 'overlay';
+    },
+    shieldForeground() {
+      return this.options?.colors?.shield_foreground ?? '#e1e1e1';
+    },
+    shieldPatternStyle() {
+      const c = this.shieldForeground;
+      return {
+        backgroundImage: `repeating-linear-gradient(45deg, ${c} 0, ${c} 2px, transparent 0, transparent 50%)`,
+        backgroundSize: '20px 20px',
+      };
+    },
+    shieldTextPosition() {
+      return this.options?.text?.shield_position ?? 'bar';
+    },
+    shieldTrackStyle() {
+      const style = {
+        backgroundColor: this.options?.colors?.shield_background ?? '#000000',
+        borderRadius: this.radius + 'px',
+      };
+      const shieldThickness = Math.max(Math.round(this.thickness * 0.5), 10);
+      if (this.vertical) {
+        return { ...style, width: shieldThickness + 'px', height: '100%' };
+      }
+      return { ...style, height: shieldThickness + 'px', width: '100%' };
+    },
+    shieldBarFillStyle() {
+      const fill = this.safeMax > 0 ? Math.min((this.shield / this.safeMax) * 100, 100) : 0;
+      if (this.vertical) {
+        return { left: 0, right: 0, bottom: 0, height: fill + '%' };
+      }
+      return { top: 0, bottom: 0, left: 0, width: fill + '%' };
+    },
     hpText() {
-      return this.shield > 0
-        ? `${this.current} / ${this.max} (+${this.shield})`
-        : `${this.current} / ${this.max}`;
+      if (this.shieldTextPosition === 'text' && this.shield > 0) {
+        return `${this.current} / ${this.max} (+${this.shield})`;
+      }
+      return `${this.current} / ${this.max}`;
     },
   },
 };
 </script>
 
 <style scoped>
-.shield-pattern {
-  background-image: repeating-linear-gradient(45deg, #e1e1e1 0, #e1e1e1 2px, transparent 0, transparent 50%);
-  background-size: 20px 20px;
-}
 .hp-text {
   text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+}
+.shield-text {
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }
 </style>

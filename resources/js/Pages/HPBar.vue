@@ -28,6 +28,22 @@
               :float-label="true"
               :min="0"
             />
+
+            <div class="flex flex-col gap-2 pt-2 border-t border-zinc-300 dark:border-zinc-600">
+              <div class="font-bold">Modify HP</div>
+              <div class="flex flex-row items-center gap-2">
+                <Btn type="info" @click="addHP(optionsModifyHP)">+</Btn>
+                <NumberField
+                  v-model="optionsModifyHP"
+                  name="options_modifyHP"
+                  :min="0"
+                  :max="maxHP"
+                  class="!w-32"
+                  @keyup.enter="modHP(optionsModifyHP)"
+                />
+                <Btn type="info" @click="removeHP(optionsModifyHP)">-</Btn>
+              </div>
+            </div>
           </template>
         </OptionsForm>
 
@@ -190,6 +206,7 @@ export default {
       maxHP: 0,
       currentShield: 0,
       modifyHP: 0,
+      optionsModifyHP: 0,
       localOptions: JSON.parse(JSON.stringify(this.options)),
       savingOptions: false,
       optionsMessage: '',
@@ -249,16 +266,19 @@ export default {
         });
     },
     addHP(amount) {
+      amount = parseInt(amount) || 0;
       if (amount <= 0) {
-        amount = 1;
+        return;
       }
-      this.currentHP = Math.min(this.currentHP + parseInt(amount), this.maxHP);
+      this.currentHP = Math.min(this.currentHP + amount, this.maxHP);
       this.sendUpdates();
       this.modifyHP = 0;
+      this.optionsModifyHP = 0;
     },
     removeHP(amount) {
+      amount = parseInt(amount) || 0;
       if (amount <= 0) {
-        amount = 1;
+        return;
       }
 
       // shield first, then HP (clamped to the current bar when damage is capped)
@@ -272,6 +292,7 @@ export default {
 
       this.sendUpdates();
       this.modifyHP = 0;
+      this.optionsModifyHP = 0;
     },
     modHP(amount) {
       if (parseInt(amount) > 0) {

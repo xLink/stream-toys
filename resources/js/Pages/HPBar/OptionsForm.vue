@@ -63,6 +63,13 @@
         name="disable_animation"
         label="Disable animations"
       />
+      <RadioGroup
+        v-model="form.shield.display"
+        name="shield_display"
+        label="Shield Display"
+        :float-label="true"
+        :options="{ overlay: 'Overlay on HP bar', separate: 'Separate bar', none: 'Hidden' }"
+      />
     </section>
 
     <!-- Text -->
@@ -76,6 +83,13 @@
         label="HP Text Position"
         :float-label="true"
         :options="{ outside: 'Outside', inline: 'Inline' }"
+      />
+      <RadioGroup
+        v-model="form.text.shield_position"
+        name="shield_position"
+        label="Shield Text"
+        :float-label="true"
+        :options="{ bar: 'On HP bar', text: 'In HP text', none: 'Hidden' }"
       />
       <NumberField
         v-model="form.text.font_size"
@@ -190,6 +204,18 @@
         v-model="form.colors.background"
         name="colors_background"
         label="Background Colour"
+        :float-label="true"
+      />
+      <ColorField
+        v-model="form.colors.shield_background"
+        name="colors_shield_background"
+        label="Shield Background Colour"
+        :float-label="true"
+      />
+      <ColorField
+        v-model="form.colors.shield_foreground"
+        name="colors_shield_foreground"
+        label="Shield Foreground Colour"
         :float-label="true"
       />
 
