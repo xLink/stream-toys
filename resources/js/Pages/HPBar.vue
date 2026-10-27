@@ -68,80 +68,6 @@
       </div>
     </template>
 
-    <template v-if="update">
-      <div class="flex flex-row mt-4 p-4 bg-white dark:bg-slate-800 shadow sm:rounded-lg">
-        <form @submit.prevent>
-          <div class="flex flex-col w-full gap-4">
-            <div class="flex flex-row gap-4">
-              <div class="flex flex-row">
-                <NumberField
-                  v-model="currentHP"
-                  name="currentHP"
-                  label="Current HP"
-                  :float-label="true"
-                  :min="0"
-                  :max="maxHP"
-                  class="!w-32"
-                />
-              </div>
-              <div>
-                <NumberField
-                  v-model="maxHP"
-                  name="maxHP"
-                  label="Max HP"
-                  :float-label="true"
-                  :min="currentHP"
-                  class="!w-32"
-                />
-              </div>
-              <div>
-                <NumberField
-                  v-model="currentShield"
-                  name="shield"
-                  label="Shield"
-                  :float-label="true"
-                  :min="0"
-                  class="!w-32"
-                />
-              </div>
-            </div>
-
-            <div class="flex flex-row gap-4">
-              Modify HP
-            </div>
-
-            <div class="flex flex-row gap-4 ml-[23%]">
-              <div class="pt-1">
-                <Btn type="info" @click="addHP(modifyHP)">
-                  +
-                </Btn>
-              </div>
-              <div>
-                <NumberField
-                  v-model="modifyHP"
-                  name="modifyHP"
-                  :min="0"
-                  :max="maxHP"
-                  class="!w-32"
-                  @keyup.enter="modHP(modifyHP)"
-                />
-              </div>
-              <div class="pt-1">
-                <Btn type="info" @click="removeHP(modifyHP)">
-                  -
-                </Btn>
-              </div>
-            </div>
-
-            <div class="flex">
-              <Btn type="submit" class="mt-4 !bg-green-600 hover:!bg-green-700" @click="sendUpdates">
-                Update
-              </Btn>
-            </div>
-          </div>
-        </form>
-      </div>
-    </template>
   </Layout>
 </template>
 
@@ -181,11 +107,6 @@ export default {
       required: false,
       default: 0,
     },
-    update: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
     options: {
       type: Object,
       required: true,
@@ -202,7 +123,6 @@ export default {
       currentHP: 0,
       maxHP: 0,
       currentShield: 0,
-      modifyHP: 0,
       optionsModifyHP: 0,
       localOptions: JSON.parse(JSON.stringify(this.options)),
       savingOptions: false,
@@ -246,6 +166,20 @@ export default {
         this.$nextTick(() => { this._receivingBroadcast = false; });
       });
 
+    // Private channel for real-time whisper events between admin panels
+    if (this.showOptions) {
+      window.Echo.connector.pusher.config.authEndpoint = '/broadcasting/auth/hp-bar';
+      this._echoChannel = window.Echo.private(channelString);
+      this._echoChannel
+        .listenForWhisper('general-update', (data) => {
+          this._receivingBroadcast = true;
+          this.currentHP = parseInt(data.current);
+          this.maxHP = parseInt(data.max);
+          this.currentShield = parseInt(data.shield);
+          this.$nextTick(() => { this._receivingBroadcast = false; });
+        });
+    }
+
     this.$nextTick(() => { this._initialized = true; });
   },
 
@@ -253,7 +187,13 @@ export default {
     broadcastGeneral() {
       clearTimeout(this._broadcastTimer);
       this._broadcastTimer = setTimeout(() => {
-        this.persistUpdates();
+        if (this._echoChannel) {
+          this._echoChannel.whisper('general-update', {
+            current: this.currentHP,
+            max: this.maxHP,
+            shield: this.currentShield,
+          });
+        }
       }, 300);
     },
     persistUpdates() {
@@ -263,9 +203,6 @@ export default {
         shield: this.currentShield,
         update: true,
       });
-    },
-    sendUpdates() {
-      this.persistUpdates();
     },
     saveOptions() {
       this.savingOptions = true;
@@ -297,7 +234,6 @@ export default {
         amount = 1;
       }
       this.currentHP = Math.min(this.currentHP + amount, this.maxHP);
-      this.modifyHP = 0;
       this.optionsModifyHP = 0;
     },
     removeHP(amount) {
@@ -314,7 +250,6 @@ export default {
       }, amount, this.localOptions);
       this.currentHP = result.current;
       this.currentShield = result.shield;
-      this.modifyHP = 0;
       this.optionsModifyHP = 0;
     },
     modHP(amount) {

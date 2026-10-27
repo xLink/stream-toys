@@ -26,7 +26,6 @@ class HPBarController extends Controller
             'max' => $hpBar->max_hp ?? 0,
             'shield' => $hpBar->shield ?? 0,
             'options' => $hpBar?->options ?? HPBars::defaultOptions(),
-            'update' => request()->boolean('update', false),
             'showOptions' => request()->boolean('options', false),
         ]);
     }

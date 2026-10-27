@@ -47,6 +47,19 @@ Route::group(['prefix' => 'whos-that-pokemon'], function() {
     Route::get('/{generation}', [Controllers\WhosThatPokemonController::class, 'getIndex'])->name('whos-that-pokemon.index');
 });
 
+Route::post('/broadcasting/auth/hp-bar', function (\Illuminate\Http\Request $request) {
+    $channelName = str_replace('private-', '', $request->input('channel_name', ''));
+    if (!str_starts_with($channelName, 'App.HPBar.')) {
+        abort(403);
+    }
+    $pusher = new \Pusher\Pusher(
+        config('broadcasting.connections.reverb.key'),
+        config('broadcasting.connections.reverb.secret'),
+        config('broadcasting.connections.reverb.app_id'),
+    );
+    return response($pusher->authorizeChannel($channelName, $request->input('socket_id')));
+})->name('hp-bar.broadcast-auth');
+
 Route::group(['prefix' => 'hp-bar'], function() {
     Route::get('/', [Controllers\HPBarController::class, 'getIndex'])->name('hp-bar.index');
     Route::get('/setup', [Controllers\HPBarController::class, 'getSetup'])->name('hp-bar.setup');
