@@ -48,8 +48,9 @@ Route::group(['prefix' => 'whos-that-pokemon'], function() {
 });
 
 Route::post('/broadcasting/auth/hp-bar', function (\Illuminate\Http\Request $request) {
-    $channelName = str_replace('private-', '', $request->input('channel_name', ''));
-    if (!str_starts_with($channelName, 'App.HPBar.')) {
+    $channelName = $request->input('channel_name', '');
+    $bare = str_replace('private-', '', $channelName);
+    if (!str_starts_with($bare, 'App.HPBar.')) {
         abort(403);
     }
     $pusher = new \Pusher\Pusher(
@@ -57,7 +58,9 @@ Route::post('/broadcasting/auth/hp-bar', function (\Illuminate\Http\Request $req
         config('broadcasting.connections.reverb.secret'),
         config('broadcasting.connections.reverb.app_id'),
     );
-    return response($pusher->authorizeChannel($channelName, $request->input('socket_id')));
+    return response()->json(
+        json_decode($pusher->authorizeChannel($channelName, $request->input('socket_id')), true)
+    );
 })->name('hp-bar.broadcast-auth');
 
 Route::group(['prefix' => 'hp-bar'], function() {

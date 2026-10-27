@@ -11,4 +11,25 @@ window.Echo = new Echo({
     wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
     forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
     enabledTransports: ['ws', 'wss'],
+    authorizer: (channel) => {
+        const isHPBar = channel.name.includes('App.HPBar.');
+        const endpoint = isHPBar ? '/broadcasting/auth/hp-bar' : '/broadcasting/auth';
+        return {
+            authorize: (socketId, callback) => {
+                fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                        'X-XSRF-TOKEN': decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]*)/)?.[1] || ''),
+                    },
+                    body: JSON.stringify({ socket_id: socketId, channel_name: channel.name }),
+                })
+                    .then(res => res.ok ? res.json() : Promise.reject(res))
+                    .then(data => callback(null, data))
+                    .catch(err => callback(err));
+            },
+        };
+    },
 });

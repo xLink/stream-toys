@@ -168,7 +168,6 @@ export default {
 
     // Private channel for real-time whisper events between admin panels
     if (this.showOptions) {
-      window.Echo.connector.pusher.config.authEndpoint = '/broadcasting/auth/hp-bar';
       this._echoChannel = window.Echo.private(channelString);
       this._echoChannel
         .listenForWhisper('general-update', (data) => {
