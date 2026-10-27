@@ -3,7 +3,7 @@ import _ from 'lodash';
 export default {
   install(app) {
     const componentFiles = import.meta.glob(
-      './**/*.vue',
+      './Components/**/*.vue',
       { eager: true, }
     );
 

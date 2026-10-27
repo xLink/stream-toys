@@ -38,6 +38,21 @@ export default ({ mode }) => {
       }),
     ],
 
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('@fortawesome')) return 'vendor-fontawesome';
+              if (id.includes('vue') || id.includes('@vue') || id.includes('@inertiajs')) return 'vendor-vue';
+              if (id.includes('pusher') || id.includes('laravel-echo')) return 'vendor-echo';
+              return 'vendor';
+            }
+          },
+        },
+      },
+    },
+
     server: {
       host: '0.0.0.0',
       port: process.env.VITE_HMR_PORT,

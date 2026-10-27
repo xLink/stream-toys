@@ -34,8 +34,8 @@ createServer((page) =>
     title: (title) => `${title} - ${appName}`,
     resolve: (name) =>
       resolvePageComponent(
-        `./${name}.vue`,
-        import.meta.glob('./**/*.vue'),
+        `./Pages/${name.replace(/^Pages\//, '')}.vue`,
+        import.meta.glob('./Pages/**/*.vue'),
       ),
     setup({ App, props, plugin }) {
       let VueApp = createSSRApp({ render: () => h(App, props) });
