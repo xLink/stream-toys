@@ -39,14 +39,15 @@ export default ({ mode }) => {
     ],
 
     server: {
-      host: process.env.VITE_HMR_URL,
+      host: '0.0.0.0',
       port: process.env.VITE_HMR_PORT,
+      hmr: {
+        host: process.env.VITE_HMR_URL,
+      },
       watch: {
         ignored: ['**/vendor/**', '**/storage/**'],
       },
-      cors: {
-        origin: '*'
-      },
+      cors: true,
     },
   });
 };

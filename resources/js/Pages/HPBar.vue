@@ -27,7 +27,6 @@
               label="Shield"
               :float-label="true"
               :min="0"
-              @change="sendUpdates"
             />
 
             <div class="flex flex-col gap-2 pt-2 border-t border-zinc-300 dark:border-zinc-600">
@@ -83,7 +82,6 @@
                   :min="0"
                   :max="maxHP"
                   class="!w-32"
-                  @change="sendUpdates"
                 />
               </div>
               <div>
@@ -94,7 +92,6 @@
                   :float-label="true"
                   :min="currentHP"
                   class="!w-32"
-                  @change="sendUpdates"
                 />
               </div>
               <div>
@@ -105,7 +102,6 @@
                   :float-label="true"
                   :min="0"
                   class="!w-32"
-                  @change="sendUpdates"
                 />
               </div>
             </div>
@@ -212,7 +208,22 @@ export default {
       savingOptions: false,
       optionsMessage: '',
       optionErrors: [],
+      _broadcastTimer: null,
+      _receivingBroadcast: false,
+      _initialized: false,
     }
+  },
+
+  watch: {
+    currentHP() {
+      if (this._initialized && !this._receivingBroadcast) this.broadcastGeneral();
+    },
+    maxHP() {
+      if (this._initialized && !this._receivingBroadcast) this.broadcastGeneral();
+    },
+    currentShield() {
+      if (this._initialized && !this._receivingBroadcast) this.broadcastGeneral();
+    },
   },
 
   beforeMount() {
@@ -221,26 +232,40 @@ export default {
     this.currentShield = this.shield;
 
     let channelString = ['App', 'HPBar', this.bar].join('.');
+
+    // Public channel for server-broadcast events (works for unauthenticated overlays)
     window.Echo.channel(channelString)
       .listen('HPBar\\Update', (event) => {
+        this._receivingBroadcast = true;
         this.currentHP = parseInt(event.hpBar.current_hp);
         this.maxHP = parseInt(event.hpBar.max_hp);
         this.currentShield = parseInt(event.hpBar.shield);
         if (event.hpBar.options) {
           this.localOptions = event.hpBar.options;
         }
-      })
-    ;
+        this.$nextTick(() => { this._receivingBroadcast = false; });
+      });
+
+    this.$nextTick(() => { this._initialized = true; });
   },
 
   methods: {
-    sendUpdates() {
+    broadcastGeneral() {
+      clearTimeout(this._broadcastTimer);
+      this._broadcastTimer = setTimeout(() => {
+        this.persistUpdates();
+      }, 300);
+    },
+    persistUpdates() {
       axios.post(this.route('hp-bar.update', { bar: this.bar }), {
         current: this.currentHP,
         max: this.maxHP,
         shield: this.currentShield,
         update: true,
       });
+    },
+    sendUpdates() {
+      this.persistUpdates();
     },
     saveOptions() {
       this.savingOptions = true;
@@ -269,17 +294,16 @@ export default {
     addHP(amount) {
       amount = parseInt(amount) || 0;
       if (amount <= 0) {
-        return;
+        amount = 1;
       }
       this.currentHP = Math.min(this.currentHP + amount, this.maxHP);
-      this.sendUpdates();
       this.modifyHP = 0;
       this.optionsModifyHP = 0;
     },
     removeHP(amount) {
       amount = parseInt(amount) || 0;
       if (amount <= 0) {
-        return;
+        amount = 1;
       }
 
       // shield first, then HP (clamped to the current bar when damage is capped)
@@ -290,8 +314,6 @@ export default {
       }, amount, this.localOptions);
       this.currentHP = result.current;
       this.currentShield = result.shield;
-
-      this.sendUpdates();
       this.modifyHP = 0;
       this.optionsModifyHP = 0;
     },
