@@ -20,9 +20,12 @@
 
 <script>
 import { mapFields } from 'vuex-map-fields';
+import Board from './Tetris/Board.vue';
+import Options from './Tetris/Options.vue';
 
 export default {
   name: 'TetrisIndex',
+  components: { Board, Options },
 
   props: {
     pokedexData: {
