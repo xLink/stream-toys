@@ -235,6 +235,8 @@ class TetrisMPController extends Controller
             'cellSize'             => (int) $request->input('cellSize', 60),
             'cellSpacing'          => (int) $request->input('cellSpacing', 1),
             'boardStatsPosition'   => $request->input('boardStatsPosition', 'bottom'),
+            'shuffleBlanks'        => $request->input('shuffleBlanks', 'false') === 'true',
+            'blankRows'            => $request->input('blankRows', 'false') === 'true',
         ];
         $room->save();
 

@@ -47,6 +47,8 @@ class Room extends Model
             'cellSize'            => $extra['cellSize'] ?? 60,
             'cellSpacing'         => $extra['cellSpacing'] ?? 1,
             'boardStatsPosition'  => $extra['boardStatsPosition'] ?? 'bottom',
+            'shuffleBlanks'       => $extra['shuffleBlanks'] ?? false,
+            'blankRows'           => $extra['blankRows'] ?? false,
             'history'             => $this->pieces()
                 ->where('section', 'history')
                 ->whereHas('user')

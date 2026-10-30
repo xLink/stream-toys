@@ -17,6 +17,8 @@ const state = {
   sort: 'random',
   cellSize: 60,
   cellSpacing: 1,
+  shuffleBlanks: false,
+  blankRows: false,
   
   history: [],
   showHistory: 1,  
@@ -519,27 +521,64 @@ const actions = {
     dispatch('setSelectedPokedexLength', selectedGens.length);
 
     // Sort the selected pokedex based on the selected sort option
-    selectedGens = getters.sortPokedex(selectedGens);
-    selectedGens = selectedGens
-      .reduce((acc, curr, index) => {
-        if (index % state.perRow === 0) {
-          acc.push([]);
+    let sorted = getters.sortPokedex(selectedGens);
+    let numPerRow = parseInt(state.perRow) || 20;
+    let paddingBlanks = sorted.length % numPerRow === 0 ? 0 : numPerRow - (sorted.length % numPerRow);
+    let extraBlanks = (state.blankRows === true || state.blankRows === 'true' || state.blankRows === 1) ? numPerRow : 0;
+    let blanksCount = paddingBlanks + extraBlanks;
+
+    let flat;
+    if ((state.shuffleBlanks === true || state.shuffleBlanks === 'true' || state.shuffleBlanks === 1) && blanksCount > 0) {
+      let totalCells = sorted.length + blanksCount;
+      let rng = new RNG('blanks' + state.seed);
+
+      let nullPositions = new Set();
+      let attempts = 0;
+      let maxAttempts = totalCells * 10;
+      while (nullPositions.size < blanksCount && attempts < maxAttempts) {
+        attempts++;
+        let pos = Math.floor(rng() * totalCells);
+        if (nullPositions.has(pos)) continue;
+        let col = pos % numPerRow;
+        let left = col > 0 ? pos - 1 : -1;
+        let right = col < numPerRow - 1 ? pos + 1 : -1;
+        let above = pos - numPerRow;
+        let below = pos + numPerRow;
+        let adjacent = false;
+        if (left >= 0 && nullPositions.has(left)) adjacent = true;
+        if (right >= 0 && right < totalCells && nullPositions.has(right)) adjacent = true;
+        if (above >= 0 && nullPositions.has(above)) adjacent = true;
+        if (below < totalCells && nullPositions.has(below)) adjacent = true;
+        if (!adjacent) {
+          nullPositions.add(pos);
         }
-        acc[acc.length - 1 > 0 ? acc.length - 1 : 0].push(curr);
+      }
 
-        return acc;
-      }, [])
-    ;
-
-    // last row padding to ensure it meets perRow
-    let lastRow = selectedGens[selectedGens.length - 1];
-    if (lastRow.length < state.perRow) {
-      while (lastRow.length < state.perRow) {
-        lastRow.push(null);
+      flat = new Array(totalCells);
+      let pokemonIdx = 0;
+      for (let i = 0; i < totalCells; i++) {
+        if (nullPositions.has(i)) {
+          flat[i] = null;
+        } else {
+          flat[i] = sorted[pokemonIdx++] || null;
+        }
+      }
+    } else {
+      flat = [...sorted];
+      for (let i = 0; i < blanksCount; i++) {
+        flat.push(null);
       }
     }
 
-    commit('updateField', { path: 'board', value: selectedGens });
+    let updateBoard = flat.reduce((acc, curr, index) => {
+      if (index % numPerRow === 0) {
+        acc.push([]);
+      }
+      acc[acc.length - 1].push(curr);
+      return acc;
+    }, []);
+
+    commit('updateField', { path: 'board', value: updateBoard });
   },
 
   saveBoard({ state, commit }) {
@@ -609,6 +648,8 @@ const actions = {
       sort: 'random',
       cellSize: 60,
       cellSpacing: 1,
+      shuffleBlanks: false,
+      blankRows: false,
       history: [],
       showHistory: 1,
       showGridCoords: 1,

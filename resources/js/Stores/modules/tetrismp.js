@@ -32,6 +32,8 @@ const state = {
   cellSpacing: 1,
   showGridCoords: true,
   boardStatsPosition: 'bottom',
+  shuffleBlanks: false,
+  blankRows: false,
 
   board: [],
   showHistory: true,
@@ -371,6 +373,8 @@ const actions = {
     saveData.append('cellSize', state.cellSize);
     saveData.append('cellSpacing', state.cellSpacing);
     saveData.append('boardStatsPosition', state.boardStatsPosition);
+    saveData.append('shuffleBlanks', state.shuffleBlanks ? 'true' : 'false');
+    saveData.append('blankRows', (state.blankRows === true || state.blankRows === 'true') ? 'true' : 'false');
 
     commit('updateField', { path: 'lastSaved', value: new Date().toISOString() });
     return new Promise((resolve, reject) => {
@@ -436,25 +440,65 @@ const actions = {
     }
 
     // convert the pokedex to a board
-    let updateBoard = getters.sortPokedex(board);
-    updateBoard = updateBoard
-      .reduce((acc, curr, index) => {
-        if (index % perRow === 0) {
-          acc.push([]);
+    let sorted = getters.sortPokedex(board);
+    let numPerRow = parseInt(perRow) || 10;
+    let paddingBlanks = sorted.length % numPerRow === 0 ? 0 : numPerRow - (sorted.length % numPerRow);
+    let extraBlanks = (state.blankRows === true || state.blankRows === 'true') ? numPerRow : 0;
+    let blanksCount = paddingBlanks + extraBlanks;
+
+    let flat;
+    if ((state.shuffleBlanks === true || state.shuffleBlanks === 'true') && blanksCount > 0) {
+      let totalCells = sorted.length + blanksCount;
+      let rng = new RNG('blanks' + state.seed);
+
+      // build a set of positions for nulls
+      let nullPositions = new Set();
+      let attempts = 0;
+      let maxAttempts = totalCells * 10;
+      while (nullPositions.size < blanksCount && attempts < maxAttempts) {
+        attempts++;
+        let pos = Math.floor(rng() * totalCells);
+        if (nullPositions.has(pos)) continue;
+        // check adjacency against already-placed nulls
+        let col = pos % numPerRow;
+        let left = col > 0 ? pos - 1 : -1;
+        let right = col < numPerRow - 1 ? pos + 1 : -1;
+        let above = pos - numPerRow;
+        let below = pos + numPerRow;
+        let adjacent = false;
+        if (left >= 0 && nullPositions.has(left)) adjacent = true;
+        if (right >= 0 && right < totalCells && nullPositions.has(right)) adjacent = true;
+        if (above >= 0 && nullPositions.has(above)) adjacent = true;
+        if (below < totalCells && nullPositions.has(below)) adjacent = true;
+        if (!adjacent) {
+          nullPositions.add(pos);
         }
-        acc[acc.length - 1 > 0 ? acc.length - 1 : 0].push(curr);
+      }
 
-        return acc;
-      }, [])
-    ;
-
-    // last row padding to ensure it meets perRow
-    let lastRow = updateBoard[updateBoard.length - 1];
-    if (lastRow.length < perRow) {
-      while (lastRow.length < perRow) {
-        lastRow.push(null);
+      // build flat array: place nulls at chosen positions, pokemon everywhere else
+      flat = new Array(totalCells);
+      let pokemonIdx = 0;
+      for (let i = 0; i < totalCells; i++) {
+        if (nullPositions.has(i)) {
+          flat[i] = null;
+        } else {
+          flat[i] = sorted[pokemonIdx++] || null;
+        }
+      }
+    } else {
+      flat = [...sorted];
+      for (let i = 0; i < blanksCount; i++) {
+        flat.push(null);
       }
     }
+
+    let updateBoard = flat.reduce((acc, curr, index) => {
+      if (index % numPerRow === 0) {
+        acc.push([]);
+      }
+      acc[acc.length - 1].push(curr);
+      return acc;
+    }, []);
 
     commit('updateField', { path: 'board', value: updateBoard });
     let boardLength = 0;
@@ -502,6 +546,8 @@ const actions = {
     if (data.cellSize !== undefined) commit('updateField', { path: 'cellSize', value: parseInt(data.cellSize) });
     if (data.cellSpacing !== undefined) commit('updateField', { path: 'cellSpacing', value: parseInt(data.cellSpacing) });
     if (data.boardStatsPosition !== undefined) commit('updateField', { path: 'boardStatsPosition', value: data.boardStatsPosition });
+    if (data.shuffleBlanks !== undefined) commit('updateField', { path: 'shuffleBlanks', value: data.shuffleBlanks });
+    if (data.blankRows !== undefined) commit('updateField', { path: 'blankRows', value: data.blankRows });
     dispatch('setHistory', data.history);
   },
 
@@ -526,6 +572,12 @@ const actions = {
     }
     if (settings.boardStatsPosition !== undefined) {
       commit('updateField', { path: 'boardStatsPosition', value: settings.boardStatsPosition });
+    }
+    if (settings.shuffleBlanks !== undefined) {
+      commit('updateField', { path: 'shuffleBlanks', value: settings.shuffleBlanks });
+    }
+    if (settings.blankRows !== undefined) {
+      commit('updateField', { path: 'blankRows', value: settings.blankRows });
     }
   },
 

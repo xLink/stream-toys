@@ -129,6 +129,34 @@
           />
         </div>
       </div>
+
+      <div class="flex gap-2 items-center">
+        <div class="flex gap-2 items-center">
+          <label class="text-lg">Shuffle Blanks:</label>
+          <div class="flex space-x-4">
+            <div v-for="(label, key) in optionsObjects.boolean" :key="'shuffleblanks'+key" class="flex items-center">
+              <label :for="'shuffleblanks'+key">
+                <input type="radio" :id="'shuffleblanks'+key" :name="'shuffleblanks'+key" v-model="shuffleBlanks" :value="key">
+                {{ label }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-2 items-center" :class="{ 'opacity-50 pointer-events-none': shuffleBlanks === false || shuffleBlanks === 'false' }">
+        <div class="flex gap-2 items-center">
+          <label class="text-lg">Extra Blank Row:</label>
+          <div class="flex space-x-4">
+            <div v-for="(label, key) in optionsObjects.boolean" :key="'blankrow'+key" class="flex items-center">
+              <label :for="'blankrow'+key">
+                <input type="radio" :id="'blankrow'+key" :name="'blankrow'+key" v-model="blankRows" :value="key" :disabled="shuffleBlanks === false || shuffleBlanks === 'false'">
+                {{ label }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="flex flex-col gap-2">
@@ -313,6 +341,8 @@ export default {
       'showHistory',
       'showGridCoords',
       'boardStatsPosition',
+      'shuffleBlanks',
+      'blankRows',
       'currentPlayer',
       'playerColor',
     ]),
@@ -365,6 +395,12 @@ export default {
     'settings.tetriminosToGenerate'() {
       if (this.isOwner) {
         this.$store.dispatch('tetrismp/clearBoard');
+      }
+    },
+
+    shuffleBlanks(val) {
+      if (val === false || val === 'false') {
+        this.blankRows = 'false';
       }
     },
 

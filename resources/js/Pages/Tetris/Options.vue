@@ -184,6 +184,34 @@
         </div>
       </div>
 
+      <div class="flex gap-2 items-center">
+        <div class="flex gap-2 items-center">
+          <label class="text-lg">Shuffle Blanks:</label>
+          <div class="flex space-x-4">
+            <div v-for="(label, key) in showHistoryOptions" :key="'shuffleblanks'+key" class="flex items-center">
+              <label :for="'shuffleblanks'+key">
+                <input type="radio" :id="'shuffleblanks'+key" :name="'shuffleblanks'+key" v-model="shuffleBlanks" :value="parseInt(key)">
+                {{ label }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-2 items-center" :class="{ 'opacity-50 pointer-events-none': !shuffleBlanks }">
+        <div class="flex gap-2 items-center">
+          <label class="text-lg">Extra Blank Row:</label>
+          <div class="flex space-x-4">
+            <div v-for="(label, key) in showHistoryOptions" :key="'blankrow'+key" class="flex items-center">
+              <label :for="'blankrow'+key">
+                <input type="radio" :id="'blankrow'+key" :name="'blankrow'+key" v-model="blankRows" :value="parseInt(key)" :disabled="!shuffleBlanks">
+                {{ label }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="flex gap-4 items-center w-full">
         <div class="flex w-1/3">
           <ColorField
@@ -424,11 +452,21 @@ export default {
       'useTetrisColors',
       'showHistory',
       'showGridCoords',
+      'shuffleBlanks',
+      'blankRows',
       'apHideUnseen',
     ]),
     ...mapGetters('archipelago', { apConnected: 'isConnected' }),
     apEnabled() {
       return import.meta.env.VITE_FEATURE_ARCHIPELAGO === 'true';
+    },
+  },
+
+  watch: {
+    shuffleBlanks(val) {
+      if (!val) {
+        this.blankRows = 0;
+      }
     },
   },
 };
