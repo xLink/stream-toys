@@ -22,6 +22,7 @@
           }"
         ></div>
         <span>{{ user.username }}</span>
+        <span v-if="playerCooldowns[user.username]" class="ml-1 text-xs text-yellow-400 animate-pulse">⏳</span>
         <span v-if="mode === 'vs' && user.username?.toLowerCase() === currentPlayer?.toLowerCase()" class="ml-auto text-xs text-slate-400">you</span>
       </li>
     </ul>
@@ -97,6 +98,7 @@ export default {
       'mode',
       'currentPlayer',
       'viewingPlayer',
+      'playerCooldowns',
     ]),
 
     displayHistory() {

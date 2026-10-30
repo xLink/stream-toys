@@ -1,6 +1,20 @@
 <template>
   <Layout>
-    <div class="absolute top-4 right-4 cursor-pointer z-50">
+    <div class="absolute top-4 right-4 cursor-pointer z-50 flex items-center gap-3">
+      <span
+        class="font-bold text-sm px-2 py-1 rounded select-none"
+        :class="wsConnected ? 'bg-green-600 text-white' : 'bg-red-600 text-white'"
+        :title="'WebSocket: ' + wsState"
+      >
+        WS
+      </span>
+      <span
+        class="font-bold text-sm px-2 py-1 rounded select-none"
+        :class="apConnected ? 'bg-green-600 text-white' : 'bg-red-600 text-white'"
+        @click="showAPPanel = !showAPPanel"
+      >
+        AP
+      </span>
       <MenuOpenIcon v-if="showOptions" class="text-white" @click="showOptions = !showOptions" />
       <MenuCloseIcon v-if="!showOptions" class="text-white" @click="showOptions = !showOptions" />
     </div>
@@ -12,20 +26,27 @@
     </div>
 
     <div class="flex flex-col w-full p-4 gap-2">
+      <ArchipelagoPanel
+        v-show="showAPPanel"
+        @connect="$store.dispatch('archipelago/connect')"
+        @disconnect="$store.dispatch('archipelago/disconnect')"
+      />
       <Options v-show="showOptions" />
-      <Board :pokedexData="pokedexData" />
+      <Board :pokedexData="pokedexData" :inputDisabled="showOptions || showAPPanel" :lastSeenPokemon="apLastSeen" :apSeen="apSeen" :apCaught="apCaught" />
     </div>
   </Layout>
 </template>
 
 <script>
 import { mapFields } from 'vuex-map-fields';
+import { mapGetters } from 'vuex';
 import Board from './Tetris/Board.vue';
 import Options from './Tetris/Options.vue';
+import ArchipelagoPanel from './Tetris/ArchipelagoPanel.vue';
 
 export default {
   name: 'TetrisIndex',
-  components: { Board, Options },
+  components: { Board, Options, ArchipelagoPanel },
 
   props: {
     pokedexData: {
@@ -37,21 +58,31 @@ export default {
   data() {
     return {
       showOptions: false,
+      showAPPanel: false,
       username: '',
+      wsState: 'disconnected',
+    }
+  },
+
+  mounted() {
+    if (window.Echo?.connector?.pusher) {
+      const pusher = window.Echo.connector.pusher;
+      this.wsState = pusher.connection?.state || 'disconnected';
+      pusher.connection.bind('state_change', ({ current }) => {
+        this.wsState = current;
+      });
     }
   },
 
   created() {
     let localData = localStorage.getItem('tetris2_save');
 
-    // if we have some local data, try to load it
     let loaded = false;
     if (localData?.trim() !== '') {
       try {
         this.$store.dispatch('tetris2/loadBoard');
         loaded = true;
       } catch (e) {
-        // console.error('Failed to parse saved Tetris data:', e);
       }
     }
 
@@ -67,14 +98,23 @@ export default {
       }
     }
   },
-  
+
+  beforeUnmount() {
+    this.$store.dispatch('archipelago/cleanup');
+  },
+
   computed: {
     ...mapFields('app', ['defaultTetriminos']),
     ...mapFields('tetris2', [
-      'seed', 
-      'rng', 
+      'seed',
+      'rng',
       'pieceDef',
     ]),
+    ...mapFields('archipelago', { apLastSeen: 'lastSeen', apSeen: 'seen', apCaught: 'caught' }),
+    ...mapGetters('archipelago', { apConnected: 'isConnected' }),
+    wsConnected() {
+      return this.wsState === 'connected';
+    },
   },
 };
 </script>

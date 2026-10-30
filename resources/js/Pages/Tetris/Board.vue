@@ -213,6 +213,22 @@ export default {
       type: Object,
       required: true,
     },
+    inputDisabled: {
+      type: Boolean,
+      default: false,
+    },
+    lastSeenPokemon: {
+      type: String,
+      default: '',
+    },
+    apSeen: {
+      type: Array,
+      default: () => [],
+    },
+    apCaught: {
+      type: Array,
+      default: () => [],
+    },
   },
 
   data() {
@@ -240,7 +256,7 @@ export default {
 
   methods: {
     handleKeydown(e) {
-      if (!e.key) {
+      if (!e.key || this.inputDisabled) {
         return;
       }
       let key = e?.key.toLowerCase();
@@ -415,28 +431,47 @@ export default {
       'pieceGeneration',
       'pieceSelection',
       'rotation',
+      'apHideUnseen',
       'selectionType',
 
       'selectedCells',
       'trackedCells',
     ]),
 
+    apSeenSet() {
+      return new Set(this.apSeen.map(p => p.toLowerCase()));
+    },
+
+    apCaughtSet() {
+      return new Set(this.apCaught.map(p => p.toLowerCase()));
+    },
+
     renderCells() {
       this.$store.dispatch('tetris2/generateBoard', this.pokedexData);
 
-      return this.board?.map((row, y) => 
-        row.map((pokemon, x) => ({
-          ...pokemon,
-          key: [x, y].join(','),
-          class: {
-            'border-[--hoverBorderColor]': this.getHighlightedCells.some(cell => cell.x === x && cell.y === y),
-            'opacity-30': (this.search && !pokemon?.name.toLowerCase().includes(this.searchText.toLowerCase())) 
-              || (this.selectedHistoryId !== null && !this.historyCheck(x, y)),
-          },
-          style: {
-            '--backgroundColor': this.figureBgColor(x, y),
-          },
-        }))
+      return this.board?.map((row, y) =>
+        row.map((cell, x) => {
+          const pokemon = cell || {};
+          const name = pokemon.name || '';
+          const hideUnseen = parseInt(this.apHideUnseen) === 1
+            && name
+            && !this.apSeenSet.has(name.toLowerCase());
+          return {
+            ...pokemon,
+            image: hideUnseen ? undefined : pokemon.image,
+            key: [x, y].join(','),
+            class: {
+              'border-[--hoverBorderColor]': this.getHighlightedCells.some(cell => cell.x === x && cell.y === y),
+              'opacity-30': (this.search && !name.toLowerCase().includes(this.searchText.toLowerCase()))
+                || (this.selectedHistoryId !== null && !this.historyCheck(x, y)),
+              'ring-2 ring-yellow-400 ring-offset-1 ring-offset-transparent': this.lastSeenPokemon && name.toLowerCase() === this.lastSeenPokemon.toLowerCase(),
+              'border-2 border-green-400': name && this.apCaughtSet.has(name.toLowerCase()) && !this.selectedCells.some(c => c.x === x && c.y === y),
+            },
+            style: {
+              '--backgroundColor': this.figureBgColor(x, y),
+            },
+          };
+        })
       );
     },
 

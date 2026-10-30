@@ -17,6 +17,7 @@ const state = {
   
   rng: null,
   players: [],
+  playerCooldowns: {},
   settings: {
     perRow: 10,
     sort: 'random',
@@ -571,7 +572,7 @@ const actions = {
     });
   },
 
-  addHistory({ state, commit }, historyItem) {
+  addHistory({ state, commit, dispatch }, historyItem) {
     if (!historyItem || typeof historyItem !== 'object' || !('x' in historyItem) || !('y' in historyItem) || !('type' in historyItem)) {
       return;
     }
@@ -582,6 +583,19 @@ const actions = {
     let history = [...state.history];
     history.push(historyItem);
     commit('updateField', { path: 'history', value: history });
+    if (historyItem.username) {
+      dispatch('startCooldown', historyItem.username);
+    }
+  },
+
+  startCooldown({ state, commit }, username) {
+    const cooldowns = { ...state.playerCooldowns, [username]: true };
+    commit('updateField', { path: 'playerCooldowns', value: cooldowns });
+    setTimeout(() => {
+      const updated = { ...state.playerCooldowns };
+      delete updated[username];
+      commit('updateField', { path: 'playerCooldowns', value: updated });
+    }, 500);
   },
 
   regeneratePieces({ state, getters, commit }) {

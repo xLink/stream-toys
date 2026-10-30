@@ -118,6 +118,20 @@
         </div>
       </div>
 
+      <div v-if="apConnected" class="flex gap-2 items-center">
+        <div class="flex gap-2 items-center">
+          <label class="text-lg">Hide Unseen Pokémon (AP):</label>
+          <div class="flex space-x-4">
+            <div v-for="(label, key) in showHistoryOptions" :key="'apunseen'+key" class="flex items-center">
+              <label :for="'apunseenr'+key">
+                <input type="radio" :id="'apunseenr'+key" :name="'apunseenr'+key" v-model="apHideUnseen" :value="key">
+                {{ label }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="flex gap-4 items-center" v-if="selectionType === 'tetris'">
         <div class="flex space-x-4 w-1/3">
           <RangeField
@@ -410,7 +424,9 @@ export default {
       'useTetrisColors',
       'showHistory',
       'showGridCoords',
+      'apHideUnseen',
     ]),
+    ...mapGetters('archipelago', { apConnected: 'isConnected' }),
   },
 };
 </script>

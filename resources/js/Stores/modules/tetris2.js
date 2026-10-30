@@ -48,6 +48,8 @@ const state = {
     { type: '.', rotation: 0 },
   ],
   pieceDef: {},
+  apHideUnseen: 0,
+
 };
 
 const getters = {
@@ -272,6 +274,10 @@ const getters = {
 };
 
 const actions = {
+  setPokedex({ commit }, pokedex) {
+    commit('updateField', { path: 'pokedex', value: pokedex });
+  },
+
   setSeed({ commit }, seed) {
     if (typeof seed !== 'number' || seed < 0) {
       if (debug) console.error('Invalid seed value provided');
@@ -463,6 +469,23 @@ const actions = {
     }
 
     commit('updateField', { path: 'trackedCells', value: trackedCells });
+  },
+
+  trackByName({ state, commit }, name) {
+    if (!name || !state.board) return;
+    const lower = name.toLowerCase();
+    for (let y = 0; y < state.board.length; y++) {
+      for (let x = 0; x < state.board[y].length; x++) {
+        const cell = state.board[y][x];
+        if (cell?.name?.toLowerCase() === lower) {
+          const already = state.trackedCells.some(c => c.x === x && c.y === y);
+          if (!already) {
+            commit('updateField', { path: 'trackedCells', value: [...state.trackedCells, { x, y }] });
+          }
+          return;
+        }
+      }
+    }
   },
 
   generateBoard({ state, commit, getters, dispatch }, pokedexData) {

@@ -182,6 +182,7 @@ export default {
     return {
       search: false,
       searchText: '',
+      cooldown: false,
     }
   },
 
@@ -264,6 +265,9 @@ export default {
 
     selectCell(x, y) {
       if (this.isReadOnly) return;
+      if (this.cooldown) return;
+      this.cooldown = true;
+      setTimeout(() => { this.cooldown = false; }, 500);
 
       let lastHistoryAction = this.getReverseHistory[0];
       if (lastHistoryAction && lastHistoryAction.x === x && lastHistoryAction.y === y) {
