@@ -80,10 +80,13 @@ export default {
 
     this.pickInitialPlayer();
 
-    // Re-replay history after board is set up to ensure cells are painted
-    if (this.state.history?.length) {
-      this.$store.dispatch('tetrismp/setHistory', this.state.history);
-    }
+    // Re-replay history after player is set to ensure step count is correct
+    this.$store.dispatch('tetrismp/setState', this.state);
+    this.$store.dispatch('tetrismp/setBoard', {
+      board: Object.values(this.pokedexData),
+      perRow: this.state.perRow,
+    });
+    this.$store.dispatch('tetrismp/regeneratePieces');
 
     this.joinSpectatorChannel();
   },
