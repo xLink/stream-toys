@@ -31,6 +31,7 @@ const state = {
   cellSize: 60,
   cellSpacing: 1,
   showGridCoords: true,
+  boardStatsPosition: 'bottom',
 
   board: [],
   showHistory: true,
@@ -514,6 +515,9 @@ const actions = {
     }
     if (settings.useTetrisColors !== undefined) {
       commit('updateField', { path: 'useTetrisColors', value: settings.useTetrisColors });
+    }
+    if (settings.boardStatsPosition !== undefined) {
+      commit('updateField', { path: 'boardStatsPosition', value: settings.boardStatsPosition });
     }
   },
 

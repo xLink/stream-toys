@@ -47,8 +47,70 @@
       class="flex flex-col w-full p-2 overflow-auto scrollbar-thin"
       :style="{ '--extraPadding': (cellSpacing / 4) + 'rem' }"
     >
-      <div 
-        class="flex flex-col gap-[--extraPadding]" 
+      <div v-if="boardStatsPosition === 'top'" class="flex flex-row mb-2">
+        <div class="flex flex-row gap-2" :style="{
+          '--width': '30px',
+          '--height': '30px',
+          '--borderColor': colors.selectedBorder,
+        }">
+          <div class="flex gap-1 items-center justify-center">
+            <span
+              class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]"
+              :style="{'--backgroundColor': colors.trackColor}"
+            ></span>
+            {{ trackedCells.length }} Tracked
+          </div>
+          <div class="flex gap-1 items-center justify-center">
+            <span
+              class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]"
+              :style="{'--backgroundColor': colors.singleSelect}"
+            ></span>
+            {{ viewedSelectedCells.length }} Caught
+          </div>
+          <div class="flex gap-1 items-center justify-center">
+            <span
+              class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]"
+              :style="{'--backgroundColor': colors.background}"
+            ></span>
+            {{ selectedPokedexLength - selectedCells.length - trackedCells.length }} Unknown
+          </div>
+          <div v-if="mode === 'coop' || mode === null" class="flex gap-1 items-center justify-center">
+            <span
+              class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor] items-center justify-center"
+              :style="{'--backgroundColor': colors.background}"
+            >%</span>
+            {{ ((selectedCells.length / selectedPokedexLength) * 100).toFixed(0) }}% Complete
+          </div>
+          <div v-if="mode !== 'coop'" class="flex gap-1 items-center justify-center">
+            <template v-for="(value, color) in percentByColors">
+              <span
+                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor] items-center justify-center"
+                :style="{'--backgroundColor': color}"
+              ></span>
+              {{ value.toFixed(0) }}% Complete
+            </template>
+          </div>
+        </div>
+        <div class="flex ml-auto w-fit gap-2">
+          <div class="flex items-center">
+            ({{ hoverCell.x.toString().padStart(2, '0') }}, {{ hoverCell.y.toString().padStart(2, '0') }})
+          </div>
+          <div class="flex">
+            <input
+              id="searchInputTop"
+              v-model="searchText"
+              placeholder="Search Pokémon..."
+              class="w-full mb-2 text-white p-2 rounded bg-slate-800 ring-transparent focus:ring-0 focus:ring-offset-0 "
+              @click="() => { search = true; }"
+              @keyup.enter="() => { searchText = ''; }"
+              @blur="() => { search = false; searchText = ''; }"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="flex flex-col gap-[--extraPadding]"
         @contextmenu.prevent="() => {}"
         :style="{
           '--width': this.cellSize + 'px',
@@ -60,10 +122,10 @@
       >
         <div v-if="showGridCoords === true || showGridCoords === 'true'" class="flex flex-row gap-[--extraPadding]">
           <div class="flex min-w-[--halfCellSize]">&nbsp;</div>
-          <div 
+          <div
             v-for="i in perRowKeys"
             :key="i.toString().padStart(2, '0')"
-            class="flex justify-center items-center min-w-[--width]" 
+            class="flex justify-center items-center min-w-[--width]"
           >
             {{ i.toString().padStart(2, '0') }}
           </div>
@@ -78,7 +140,7 @@
 
           <div v-for="(pokemon, x) in col"
             class="flex rounded min-w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor] transition-all duration-200 ease-in-out"
-            :key="pokemon.key" 
+            :key="pokemon.key"
             :class="pokemon.class"
             :style="pokemon.style"
             :data-x="x"
@@ -97,18 +159,18 @@
           </div>
         </div>
       </div>
-      
-      <div class="flex flex-row mt-2">
+
+      <div v-if="boardStatsPosition === 'bottom'" class="flex flex-row mt-2">
         <div class="flex flex-row gap-2" :style="{
           '--width': '30px',
           '--height': '30px',
           '--borderColor': colors.selectedBorder,
         }">
           <div class="flex gap-1 items-center justify-center">
-            <span 
-              class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]" 
+            <span
+              class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]"
               :style="{'--backgroundColor': colors.trackColor}"
-            ></span> 
+            ></span>
             {{ trackedCells.length }} Tracked
           </div>
           <div class="flex gap-1 items-center justify-center">
@@ -119,25 +181,25 @@
             {{ viewedSelectedCells.length }} Caught
           </div>
           <div class="flex gap-1 items-center justify-center">
-            <span 
-              class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]" 
+            <span
+              class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]"
               :style="{'--backgroundColor': colors.background}"
-            ></span> 
+            ></span>
             {{ selectedPokedexLength - selectedCells.length - trackedCells.length }} Unknown
           </div>
           <div v-if="mode === 'coop' || mode === null" class="flex gap-1 items-center justify-center">
-            <span 
-              class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor] items-center justify-center" 
+            <span
+              class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor] items-center justify-center"
               :style="{'--backgroundColor': colors.background}"
-            >%</span> 
+            >%</span>
             {{ ((selectedCells.length / selectedPokedexLength) * 100).toFixed(0) }}% Complete
           </div>
           <div v-if="mode !== 'coop'" class="flex gap-1 items-center justify-center">
             <template v-for="(value, color) in percentByColors">
-              <span  
-                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor] items-center justify-center" 
+              <span
+                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor] items-center justify-center"
                 :style="{'--backgroundColor': color}"
-              ></span> 
+              ></span>
               {{ value.toFixed(0) }}% Complete
             </template>
           </div>
@@ -364,6 +426,7 @@ export default {
       'cellSize',
       'cellSpacing',
       'showGridCoords',
+      'boardStatsPosition',
       'board',
       'hoverCell',
       'selectedCells',
