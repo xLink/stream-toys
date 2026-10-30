@@ -69,6 +69,10 @@ export default {
     this.$store.dispatch('tetrismp/setState', this.state);
     this.$store.dispatch('tetrismp/setPlayers', this.players);
     this.$store.dispatch('tetrismp/setPieceDef', this.optionsObjects.defaultTetriminos);
+    this.$store.dispatch('tetrismp/setBoard', {
+      board: Object.values(this.pokedexData),
+      perRow: this.state.perRow,
+    });
     this.$store.dispatch('tetrismp/regeneratePieces');
     this.$store.dispatch('tetrismp/setReadOnly', true);
 
@@ -86,9 +90,13 @@ export default {
       this._channel = ['App', 'TetrisMPSpectator', this.uuid].join('.');
       window.Echo.channel(this._channel)
         .listen('Tetris\\UpdateBoard', (event) => {
+          const oldPokedex = JSON.stringify(this.$store.state.tetrismp.settings.pokedex);
           this.$store.dispatch('tetrismp/setState', event.objRoom.state);
           this.$store.dispatch('tetrismp/setPlayers', event.objRoom.players);
           this.$store.dispatch('tetrismp/regeneratePieces');
+          if (JSON.stringify(event.objRoom.state.pokedex) !== oldPokedex) {
+            this.$inertia.reload({ only: ['pokedexData'] });
+          }
         })
         .listen('Tetris\\ClearBoard', () => {
           this.$store.dispatch('tetrismp/clearBoard');
