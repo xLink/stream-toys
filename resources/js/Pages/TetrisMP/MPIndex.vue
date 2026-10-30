@@ -259,7 +259,10 @@ export default {
         .listen('Tetris\\NewCell', (event) => {
           this.$store.dispatch('tetrismp/addSelectedCell', { ...event.cell, ignoreChecks: true });
           this.$store.dispatch('tetrismp/addHistory', event.cell);
-          this.$store.dispatch('tetrismp/increaseStep');
+          const currentPlayer = this.$store.state.tetrismp.currentPlayer;
+          if (event.cell.username?.toLowerCase() === currentPlayer?.toLowerCase()) {
+            this.$store.dispatch('tetrismp/increaseStep');
+          }
           this.$store.dispatch('tetrismp/regeneratePieces');
         })
       ;
