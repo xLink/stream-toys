@@ -23,9 +23,15 @@
     </div>
 
     <section class="flex overflow-hidden" style="height: calc(100vh - 5rem);">
-      <div class="flex flex-col flex-1 min-h-0">
-        <MPBoard :board-popout="false" :is-read-only="true" />
-      </div>
+      <Teleport to="body" :disabled="!boardPopout">
+        <div
+          :class="boardPopout
+            ? 'fixed inset-0 z-50 bg-slate-900 flex flex-col'
+            : 'flex flex-col flex-1 min-h-0'"
+        >
+          <MPBoard :board-popout="boardPopout" @toggle-popout="boardPopout = !boardPopout" />
+        </div>
+      </Teleport>
       <div class="relative bg-slate-700 w-2/12 overflow-y-auto">
         <MPSidebar />
       </div>
@@ -53,6 +59,7 @@ export default {
   data() {
     return {
       wsState: 'disconnected',
+      boardPopout: false,
     };
   },
 
@@ -152,6 +159,9 @@ export default {
             this.$store.dispatch('tetrismp/increaseStep');
           }
           this.$store.dispatch('tetrismp/regeneratePieces');
+        })
+        .listen('Tetris\\UpdateTrackedCells', (event) => {
+          this.$store.commit('tetrismp/updateField', { path: 'trackedCells', value: event.trackedCells });
         })
       ;
     },

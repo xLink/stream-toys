@@ -337,6 +337,10 @@ class TetrisMPController extends Controller
             RoomPiece::insert($pieces);
         }
 
+        broadcast(
+            new Tetris\UpdateTrackedCells($room->id, $trackedCells)
+        )->toOthers();
+
         return response()->json(['message' => 'Tracked cells saved']);
     }
 

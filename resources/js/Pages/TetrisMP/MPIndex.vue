@@ -265,6 +265,9 @@ export default {
           }
           this.$store.dispatch('tetrismp/regeneratePieces');
         })
+        .listen('Tetris\\UpdateTrackedCells', (event) => {
+          this.$store.commit('tetrismp/updateField', { path: 'trackedCells', value: event.trackedCells });
+        })
       ;
     },
 
