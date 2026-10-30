@@ -17,7 +17,7 @@
       <div class="flex flex-col">
         <h1 class="text-4xl font-bold text-center">xLinks Catch 'em all</h1>
         <h5 class="text-lg text-center">
-          {{ mode }} - {{ name }} (Spectating<span v-if="viewingPlayer"> {{ viewingPlayer }}</span>)
+          {{ mode }} - {{ name }} (Spectating{{ viewingPlayer ? ' ' + viewingPlayer : '' }})
         </h5>
       </div>
     </div>
@@ -79,6 +79,12 @@ export default {
     this.$store.dispatch('tetrismp/setReadOnly', true);
 
     this.pickInitialPlayer();
+
+    // Re-replay history after board is set up to ensure cells are painted
+    if (this.state.history?.length) {
+      this.$store.dispatch('tetrismp/setHistory', this.state.history);
+    }
+
     this.joinSpectatorChannel();
   },
 
