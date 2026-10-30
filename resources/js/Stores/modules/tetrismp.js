@@ -381,6 +381,23 @@ const actions = {
     });
   },
 
+  saveTrackedCells({ state }) {
+    let saveData = new FormData();
+    saveData.append('trackedCells', JSON.stringify(state.trackedCells));
+
+    return new Promise((resolve, reject) => {
+      PostRequest(`/tetris-mp/${state.uuid}/save-tracked`,
+        saveData,
+        (response) => {
+          resolve(response);
+        },
+        (error) => {
+          reject(error);
+        }
+      );
+    });
+  },
+
   sendNewCell({ state }, cell) {
     return new Promise((resolve, reject) => {
       PostRequest(`/tetris-mp/${state.uuid}/add-new-cell`,

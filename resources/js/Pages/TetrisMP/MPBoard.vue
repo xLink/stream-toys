@@ -301,7 +301,7 @@ export default {
     trackCell(x, y) {
       if (this.isReadOnly) return;
       this.$store.dispatch('tetrismp/toggleTrackCell', { x: parseInt(x), y: parseInt(y) });
-      this.$store.dispatch('tetrismp/saveBoard');
+      this.$store.dispatch('tetrismp/saveTrackedCells');
     },
 
     figureBgColor(x, y) {

@@ -244,9 +244,10 @@ class TetrisMPController extends Controller
                 ->keyBy(fn ($p) => strtolower($p->user->username));
 
             $pieces = [];
-            foreach ($history as $cell) {
+            foreach ($history as $index => $cell) {
                 $username = strtolower($cell['username'] ?? '');
                 $userId   = $playersByUsername[$username]?->user_id ?? $room->user_id;
+                $timestamp = $now->copy()->addMilliseconds($index);
 
                 $pieces[] = [
                     'id'         => Str::uuid(),
@@ -257,8 +258,8 @@ class TetrisMPController extends Controller
                     'x'          => $cell['x'],
                     'y'          => $cell['y'],
                     'section'    => 'history',
-                    'created_at' => $now,
-                    'updated_at' => $now,
+                    'created_at' => $timestamp,
+                    'updated_at' => $timestamp,
                 ];
             }
 
@@ -301,6 +302,42 @@ class TetrisMPController extends Controller
         broadcast(
             new Tetris\UpdateBoard($room->id, $room, $clearAll)
         )->toOthers();
+    }
+
+    public function postSaveTrackedCells(Room $room, Request $request): JsonResponse
+    {
+        $trackedCells = json_decode($request->input('trackedCells', '[]'), true) ?: [];
+
+        $isSharedMode = $room->mode === 'coop';
+        $trackedQuery = $room->pieces()->where('section', 'tracked');
+        if (!$isSharedMode) {
+            $trackedQuery->where('user_id', auth()->id());
+        }
+        $trackedQuery->delete();
+
+        if (!empty($trackedCells)) {
+            $trackedUserId = $isSharedMode ? $room->user_id : auth()->id();
+            $now = now();
+            $pieces = [];
+            foreach ($trackedCells as $cell) {
+                $pieces[] = [
+                    'id'         => Str::uuid(),
+                    'room_id'    => $room->id,
+                    'user_id'    => $trackedUserId,
+                    'type'       => '.',
+                    'rotation'   => 0,
+                    'x'          => $cell['x'],
+                    'y'          => $cell['y'],
+                    'section'    => 'tracked',
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
+
+            RoomPiece::insert($pieces);
+        }
+
+        return response()->json(['message' => 'Tracked cells saved']);
     }
 
     public function postUpdatePlayer(Room $room, Request $request)
