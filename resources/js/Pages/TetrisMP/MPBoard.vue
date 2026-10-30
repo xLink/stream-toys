@@ -32,8 +32,8 @@
         />
         <DeleteIcon v-if="isOwner" title="Clear Board" class="cursor-pointer text-red-500" @click="clearBoard" />
       </template>
-      <CompressIcon v-if="boardPopout" title="Close Popup" class="cursor-pointer text-yellow-400" @click="$emit('toggle-popout')" />
-      <ExpandIcon v-else title="Pop Out Board" class="cursor-pointer text-yellow-400" @click="$emit('toggle-popout')" />
+      <span v-if="boardPopout" title="Close Popup" class="cursor-pointer text-yellow-400" @click="$emit('toggle-popout')"><CompressIcon /></span>
+      <span v-else title="Pop Out Board" class="cursor-pointer text-yellow-400" @click="$emit('toggle-popout')"><ExpandIcon /></span>
     </div>
   </div>
 
