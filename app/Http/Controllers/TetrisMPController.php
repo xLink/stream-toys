@@ -231,6 +231,10 @@ class TetrisMPController extends Controller
             'tetriminosToGenerate' => $data['tetriminosToGenerate'],
             'sort'                 => $data['sort'],
             'perPlayer'            => $data['perPlayer'] === 'true',
+            'showGridCoords'       => $request->input('showGridCoords', 'true'),
+            'cellSize'             => (int) $request->input('cellSize', 60),
+            'cellSpacing'          => (int) $request->input('cellSpacing', 1),
+            'boardStatsPosition'   => $request->input('boardStatsPosition', 'bottom'),
         ];
         $room->save();
 

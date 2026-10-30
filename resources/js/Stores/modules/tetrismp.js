@@ -367,6 +367,10 @@ const actions = {
     saveData.append('trackedCells', JSON.stringify(state.trackedCells));
     saveData.append('history', JSON.stringify(state.history));
     saveData.append('clearAll', clearAll ? 'true' : 'false');
+    saveData.append('showGridCoords', state.showGridCoords);
+    saveData.append('cellSize', state.cellSize);
+    saveData.append('cellSpacing', state.cellSpacing);
+    saveData.append('boardStatsPosition', state.boardStatsPosition);
 
     commit('updateField', { path: 'lastSaved', value: new Date().toISOString() });
     return new Promise((resolve, reject) => {
@@ -494,6 +498,10 @@ const actions = {
     if ('trackedCells' in data) {
       commit('updateField', { path: 'trackedCells', value: data.trackedCells });
     }
+    if (data.showGridCoords !== undefined) commit('updateField', { path: 'showGridCoords', value: data.showGridCoords });
+    if (data.cellSize !== undefined) commit('updateField', { path: 'cellSize', value: parseInt(data.cellSize) });
+    if (data.cellSpacing !== undefined) commit('updateField', { path: 'cellSpacing', value: parseInt(data.cellSpacing) });
+    if (data.boardStatsPosition !== undefined) commit('updateField', { path: 'boardStatsPosition', value: data.boardStatsPosition });
     dispatch('setHistory', data.history);
   },
 

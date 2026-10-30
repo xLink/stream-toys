@@ -43,6 +43,10 @@ class Room extends Model
             'sort'                => $extra['sort'] ?? 'random',
             'selectionType'       => $this->selection_type,
             'perPlayer'           => $extra['perPlayer'] ?? false,
+            'showGridCoords'      => $extra['showGridCoords'] ?? 'true',
+            'cellSize'            => $extra['cellSize'] ?? 60,
+            'cellSpacing'         => $extra['cellSpacing'] ?? 1,
+            'boardStatsPosition'  => $extra['boardStatsPosition'] ?? 'bottom',
             'history'             => $this->pieces()
                 ->where('section', 'history')
                 ->whereHas('user')

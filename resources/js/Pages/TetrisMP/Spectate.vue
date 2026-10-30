@@ -85,12 +85,6 @@ export default {
     this.$store.dispatch('tetrismp/regeneratePieces');
     this.$store.dispatch('tetrismp/setReadOnly', true);
 
-    const lsKey = ['tetrismp', this.uuid, 'settings'].join('-');
-    const savedSettings = localStorage.getItem(lsKey);
-    if (savedSettings) {
-      this.$store.dispatch('tetrismp/setSettings', JSON.parse(savedSettings));
-    }
-
     this.pickInitialPlayer();
 
     // Re-replay history after player is set to ensure step count is correct
