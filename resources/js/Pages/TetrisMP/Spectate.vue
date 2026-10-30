@@ -67,7 +67,7 @@ export default {
   },
 
   beforeMount() {
-    this.$store.dispatch('tetrismp/setPieceDef', this.optionsObjects.defaultTetriminos);
+    this.$store.dispatch('tetrismp/setPieceDef', this.$store.state.app.defaultTetriminos);
     this.$store.dispatch('tetrismp/setUuid', this.uuid);
     this.$store.dispatch('tetrismp/setPlayers', this.players);
     this.$store.dispatch('tetrismp/setState', this.state);
