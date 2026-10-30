@@ -16,7 +16,9 @@
     <div class="flex items-center justify-center bg-slate-700 h-20 gap-x-2">
       <div class="flex flex-col">
         <h1 class="text-4xl font-bold text-center">xLinks Catch 'em all</h1>
-        <h5 class="text-lg text-center">{{ mode }} - {{ name }} (Spectating)</h5>
+        <h5 class="text-lg text-center">
+          {{ mode }} - {{ name }} (Spectating<span v-if="viewingPlayer"> {{ viewingPlayer }}</span>)
+        </h5>
       </div>
     </div>
 
@@ -76,6 +78,7 @@ export default {
     this.$store.dispatch('tetrismp/regeneratePieces');
     this.$store.dispatch('tetrismp/setReadOnly', true);
 
+    this.pickInitialPlayer();
     this.joinSpectatorChannel();
   },
 
@@ -86,6 +89,25 @@ export default {
   },
 
   methods: {
+    pickInitialPlayer() {
+      const urlPlayer = new URLSearchParams(window.location.search).get('player');
+      let pick = null;
+
+      if (urlPlayer) {
+        const match = this.players.find(p => p.username.toLowerCase() === urlPlayer.toLowerCase());
+        if (match) pick = match.username;
+      }
+
+      if (!pick && this.players.length >= 1) {
+        pick = this.players[0].username;
+      }
+
+      if (pick) {
+        this.$store.dispatch('tetrismp/setViewingPlayer', pick);
+        this.$store.dispatch('tetrismp/setCurrentPlayer', pick);
+      }
+    },
+
     joinSpectatorChannel() {
       this._channel = ['App', 'TetrisMPSpectator', this.uuid].join('.');
       window.Echo.channel(this._channel)
@@ -116,7 +138,7 @@ export default {
   },
 
   computed: {
-    ...mapFields('tetrismp', ['mode', 'name']),
+    ...mapFields('tetrismp', ['mode', 'name', 'viewingPlayer']),
     wsConnected() {
       return this.wsState === 'connected';
     },

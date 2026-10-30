@@ -10,10 +10,10 @@
         :key="user.id"
         class="flex gap-x-2 px-4 py-2 w-full bg-slate-800 rounded-lg text-ellipsis whitespace-nowrap overflow-hidden"
         :class="{
-          'cursor-pointer hover:bg-slate-600': mode === 'vs',
-          'ring-2 ring-yellow-400': mode === 'vs' && viewingUsername?.toLowerCase() === user.username?.toLowerCase(),
+          'cursor-pointer hover:bg-slate-600': mode === 'vs' || readOnly,
+          'ring-2 ring-yellow-400': (mode === 'vs' || readOnly) && viewingUsername?.toLowerCase() === user.username?.toLowerCase(),
         }"
-        @click="mode === 'vs' && viewPlayer(user.username)"
+        @click="(mode === 'vs' || readOnly) && viewPlayer(user.username)"
       >
         <div
           class="min-w-4 h-4 mt-1 rounded-lg"
@@ -74,6 +74,11 @@ export default {
 
   methods: {
     viewPlayer(username) {
+      if (this.readOnly) {
+        this.$store.dispatch('tetrismp/setViewingPlayer', username);
+        this.$store.dispatch('tetrismp/setCurrentPlayer', username);
+        return;
+      }
       const isCurrentPlayer = username?.toLowerCase() === this.currentPlayer?.toLowerCase();
       const isAlreadyViewing = this.viewingPlayer?.toLowerCase() === username?.toLowerCase();
       if (isCurrentPlayer || isAlreadyViewing) {
@@ -99,6 +104,7 @@ export default {
       'currentPlayer',
       'viewingPlayer',
       'playerCooldowns',
+      'readOnly',
     ]),
 
     displayHistory() {
