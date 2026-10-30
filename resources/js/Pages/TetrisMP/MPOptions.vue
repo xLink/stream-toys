@@ -1,6 +1,6 @@
 <template>
   <div 
-    class="flex flex-col gap-4 bg-black/30 rounded-lg p-4 w-full"
+    class="flex flex-col gap-4 bg-black/30 rounded-lg p-4 w-full max-h-96 overflow-y-auto scrollbar-thin"
   >
     <div v-if="isOwner" class="flex justify-between">
       <div class="flex text-lg mb-4">

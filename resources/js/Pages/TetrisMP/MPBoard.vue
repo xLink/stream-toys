@@ -3,7 +3,7 @@
   <div class="flex w-full bg-slate-800 p-2 gap-2 items-center shrink-0">
     <div
       v-if="selectionType === 'tetris'"
-      class="flex flex-row gap-2"
+      class="flex flex-row gap-2 overflow-x-auto scrollbar-thin"
     >
       <Tetrimino
         v-for="(piece, index) in pieceGeneration"
@@ -91,7 +91,7 @@
             </template>
           </div>
         </div>
-        <div class="flex ml-auto w-fit gap-2">
+        <div v-if="!readOnly" class="flex ml-auto w-fit gap-2">
           <div class="flex items-center">
             ({{ hoverCell.x.toString().padStart(2, '0') }}, {{ hoverCell.y.toString().padStart(2, '0') }})
           </div>
@@ -110,7 +110,7 @@
       </div>
 
       <div
-        class="flex flex-col gap-[--extraPadding]"
+        class="flex flex-col gap-[--extraPadding] w-fit min-w-full"
         @contextmenu.prevent="() => {}"
         :style="{
           '--width': this.cellSize + 'px',
@@ -204,7 +204,7 @@
             </template>
           </div>
         </div>
-        <div class="flex ml-auto w-fit gap-2">
+        <div v-if="!readOnly" class="flex ml-auto w-fit gap-2">
           <div class="flex items-center">
             ({{ hoverCell.x.toString().padStart(2, '0') }}, {{ hoverCell.y.toString().padStart(2, '0') }})
           </div>

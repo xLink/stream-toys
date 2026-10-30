@@ -95,6 +95,9 @@ export default {
     });
     this.$store.dispatch('tetrismp/regeneratePieces');
 
+    this.boardPopout = window.location.hash === '#popout';
+    window.addEventListener('hashchange', this.onHashChange);
+
     this.joinSpectatorChannel();
   },
 
@@ -102,6 +105,7 @@ export default {
     if (this._channel) {
       window.Echo.leave(this._channel);
     }
+    window.removeEventListener('hashchange', this.onHashChange);
   },
 
   methods: {
@@ -122,6 +126,10 @@ export default {
         this.$store.dispatch('tetrismp/setViewingPlayer', pick);
         this.$store.dispatch('tetrismp/setCurrentPlayer', pick);
       }
+    },
+
+    onHashChange() {
+      this.boardPopout = window.location.hash === '#popout';
     },
 
     joinSpectatorChannel() {
@@ -165,6 +173,16 @@ export default {
     ...mapFields('tetrismp', ['mode', 'name', 'viewingPlayer']),
     wsConnected() {
       return this.wsState === 'connected';
+    },
+  },
+
+  watch: {
+    boardPopout(val) {
+      if (val) {
+        history.replaceState(null, '', '#popout');
+      } else {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
     },
   },
 };
