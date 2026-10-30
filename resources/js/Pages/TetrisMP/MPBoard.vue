@@ -2,7 +2,7 @@
   <div class="flex flex-col flex-1 min-h-0 h-full">
   <div class="flex w-full bg-slate-800 p-2 gap-2 items-center shrink-0">
     <div
-      v-if="selectionType === 'tetris' && !readOnly"
+      v-if="selectionType === 'tetris'"
       class="flex flex-row gap-2"
     >
       <Tetrimino
@@ -13,8 +13,8 @@
         :active="pieceSelection === index"
         :pieceDef="pieceDef"
         :colors="colors"
-        @click="$store.dispatch('tetrismp/setPieceSelection', index)"
-        class="bg-slate-700"
+        @click="!readOnly && $store.dispatch('tetrismp/setPieceSelection', index)"
+        :class="readOnly ? 'bg-slate-700 opacity-75 pointer-events-none' : 'bg-slate-700'"
       />
     </div>
 
@@ -37,8 +37,8 @@
     </div>
   </div>
 
-  <div v-if="isReadOnly" class="text-center text-yellow-400 text-sm py-1 bg-slate-900 shrink-0">
-    {{ readOnly ? 'Spectating (read-only)' : `Viewing ${viewingPlayer}'s board (read-only)` }}
+  <div v-if="isReadOnly && !readOnly" class="text-center text-yellow-400 text-sm py-1 bg-slate-900 shrink-0">
+    Viewing {{ viewingPlayer }}'s board (read-only)
   </div>
 
   <div class="flex flex-row flex-1 overflow-auto scrollbar-thin min-h-0">
