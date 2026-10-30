@@ -1,5 +1,15 @@
 <template>
   <Layout>
+    <div class="absolute top-4 right-4 z-50 flex items-center gap-3">
+      <span
+        class="font-bold text-sm px-2 py-1 rounded select-none"
+        :class="wsConnected ? 'bg-green-600 text-white' : 'bg-red-600 text-white'"
+        :title="'WebSocket: ' + wsState"
+      >
+        WS
+      </span>
+    </div>
+
     <div class="flex items-center justify-center bg-slate-700 h-20 gap-x-2">
       <div class="flex">
         <h1 class="text-4xl font-bold text-center">xLinks Catch 'em all</h1>
@@ -170,6 +180,7 @@ export default {
   data() {
     return {
       showOptions: false,
+      wsState: 'disconnected',
       roomConfig: {
         name: null,
         seed: null,
@@ -196,6 +207,16 @@ export default {
       },
       hints: {},
     };
+  },
+
+  mounted() {
+    if (window.Echo?.connector?.pusher) {
+      const pusher = window.Echo.connector.pusher;
+      this.wsState = pusher.connection?.state || 'disconnected';
+      pusher.connection.bind('state_change', ({ current }) => {
+        this.wsState = current;
+      });
+    }
   },
 
   beforeMount() {
@@ -249,6 +270,9 @@ export default {
   },
 
   computed: {
+    wsConnected() {
+      return this.wsState === 'connected';
+    },
   },
 
   watch: {
