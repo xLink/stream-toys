@@ -517,7 +517,7 @@ const actions = {
     }
   },
 
-  setHistory({ commit, dispatch }, history) {
+  setHistory({ state, commit, dispatch }, history) {
     Object.values(history).every(item => {
       if (!item || typeof item !== 'object' || !('x' in item) || !('y' in item) || !('type' in item) || !('rotation' in item)) {
         if (debug) console.error('Invalid history item provided', item);
@@ -526,6 +526,8 @@ const actions = {
     });
     commit('updateField', { path: 'selectedCells', value: [] });
     commit('updateField', { path: 'history', value: [] });
+    commit('updateField', { path: 'step', value: 0 });
+    dispatch('setRNG');
     history.forEach((item) => {
       dispatch('addSelectedCell', { ...item, ignoreChecks: true });
       dispatch('addHistory', item);
@@ -533,6 +535,7 @@ const actions = {
         dispatch('increaseStep');
       }
     });
+    dispatch('regeneratePieces');
   },
 
   setViewingPlayer({ commit }, username) {
