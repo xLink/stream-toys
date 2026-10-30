@@ -284,6 +284,7 @@ export default {
         boardStatsPosition: this.boardStatsPosition,
       };
       localStorage.setItem(this.lsKey, JSON.stringify(settingsToSave));
+      this.$store.dispatch('tetrismp/saveBoard');
     },
   },
 
