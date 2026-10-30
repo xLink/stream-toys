@@ -91,7 +91,7 @@
               ? 'fixed inset-0 z-50 bg-slate-900 flex flex-col'
               : 'flex flex-col flex-1 min-h-0'"
           >
-            <MPBoard :board-popout="boardPopout" @toggle-popout="boardPopout = !boardPopout" />
+            <MPBoard :board-popout="boardPopout" :input-disabled="showOptions" @toggle-popout="boardPopout = !boardPopout" />
           </div>
         </Teleport>
       </div>

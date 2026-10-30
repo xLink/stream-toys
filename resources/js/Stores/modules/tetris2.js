@@ -17,6 +17,7 @@ const state = {
   sort: 'random',
   cellSize: 60,
   cellSpacing: 1,
+  boardStatsPosition: 'bottom',
   shuffleBlanks: false,
   blankRows: false,
   
@@ -648,6 +649,7 @@ const actions = {
       sort: 'random',
       cellSize: 60,
       cellSpacing: 1,
+      boardStatsPosition: 'bottom',
       shuffleBlanks: false,
       blankRows: false,
       history: [],

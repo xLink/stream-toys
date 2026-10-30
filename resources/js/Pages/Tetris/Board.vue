@@ -42,8 +42,48 @@
         id="pokeboard" 
         class="flex flex-col w-full p-2 overflow-auto scrollbar-thin max-h-[--calcHeight]"
       >
-        <div 
-          class="flex flex-col gap-[--extraPadding]" 
+        <div v-if="boardStatsPosition === 'top'" class="flex flex-row mb-2">
+          <div class="flex flex-row gap-2" :style="{
+            '--width': '30px',
+            '--height': '30px',
+            '--borderColor': colors.selectedBorder,
+          }">
+            <div class="flex gap-1 items-center justify-center">
+              <span
+                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]"
+                :style="{'--backgroundColor': colors.trackColor}"
+              ></span>
+              {{ trackedCells.length }} Tracked
+            </div>
+            <div class="flex gap-1 items-center justify-center">
+              <span
+                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]"
+                :style="{'--backgroundColor': colors.singleSelect}"
+              ></span>
+              {{ selectedCells.length }} Caught
+            </div>
+            <div class="flex gap-1 items-center justify-center">
+              <span
+                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]"
+                :style="{'--backgroundColor': colors.background}"
+              ></span>
+              {{ selectedPokedexLength - selectedCells.length - trackedCells.length }} Unknown
+            </div>
+            <div class="flex gap-1 items-center justify-center">
+              <span
+                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor] items-center justify-center"
+                :style="{'--backgroundColor': colors.background}"
+              >%</span>
+              {{ ((selectedCells.length / selectedPokedexLength) * 100).toFixed(0) }}% Complete
+            </div>
+          </div>
+          <div class="flex ml-auto">
+            ({{ hoverCell.x.toString().padStart(2, '0') }}, {{ hoverCell.y.toString().padStart(2, '0') }})
+          </div>
+        </div>
+
+        <div
+          class="flex flex-col gap-[--extraPadding]"
           @contextmenu.prevent="() => {}"
           :style="{
             '--width': this.cellSize + 'px',
@@ -93,38 +133,38 @@
           </div>
         </div>
         
-        <div class="flex flex-row mt-2">
+        <div v-if="boardStatsPosition === 'bottom'" class="flex flex-row mt-2">
           <div class="flex flex-row gap-2" :style="{
             '--width': '30px',
             '--height': '30px',
             '--borderColor': colors.selectedBorder,
           }">
             <div class="flex gap-1 items-center justify-center">
-              <span 
-                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]" 
+              <span
+                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]"
                 :style="{'--backgroundColor': colors.trackColor}"
-              ></span> 
+              ></span>
               {{ trackedCells.length }} Tracked
             </div>
             <div class="flex gap-1 items-center justify-center">
-              <span 
-                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]" 
+              <span
+                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]"
                 :style="{'--backgroundColor': colors.singleSelect}"
-              ></span> 
+              ></span>
               {{ selectedCells.length }} Caught
             </div>
             <div class="flex gap-1 items-center justify-center">
-              <span 
-                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]" 
+              <span
+                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]"
                 :style="{'--backgroundColor': colors.background}"
-              ></span> 
+              ></span>
               {{ selectedPokedexLength - selectedCells.length - trackedCells.length }} Unknown
             </div>
             <div class="flex gap-1 items-center justify-center">
-              <span 
-                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor] items-center justify-center" 
+              <span
+                class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor] items-center justify-center"
                 :style="{'--backgroundColor': colors.background}"
-              >%</span> 
+              >%</span>
               {{ ((selectedCells.length / selectedPokedexLength) * 100).toFixed(0) }}% Complete
             </div>
           </div>
@@ -426,6 +466,7 @@ export default {
       'hoverCell',
       'showHistory',
       'showGridCoords',
+      'boardStatsPosition',
 
       'colors',
       'pieceGeneration',

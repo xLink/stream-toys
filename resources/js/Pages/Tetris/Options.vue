@@ -186,6 +186,20 @@
 
       <div class="flex gap-2 items-center">
         <div class="flex gap-2 items-center">
+          <label class="text-lg">Board Stats:</label>
+          <div class="flex space-x-4">
+            <div v-for="option in ['top', 'bottom', 'hidden']" :key="'stats'+option" class="flex items-center">
+              <label :for="'stats'+option">
+                <input type="radio" :id="'stats'+option" :name="'stats'+option" v-model="boardStatsPosition" :value="option">
+                {{ option.charAt(0).toUpperCase() + option.slice(1) }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-2 items-center">
+        <div class="flex gap-2 items-center">
           <label class="text-lg">Shuffle Blanks:</label>
           <div class="flex space-x-4">
             <div v-for="(label, key) in showHistoryOptions" :key="'shuffleblanks'+key" class="flex items-center">
@@ -452,6 +466,7 @@ export default {
       'useTetrisColors',
       'showHistory',
       'showGridCoords',
+      'boardStatsPosition',
       'shuffleBlanks',
       'blankRows',
       'apHideUnseen',

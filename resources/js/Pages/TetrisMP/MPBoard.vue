@@ -238,6 +238,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    inputDisabled: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   emits: ['toggle-popout'],
@@ -260,7 +264,7 @@ export default {
 
   methods: {
     handleKeydown(e) {
-      if (!e.key) {
+      if (!e.key || this.inputDisabled) {
         return;
       }
       let key = e?.key.toLowerCase();
