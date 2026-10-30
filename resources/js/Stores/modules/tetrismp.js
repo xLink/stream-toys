@@ -18,6 +18,7 @@ const state = {
   rng: null,
   players: [],
   playerCooldowns: {},
+  readOnly: false,
   settings: {
     perRow: 10,
     sort: 'random',
@@ -449,6 +450,10 @@ const actions = {
 
   setUuid({ commit }, uuid) {
     commit('updateField', { path: 'uuid', value: uuid });
+  },
+
+  setReadOnly({ commit }, value) {
+    commit('updateField', { path: 'readOnly', value: !!value });
   },
 
   setPlayers({ commit }, players) {

@@ -119,6 +119,20 @@ class TetrisMPController extends Controller
         ], 200);
     }
 
+    public function spectateRoom(Room $room): iResponse
+    {
+        $pokedexData = app(PokedexService::class)
+            ->getPokemonByMultiDex($room->dexes ?? []);
+
+        return Inertia::render('Pages/TetrisMP/Spectate', [
+            'pokedexData' => $pokedexData,
+            'optionsObjects' => $this->options,
+            'uuid' => $room->id,
+            'players' => $room->toPlayersArray(),
+            'state' => $room->toStateArray(),
+        ]);
+    }
+
     public function loadMPRoom(Room $room): iResponse
     {
         session()->put('tetris-mp-room', $room);

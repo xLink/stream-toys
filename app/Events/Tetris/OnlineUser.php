@@ -19,10 +19,15 @@ class OnlineUser extends BaseRoom implements ShouldBroadcastNow
     public function __construct(
         public string $room,
         public array $user,
-    ) {}
+    ) {
+        parent::__construct($room);
+    }
 
-    public function broadcastOn(): PresenceChannel
+    public function broadcastOn(): array
     {
-        return new PresenceChannel($this->roomStr);
+        return [
+            new PresenceChannel($this->roomStr),
+            new Channel($this->spectatorStr),
+        ];
     }
 }

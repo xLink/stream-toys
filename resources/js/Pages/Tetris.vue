@@ -9,6 +9,7 @@
         WS
       </span>
       <span
+        v-if="apEnabled"
         class="font-bold text-sm px-2 py-1 rounded select-none"
         :class="apConnected ? 'bg-green-600 text-white' : 'bg-red-600 text-white'"
         @click="showAPPanel = !showAPPanel"
@@ -27,12 +28,13 @@
 
     <div class="flex flex-col w-full p-4 gap-2">
       <ArchipelagoPanel
+        v-if="apEnabled"
         v-show="showAPPanel"
         @connect="$store.dispatch('archipelago/connect')"
         @disconnect="$store.dispatch('archipelago/disconnect')"
       />
       <Options v-show="showOptions" />
-      <Board :pokedexData="pokedexData" :inputDisabled="showOptions || showAPPanel" :lastSeenPokemon="apLastSeen" :apSeen="apSeen" :apCaught="apCaught" />
+      <Board :pokedexData="pokedexData" :inputDisabled="showOptions || showAPPanel" :lastSeenPokemon="apEnabled ? apLastSeen : ''" :apSeen="apEnabled ? apSeen : []" :apCaught="apEnabled ? apCaught : []" />
     </div>
   </Layout>
 </template>
@@ -100,7 +102,9 @@ export default {
   },
 
   beforeUnmount() {
-    this.$store.dispatch('archipelago/cleanup');
+    if (this.apEnabled) {
+      this.$store.dispatch('archipelago/cleanup');
+    }
   },
 
   computed: {
@@ -112,6 +116,9 @@ export default {
     ]),
     ...mapFields('archipelago', { apLastSeen: 'lastSeen', apSeen: 'seen', apCaught: 'caught' }),
     ...mapGetters('archipelago', { apConnected: 'isConnected' }),
+    apEnabled() {
+      return import.meta.env.VITE_FEATURE_ARCHIPELAGO === 'true';
+    },
     wsConnected() {
       return this.wsState === 'connected';
     },

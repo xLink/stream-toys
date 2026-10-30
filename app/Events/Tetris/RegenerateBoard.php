@@ -21,8 +21,11 @@ class RegenerateBoard extends BaseRoom implements ShouldBroadcastNow
      *
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
-    public function broadcastOn(): PresenceChannel
+    public function broadcastOn(): array
     {
-        return new PresenceChannel($this->roomStr);
+        return [
+            new PresenceChannel($this->roomStr),
+            new Channel($this->spectatorStr),
+        ];
     }
 }

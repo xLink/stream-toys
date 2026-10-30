@@ -1,9 +1,9 @@
 <template>
   <div class="flex flex-col flex-1 min-h-0 h-full">
   <div class="flex w-full bg-slate-800 p-2 gap-2 items-center shrink-0">
-    <div 
-      v-if="selectionType === 'tetris'"
-      class="flex flex-row gap-2" 
+    <div
+      v-if="selectionType === 'tetris' && !readOnly"
+      class="flex flex-row gap-2"
     >
       <Tetrimino
         v-for="(piece, index) in pieceGeneration"
@@ -19,24 +19,26 @@
     </div>
 
     <div class="flex flex-row text-3xl ml-auto">
-      <RotateIcon
-        title="Rotate Tetriminos"
-        class="cursor-pointer"
-        @click="$store.dispatch('tetrismp/rotateTetrimino')"
-      />
-      <SaveIcon
-        :title="`Last Saved: ${lastSaved}`"
-        class="cursor-pointer text-green-500"
-        @click="$store.dispatch('tetrismp/saveBoard')"
-      />
-      <DeleteIcon v-if="isOwner" title="Clear Board" class="cursor-pointer text-red-500" @click="clearBoard" />
+      <template v-if="!readOnly">
+        <RotateIcon
+          title="Rotate Tetriminos"
+          class="cursor-pointer"
+          @click="$store.dispatch('tetrismp/rotateTetrimino')"
+        />
+        <SaveIcon
+          :title="`Last Saved: ${lastSaved}`"
+          class="cursor-pointer text-green-500"
+          @click="$store.dispatch('tetrismp/saveBoard')"
+        />
+        <DeleteIcon v-if="isOwner" title="Clear Board" class="cursor-pointer text-red-500" @click="clearBoard" />
+      </template>
       <CompressIcon v-if="boardPopout" title="Close Popup" class="cursor-pointer text-yellow-400" @click="$emit('toggle-popout')" />
       <ExpandIcon v-else title="Pop Out Board" class="cursor-pointer text-yellow-400" @click="$emit('toggle-popout')" />
     </div>
   </div>
 
   <div v-if="isReadOnly" class="text-center text-yellow-400 text-sm py-1 bg-slate-900 shrink-0">
-    Viewing {{ viewingPlayer }}'s board (read-only)
+    {{ readOnly ? 'Spectating (read-only)' : `Viewing ${viewingPlayer}'s board (read-only)` }}
   </div>
 
   <div class="flex flex-row flex-1 overflow-auto scrollbar-thin min-h-0">
@@ -376,9 +378,11 @@ export default {
       'pieceDef',
 
       'players',
+      'readOnly',
     ]),
 
     isReadOnly() {
+      if (this.readOnly) return true;
       return this.mode === 'vs'
         && this.viewingPlayer !== null
         && this.viewingPlayer?.toLowerCase() !== this.currentPlayer?.toLowerCase();

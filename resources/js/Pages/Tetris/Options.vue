@@ -118,7 +118,7 @@
         </div>
       </div>
 
-      <div v-if="apConnected" class="flex gap-2 items-center">
+      <div v-if="apEnabled && apConnected" class="flex gap-2 items-center">
         <div class="flex gap-2 items-center">
           <label class="text-lg">Hide Unseen Pokémon (AP):</label>
           <div class="flex space-x-4">
@@ -427,6 +427,9 @@ export default {
       'apHideUnseen',
     ]),
     ...mapGetters('archipelago', { apConnected: 'isConnected' }),
+    apEnabled() {
+      return import.meta.env.VITE_FEATURE_ARCHIPELAGO === 'true';
+    },
   },
 };
 </script>

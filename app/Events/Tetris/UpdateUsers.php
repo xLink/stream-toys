@@ -23,8 +23,11 @@ class UpdateUsers extends BaseRoom implements ShouldBroadcastNow
         parent::__construct($room);
     }  
 
-    public function broadcastOn(): PresenceChannel
+    public function broadcastOn(): array
     {
-        return new PresenceChannel($this->roomStr);
+        return [
+            new PresenceChannel($this->roomStr),
+            new Channel($this->spectatorStr),
+        ];
     }
 }

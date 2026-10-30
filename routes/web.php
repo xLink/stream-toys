@@ -29,6 +29,8 @@ Route::group(['prefix' => 'tetris-mp'], function() {
     Route::get('/', [Controllers\TetrisMPController::class, 'getIndex'])->name('tetris-mp.index');
     Route::post('/', [Controllers\TetrisMPController::class, 'postCreateRoom']);
 
+    Route::get('/{room}/spectate', [Controllers\TetrisMPController::class, 'spectateRoom'])->name('tetris-mp.spectate')->whereUuid('room');
+
     Route::group(['prefix' => '{room}'], function() {
         Route::get('/', [Controllers\TetrisMPController::class, 'loadMPRoom'])->name('tetris-mp.room');
 

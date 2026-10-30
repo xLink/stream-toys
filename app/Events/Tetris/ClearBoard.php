@@ -24,6 +24,7 @@ class ClearBoard extends BaseRoom implements ShouldBroadcastNow
     {
         return [
             new PrivateChannel($this->roomStr),
+            new Channel($this->spectatorStr),
         ];
     }
 }

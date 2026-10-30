@@ -399,6 +399,30 @@ test('room players array lists all players', function () {
     expect($ownerEntry)->toHaveKey('owner');
 });
 
+// --- Spectator ---
+
+test('spectator page loads without auth', function () {
+    $owner = makeMPUser();
+    $room = makeMPRoom($owner);
+
+    $response = $this->get('/tetris-mp/' . $room->id . '/spectate');
+
+    $response->assertStatus(200);
+    $response->assertInertia(fn ($page) => $page
+        ->component('Pages/TetrisMP/Spectate', false)
+        ->has('pokedexData')
+        ->where('uuid', (string) $room->id)
+        ->has('state')
+        ->has('players')
+    );
+});
+
+test('spectator page 404s for non-existent room', function () {
+    $response = $this->get('/tetris-mp/' . \Illuminate\Support\Str::uuid() . '/spectate');
+
+    $response->assertStatus(404);
+});
+
 // --- Game modes ---
 
 test('all three game modes are accepted', function () {
