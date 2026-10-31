@@ -78,14 +78,21 @@
           </div>
 
           <div class="flex gap-4 items-center">
-            <div class="flex gap-2 items-center">
-              <label class="text-lg">Caught Color:</label>
-              <input type="color" v-model="colors.singleSelect" class="cursor-pointer rounded" />
+            <div class="player-color-input flex w-full">
+              <RadioGroup
+                v-model="playerColor"
+                :options="optionsObjects.colors"
+                :use-color-value="true"
+                name="playerColor"
+                label="Player Color"
+                float-label
+              />
             </div>
-            <div class="flex gap-2 items-center">
-              <label class="text-lg">Tracked Color:</label>
-              <input type="color" v-model="colors.trackColor" class="cursor-pointer rounded" />
-            </div>
+          </div>
+
+          <div class="flex gap-2 items-center">
+            <label class="text-md">Tracked Cell Color:</label>
+            <input type="color" v-model="colors.trackColor" class="cursor-pointer rounded" />
           </div>
         </div>
 
@@ -246,8 +253,8 @@ export default {
       'cellSpacing',
       'showGridCoords',
       'boardStatsPosition',
+      'playerColor',
       'colors',
-      'colors.singleSelect',
       'colors.trackColor',
     ]),
     wsConnected() {
