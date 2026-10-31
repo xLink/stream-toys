@@ -63,7 +63,7 @@
           <div class="flex gap-1 items-center justify-center">
             <span
               class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]"
-              :style="{'--backgroundColor': colors.singleSelect}"
+              :style="{'--backgroundColor': caughtColor}"
             ></span>
             {{ viewedSelectedCells.length }} Caught
           </div>
@@ -176,7 +176,7 @@
           <div class="flex gap-1 items-center justify-center">
             <span
               class="flex rounded !w-[--width] h-[--height] bg-[--backgroundColor] border border-[--borderColor]"
-              :style="{'--backgroundColor': colors.singleSelect}"
+              :style="{'--backgroundColor': caughtColor}"
             ></span>
             {{ viewedSelectedCells.length }} Caught
           </div>
@@ -446,7 +446,15 @@ export default {
 
       'players',
       'readOnly',
+      'useTetrisColors',
     ]),
+
+    caughtColor() {
+      if (this.useTetrisColors === 'player' || this.useTetrisColors === true) {
+        return this.playerColor || this.colors.singleSelect;
+      }
+      return this.colors.singleSelect;
+    },
 
     isReadOnly() {
       if (this.readOnly) return true;
