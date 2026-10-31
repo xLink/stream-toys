@@ -20,6 +20,7 @@ const state = {
   boardStatsPosition: 'bottom',
   shuffleBlanks: false,
   blankRows: false,
+  colorBlanks: false,
   
   history: [],
   showHistory: 1,  
@@ -651,6 +652,7 @@ const actions = {
       boardStatsPosition: 'bottom',
       shuffleBlanks: false,
       blankRows: false,
+      colorBlanks: false,
       history: [],
       showHistory: 1,
       showGridCoords: 1,

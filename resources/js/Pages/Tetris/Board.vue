@@ -409,6 +409,11 @@ export default {
         return this.colors.trackColor;
       }
 
+      // color blank cells like caught
+      if ((this.colorBlanks === true || this.colorBlanks === 1) && this.board?.[y]?.[x] === null) {
+        return this.colors.singleSelect;
+      }
+
       // default background color
       return this.colors.background;
     },
@@ -467,6 +472,7 @@ export default {
       'showHistory',
       'showGridCoords',
       'boardStatsPosition',
+      'colorBlanks',
 
       'colors',
       'pieceGeneration',

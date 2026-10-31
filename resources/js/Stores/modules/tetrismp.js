@@ -34,6 +34,7 @@ const state = {
   boardStatsPosition: 'bottom',
   shuffleBlanks: false,
   blankRows: false,
+  colorBlanks: false,
 
   board: [],
   showHistory: true,
@@ -375,6 +376,7 @@ const actions = {
     saveData.append('boardStatsPosition', state.boardStatsPosition);
     saveData.append('shuffleBlanks', state.shuffleBlanks ? 'true' : 'false');
     saveData.append('blankRows', (state.blankRows === true || state.blankRows === 'true') ? 'true' : 'false');
+    saveData.append('colorBlanks', (state.colorBlanks === true || state.colorBlanks === 'true') ? 'true' : 'false');
 
     commit('updateField', { path: 'lastSaved', value: new Date().toISOString() });
     return new Promise((resolve, reject) => {
@@ -548,6 +550,7 @@ const actions = {
     if (data.boardStatsPosition !== undefined) commit('updateField', { path: 'boardStatsPosition', value: data.boardStatsPosition });
     if (data.shuffleBlanks !== undefined) commit('updateField', { path: 'shuffleBlanks', value: data.shuffleBlanks });
     if (data.blankRows !== undefined) commit('updateField', { path: 'blankRows', value: data.blankRows });
+    if (data.colorBlanks !== undefined) commit('updateField', { path: 'colorBlanks', value: data.colorBlanks });
     dispatch('setHistory', data.history);
   },
 
@@ -578,6 +581,9 @@ const actions = {
     }
     if (settings.blankRows !== undefined) {
       commit('updateField', { path: 'blankRows', value: settings.blankRows });
+    }
+    if (settings.colorBlanks !== undefined) {
+      commit('updateField', { path: 'colorBlanks', value: settings.colorBlanks });
     }
   },
 

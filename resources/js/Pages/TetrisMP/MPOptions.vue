@@ -157,6 +157,20 @@
           </div>
         </div>
       </div>
+
+      <div class="flex gap-2 items-center" :class="{ 'opacity-50 pointer-events-none': shuffleBlanks === false || shuffleBlanks === 'false' }">
+        <div class="flex gap-2 items-center">
+          <label class="text-lg">Color Blanks:</label>
+          <div class="flex space-x-4">
+            <div v-for="(label, key) in optionsObjects.boolean" :key="'colorblanks'+key" class="flex items-center">
+              <label :for="'colorblanks'+key">
+                <input type="radio" :id="'colorblanks'+key" :name="'colorblanks'+key" v-model="colorBlanks" :value="key" :disabled="shuffleBlanks === false || shuffleBlanks === 'false'">
+                {{ label }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="flex flex-col gap-2">
@@ -343,6 +357,7 @@ export default {
       'boardStatsPosition',
       'shuffleBlanks',
       'blankRows',
+      'colorBlanks',
       'currentPlayer',
       'playerColor',
     ]),
@@ -401,6 +416,7 @@ export default {
     shuffleBlanks(val) {
       if (val === false || val === 'false') {
         this.blankRows = 'false';
+        this.colorBlanks = 'false';
       }
     },
 

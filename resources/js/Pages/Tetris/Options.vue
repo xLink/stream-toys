@@ -214,6 +214,20 @@
 
       <div class="flex gap-2 items-center" :class="{ 'opacity-50 pointer-events-none': !shuffleBlanks }">
         <div class="flex gap-2 items-center">
+          <label class="text-lg">Color Blanks:</label>
+          <div class="flex space-x-4">
+            <div v-for="(label, key) in showHistoryOptions" :key="'colorblanks'+key" class="flex items-center">
+              <label :for="'colorblanks'+key">
+                <input type="radio" :id="'colorblanks'+key" :name="'colorblanks'+key" v-model="colorBlanks" :value="parseInt(key)" :disabled="!shuffleBlanks">
+                {{ label }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-2 items-center" :class="{ 'opacity-50 pointer-events-none': !shuffleBlanks }">
+        <div class="flex gap-2 items-center">
           <label class="text-lg">Extra Blank Row:</label>
           <div class="flex space-x-4">
             <div v-for="(label, key) in showHistoryOptions" :key="'blankrow'+key" class="flex items-center">
@@ -469,6 +483,7 @@ export default {
       'boardStatsPosition',
       'shuffleBlanks',
       'blankRows',
+      'colorBlanks',
       'apHideUnseen',
     ]),
     ...mapGetters('archipelago', { apConnected: 'isConnected' }),
@@ -481,6 +496,7 @@ export default {
     shuffleBlanks(val) {
       if (!val) {
         this.blankRows = 0;
+        this.colorBlanks = 0;
       }
     },
   },

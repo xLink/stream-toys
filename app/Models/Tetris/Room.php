@@ -49,6 +49,7 @@ class Room extends Model
             'boardStatsPosition'  => $extra['boardStatsPosition'] ?? 'bottom',
             'shuffleBlanks'       => $extra['shuffleBlanks'] ?? false,
             'blankRows'           => $extra['blankRows'] ?? false,
+            'colorBlanks'         => $extra['colorBlanks'] ?? false,
             'history'             => $this->pieces()
                 ->where('section', 'history')
                 ->whereHas('user')

@@ -381,6 +381,11 @@ export default {
         return this.colors.trackColor;
       }
 
+      // color blank cells like caught
+      if ((this.colorBlanks === true || this.colorBlanks === 'true') && this.board?.[y]?.[x] === null) {
+        return this.caughtColor;
+      }
+
       // default background color
       return this.colors.background;
     },
@@ -447,6 +452,7 @@ export default {
       'players',
       'readOnly',
       'useTetrisColors',
+      'colorBlanks',
     ]),
 
     caughtColor() {
