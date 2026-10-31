@@ -219,10 +219,9 @@ const getters = {
       return [];
     }
 
-    let rowLength = (state.selectedPokedexLength / state.perRow);
-    // console.info('Hover cell y:', state.hoverCell.y, 'rowLength:', rowLength, state.hoverCell.y >= rowLength);
+    let rowLength = state.board ? state.board.length : Math.ceil(state.selectedPokedexLength / state.perRow);
     if (state.hoverCell.y >= rowLength) {
-      if (debug) console.error('Hover cell is out of bounds:', state.hoverCell.y, (state.selectedPokedexLength / state.perRow));
+      if (debug) console.error('Hover cell is out of bounds:', state.hoverCell.y, rowLength);
       return [];
     }
 
@@ -237,7 +236,7 @@ const getters = {
     }
 
     // make sure all returnCells are in the grid bounds
-    if (returnCells.some(cell => cell.x < 0 || cell.y < 0 || cell.x >= state.perRow || cell.y >= (state.selectedPokedexLength / state.perRow))) {
+    if (returnCells.some(cell => cell.x < 0 || cell.y < 0 || cell.x >= state.perRow || cell.y >= rowLength)) {
       if (debug) console.error('Some return cells are out of bounds:', returnCells.map(cell => `${cell.x}, ${cell.y}`));
       return [];
     }
