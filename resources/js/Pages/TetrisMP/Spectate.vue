@@ -1,6 +1,6 @@
 <template>
   <layout>
-    <div class="absolute top-4 right-4 z-50 flex items-center gap-3">
+    <div class="absolute top-4 right-4 cursor-pointer z-50 flex items-center gap-3">
       <span
         class="font-bold text-sm px-2 py-1 rounded select-none"
         :class="wsConnected ? 'bg-green-600 text-white' : 'bg-red-600 text-white'"
@@ -8,6 +8,7 @@
       >
         WS
       </span>
+      <OptionsIcon class="text-white" @click="showOptions = !showOptions" />
       <span class="font-bold text-sm px-2 py-1 rounded select-none bg-purple-600 text-white">
         SPECTATOR
       </span>
@@ -23,15 +24,70 @@
     </div>
 
     <section class="flex overflow-hidden" style="height: calc(100vh - 5rem);">
-      <Teleport to="body" :disabled="!boardPopout">
-        <div
-          :class="boardPopout
-            ? 'fixed inset-0 z-50 bg-slate-900 flex flex-col'
-            : 'flex flex-col flex-1 min-h-0'"
-        >
-          <MPBoard :board-popout="boardPopout" @toggle-popout="boardPopout = !boardPopout" />
+      <div class="flex flex-col flex-1 min-h-0">
+        <div v-if="showOptions" class="flex flex-col gap-4 bg-black/30 rounded-lg p-4 w-full max-h-96 overflow-y-auto scrollbar-thin">
+          <h2 class="text-2xl font-bold">Spectator Settings</h2>
+
+          <div class="flex gap-2 items-center">
+            <label class="text-lg">Board Stats:</label>
+            <div class="flex space-x-4">
+              <div v-for="option in ['top', 'bottom', 'hidden']" :key="'stats'+option" class="flex items-center">
+                <label :for="'sstats'+option">
+                  <input type="radio" :id="'sstats'+option" v-model="boardStatsPosition" :value="option">
+                  {{ option.charAt(0).toUpperCase() + option.slice(1) }}
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-2 items-center">
+            <label class="text-lg">Show Grid Co-ords:</label>
+            <div class="flex space-x-4">
+              <div v-for="(label, key) in optionsObjects.boolean" :key="'sgridcoords'+key" class="flex items-center">
+                <label :for="'sgridcoordsc'+key">
+                  <input type="radio" :id="'sgridcoordsc'+key" v-model="showGridCoords" :value="key">
+                  {{ label }}
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-4 items-center">
+            <div class="flex w-1/3">
+              <RangeField
+                v-model="cellSize"
+                name="cellSize"
+                label="Cell Size"
+                float-label
+                :min="10"
+                :max="100"
+                :step="1"
+              />
+            </div>
+            <div class="flex w-1/3">
+              <RangeField
+                v-model="cellSpacing"
+                name="cellSpacing"
+                label="Cell Spacing"
+                float-label
+                :min="0"
+                :max="20"
+                :step="1"
+              />
+            </div>
+          </div>
         </div>
-      </Teleport>
+
+        <Teleport to="body" :disabled="!boardPopout">
+          <div
+            :class="boardPopout
+              ? 'fixed inset-0 z-50 bg-slate-900 flex flex-col'
+              : 'flex flex-col flex-1 min-h-0'"
+          >
+            <MPBoard :board-popout="boardPopout" :input-disabled="showOptions" @toggle-popout="boardPopout = !boardPopout" />
+          </div>
+        </Teleport>
+      </div>
       <div class="relative bg-slate-700 w-2/12 overflow-y-auto">
         <MPSidebar />
       </div>
@@ -60,6 +116,7 @@ export default {
     return {
       wsState: 'disconnected',
       boardPopout: false,
+      showOptions: false,
     };
   },
 
@@ -170,7 +227,15 @@ export default {
   },
 
   computed: {
-    ...mapFields('tetrismp', ['mode', 'name', 'viewingPlayer']),
+    ...mapFields('tetrismp', [
+      'mode',
+      'name',
+      'viewingPlayer',
+      'cellSize',
+      'cellSpacing',
+      'showGridCoords',
+      'boardStatsPosition',
+    ]),
     wsConnected() {
       return this.wsState === 'connected';
     },
