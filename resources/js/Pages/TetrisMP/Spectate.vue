@@ -76,6 +76,17 @@
               />
             </div>
           </div>
+
+          <div class="flex gap-4 items-center">
+            <div class="flex gap-2 items-center">
+              <label class="text-lg">Caught Color:</label>
+              <input type="color" v-model="colors.singleSelect" class="cursor-pointer rounded" />
+            </div>
+            <div class="flex gap-2 items-center">
+              <label class="text-lg">Tracked Color:</label>
+              <input type="color" v-model="colors.trackColor" class="cursor-pointer rounded" />
+            </div>
+          </div>
         </div>
 
         <Teleport to="body" :disabled="!boardPopout">
@@ -235,6 +246,9 @@ export default {
       'cellSpacing',
       'showGridCoords',
       'boardStatsPosition',
+      'colors',
+      'colors.singleSelect',
+      'colors.trackColor',
     ]),
     wsConnected() {
       return this.wsState === 'connected';
