@@ -186,6 +186,20 @@
 
       <div class="flex gap-2 items-center">
         <div class="flex gap-2 items-center">
+          <label class="text-lg">Unique Pieces:</label>
+          <div class="flex space-x-4">
+            <div v-for="(label, key) in showHistoryOptions" :key="'uniquepieces'+key" class="flex items-center">
+              <label :for="'uniquepieces'+key">
+                <input type="radio" :id="'uniquepieces'+key" :name="'uniquepieces'+key" v-model="uniquePieces" :value="parseInt(key)">
+                {{ label }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-2 items-center">
+        <div class="flex gap-2 items-center">
           <label class="text-lg">Board Stats:</label>
           <div class="flex space-x-4">
             <div v-for="option in ['top', 'bottom', 'hidden']" :key="'stats'+option" class="flex items-center">
@@ -484,6 +498,7 @@ export default {
       'shuffleBlanks',
       'blankRows',
       'colorBlanks',
+      'uniquePieces',
       'apHideUnseen',
     ]),
     ...mapGetters('archipelago', { apConnected: 'isConnected' }),
@@ -493,6 +508,11 @@ export default {
   },
 
   watch: {
+    seed() {
+      this.$store.dispatch('tetris2/setRNG');
+      this.$store.dispatch('tetris2/regeneratePieces');
+    },
+
     shuffleBlanks(val) {
       if (!val) {
         this.blankRows = 0;

@@ -171,6 +171,20 @@
           </div>
         </div>
       </div>
+
+      <div class="flex gap-2 items-center">
+        <div class="flex gap-2 items-center">
+          <label class="text-lg">Unique Pieces:</label>
+          <div class="flex space-x-4">
+            <div v-for="(label, key) in optionsObjects.boolean" :key="'uniquepieces'+key" class="flex items-center">
+              <label :for="'uniquepieces'+key">
+                <input type="radio" :id="'uniquepieces'+key" :name="'uniquepieces'+key" v-model="uniquePieces" :value="key">
+                {{ label }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="flex flex-col gap-2">
@@ -358,6 +372,7 @@ export default {
       'shuffleBlanks',
       'blankRows',
       'colorBlanks',
+      'uniquePieces',
       'currentPlayer',
       'playerColor',
     ]),

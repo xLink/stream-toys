@@ -35,6 +35,7 @@ const state = {
   shuffleBlanks: false,
   blankRows: false,
   colorBlanks: false,
+  uniquePieces: false,
 
   board: [],
   showHistory: true,
@@ -377,6 +378,7 @@ const actions = {
     saveData.append('shuffleBlanks', state.shuffleBlanks ? 'true' : 'false');
     saveData.append('blankRows', (state.blankRows === true || state.blankRows === 'true') ? 'true' : 'false');
     saveData.append('colorBlanks', (state.colorBlanks === true || state.colorBlanks === 'true') ? 'true' : 'false');
+    saveData.append('uniquePieces', (state.uniquePieces === true || state.uniquePieces === 'true') ? 'true' : 'false');
 
     commit('updateField', { path: 'lastSaved', value: new Date().toISOString() });
     return new Promise((resolve, reject) => {
@@ -551,6 +553,7 @@ const actions = {
     if (data.shuffleBlanks !== undefined) commit('updateField', { path: 'shuffleBlanks', value: data.shuffleBlanks });
     if (data.blankRows !== undefined) commit('updateField', { path: 'blankRows', value: data.blankRows });
     if (data.colorBlanks !== undefined) commit('updateField', { path: 'colorBlanks', value: data.colorBlanks });
+    if (data.uniquePieces !== undefined) commit('updateField', { path: 'uniquePieces', value: data.uniquePieces });
     dispatch('setHistory', data.history);
   },
 
@@ -584,6 +587,9 @@ const actions = {
     }
     if (settings.colorBlanks !== undefined) {
       commit('updateField', { path: 'colorBlanks', value: settings.colorBlanks });
+    }
+    if (settings.uniquePieces !== undefined) {
+      commit('updateField', { path: 'uniquePieces', value: settings.uniquePieces });
     }
   },
 
@@ -700,8 +706,18 @@ const actions = {
     }
 
     const pieces = [];
-    for (let i = 0; i < state.settings.tetriminosToGenerate; i++) {
-      pieces.push(getters.getRandomPiece(i));
+    const uniqueEnabled = state.uniquePieces === true || state.uniquePieces === 'true';
+    const usedTypes = new Set();
+    const maxTypes = Object.keys(state.pieceDef).filter(t => t !== '.').length;
+    let index = 0;
+    const maxAttempts = state.settings.tetriminosToGenerate * 20;
+    while (pieces.length < state.settings.tetriminosToGenerate && index < maxAttempts) {
+      let piece = getters.getRandomPiece(index);
+      index++;
+      if (uniqueEnabled && usedTypes.has(piece.type)) continue;
+      usedTypes.add(piece.type);
+      pieces.push(piece);
+      if (uniqueEnabled && usedTypes.size >= maxTypes) break;
     }
     pieces.push({ type: '.', rotation: 0 });
     if (debug) {

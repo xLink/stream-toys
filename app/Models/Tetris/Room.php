@@ -50,6 +50,7 @@ class Room extends Model
             'shuffleBlanks'       => $extra['shuffleBlanks'] ?? false,
             'blankRows'           => $extra['blankRows'] ?? false,
             'colorBlanks'         => $extra['colorBlanks'] ?? false,
+            'uniquePieces'        => $extra['uniquePieces'] ?? false,
             'history'             => $this->pieces()
                 ->where('section', 'history')
                 ->whereHas('user')

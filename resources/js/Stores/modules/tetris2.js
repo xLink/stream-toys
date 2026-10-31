@@ -21,7 +21,8 @@ const state = {
   shuffleBlanks: false,
   blankRows: false,
   colorBlanks: false,
-  
+  uniquePieces: false,
+
   history: [],
   showHistory: 1,  
   showGridCoords: 1,
@@ -364,8 +365,18 @@ const actions = {
     }
 
     const pieces = [];
-    for (let i = 0; i < state.tetriminosToGenerate; i++) {
-      pieces.push(getters.getRandomPiece(i));
+    const uniqueEnabled = state.uniquePieces === true || state.uniquePieces === 1;
+    const usedTypes = new Set();
+    const maxTypes = Object.keys(state.pieceDef).filter(t => t !== '.').length;
+    let index = 0;
+    const maxAttempts = state.tetriminosToGenerate * 20;
+    while (pieces.length < state.tetriminosToGenerate && index < maxAttempts) {
+      let piece = getters.getRandomPiece(index);
+      index++;
+      if (uniqueEnabled && usedTypes.has(piece.type)) continue;
+      usedTypes.add(piece.type);
+      pieces.push(piece);
+      if (uniqueEnabled && usedTypes.size >= maxTypes) break;
     }
     pieces.push({ type: '.', rotation: 0 });
     if (debug) {
@@ -653,6 +664,7 @@ const actions = {
       shuffleBlanks: false,
       blankRows: false,
       colorBlanks: false,
+      uniquePieces: false,
       history: [],
       showHistory: 1,
       showGridCoords: 1,

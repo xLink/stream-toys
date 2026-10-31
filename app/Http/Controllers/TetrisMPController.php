@@ -238,6 +238,7 @@ class TetrisMPController extends Controller
             'shuffleBlanks'        => $request->input('shuffleBlanks', 'false') === 'true',
             'blankRows'            => $request->input('blankRows', 'false') === 'true',
             'colorBlanks'          => $request->input('colorBlanks', 'false') === 'true',
+            'uniquePieces'         => $request->input('uniquePieces', 'false') === 'true',
         ];
         $room->save();
 
