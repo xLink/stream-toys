@@ -8,7 +8,14 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 
 Broadcast::channel('App.TetrisMP.{uuid}', function ($user, $uuid) {
     return [
-        'id' => $user->id, 
+        'id' => $user->id,
+        'username' => $user->username,
+    ];
+});
+
+Broadcast::channel('App.Battleships.{uuid}', function ($user, $uuid) {
+    return [
+        'id' => $user->id,
         'username' => $user->username,
     ];
 });

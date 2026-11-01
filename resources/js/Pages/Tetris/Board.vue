@@ -565,6 +565,18 @@ export default {
         this.saveIcon = 'SaveIcon';
       }, 500);
     },
+
+    '$store.state.tetris2.shuffleBlanks'() {
+      this.$store.dispatch('tetris2/generateBoard', this.pokedexData);
+    },
+
+    '$store.state.tetris2.blankRows'() {
+      this.$store.dispatch('tetris2/generateBoard', this.pokedexData);
+    },
+
+    '$store.state.tetris2.sort'() {
+      this.$store.dispatch('tetris2/generateBoard', this.pokedexData);
+    },
   },
 };
 </script>

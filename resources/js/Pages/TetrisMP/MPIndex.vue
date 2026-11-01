@@ -318,6 +318,27 @@ export default {
         perRow: this.$store.state.tetrismp.settings.perRow,
       });
     },
+
+    '$store.state.tetrismp.shuffleBlanks'() {
+      this.$store.dispatch('tetrismp/setBoard', {
+        board: Object.values(this.pokedexData),
+        perRow: this.$store.state.tetrismp.settings.perRow,
+      });
+    },
+
+    '$store.state.tetrismp.blankRows'() {
+      this.$store.dispatch('tetrismp/setBoard', {
+        board: Object.values(this.pokedexData),
+        perRow: this.$store.state.tetrismp.settings.perRow,
+      });
+    },
+
+    '$store.state.tetrismp.settings.sort'() {
+      this.$store.dispatch('tetrismp/setBoard', {
+        board: Object.values(this.pokedexData),
+        perRow: this.$store.state.tetrismp.settings.perRow,
+      });
+    },
   },
 
   computed: {

@@ -31,7 +31,7 @@ const state = {
   cellSize: 60,
   cellSpacing: 1,
   showGridCoords: true,
-  boardStatsPosition: 'bottom',
+  boardStatsPosition: 'top',
   shuffleBlanks: false,
   blankRows: false,
   colorBlanks: false,

@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use Laravel\Socialite\Facades\Socialite;
-use Symfony\Component\HttpFoundation\Session\Session;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class AuthController extends Controller
 {
     public function login() {
+        session()->put('url.intended', url()->previous());
         return Socialite::driver('discord')->redirect();
     }
 
@@ -39,20 +40,22 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        $roomId = session()->get('tetris-mp-room', null);
-        if ($roomId !== null) {
-            return redirect()->route('tetris-mp.room', ['room' => $roomId]);
-        }
-        return redirect()->route('tetris-mp.index');
+        return redirect()->route('auth.login-success');
+    }
+
+    public function loginSuccess() {
+        return Inertia::render('Auth/LoginSuccess', [
+            'intended' => session()->pull('url.intended', '/'),
+        ]);
     }
 
     public function logout() {
         Auth::logout();
-        return redirect()->route('tetris-mp.index');
+        return redirect('/');
     }
 
     public function getUser(User $uid) {
         Auth::login($uid);
-        return redirect()->route('tetris-mp.index');
+        return redirect()->route('auth.login-success');
     }
 }

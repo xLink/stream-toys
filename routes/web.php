@@ -8,6 +8,7 @@ Route::group(['prefix' => 'auth'], function() {
     Route::get('/discord/callback', [Controllers\AuthController::class, 'callback'])->name('auth.discord.callback');
     Route::get('/logout', [Controllers\AuthController::class, 'logout'])->name('auth.logout');
 
+    Route::get('/login-success', [Controllers\AuthController::class, 'loginSuccess'])->name('auth.login-success');
     Route::get('/{uid}', [Controllers\AuthController::class, 'getUser'])->name('auth.user')->whereUuid('uid');
 });
 
@@ -42,6 +43,26 @@ Route::group(['prefix' => 'tetris-mp'], function() {
         Route::post('/update-player', [Controllers\TetrisMPController::class, 'postUpdatePlayer'])->name('tetris-mp.room-update-player');
         Route::get('/regenerate-board', [Controllers\TetrisMPController::class, 'postRegenerateBoard'])->name('tetris-mp.room-regenerate');
         // Route::post('/online-users', [Controllers\TetrisMPController::class, 'postOnlineUsers']);
+    })->whereUuid('room');
+});
+
+Route::group(['prefix' => 'battleships'], function() {
+    Route::get('/', [Controllers\BattleshipsController::class, 'getIndex'])->name('battleships.index');
+    Route::post('/', [Controllers\BattleshipsController::class, 'postCreateRoom']);
+
+    Route::group(['prefix' => '{room}'], function() {
+        Route::get('/', [Controllers\BattleshipsController::class, 'loadRoom'])->name('battleships.room');
+        Route::post('/join', [Controllers\BattleshipsController::class, 'postJoinRoom'])->name('battleships.join');
+        Route::post('/save', [Controllers\BattleshipsController::class, 'postSaveRoom'])->name('battleships.save');
+        Route::post('/update-player', [Controllers\BattleshipsController::class, 'postUpdatePlayer'])->name('battleships.update-player');
+        Route::post('/start-game', [Controllers\BattleshipsController::class, 'postStartGame'])->name('battleships.start-game');
+        Route::post('/place-ship', [Controllers\BattleshipsController::class, 'postPlaceShip'])->name('battleships.place-ship');
+        Route::post('/remove-ship', [Controllers\BattleshipsController::class, 'postRemoveShip'])->name('battleships.remove-ship');
+        Route::post('/ready', [Controllers\BattleshipsController::class, 'postReady'])->name('battleships.ready');
+        Route::post('/fire', [Controllers\BattleshipsController::class, 'postFireShot'])->name('battleships.fire');
+        Route::post('/leave', [Controllers\BattleshipsController::class, 'postLeaveRoom'])->name('battleships.leave');
+        Route::post('/kick', [Controllers\BattleshipsController::class, 'postKickPlayer'])->name('battleships.kick');
+        Route::get('/spectate', [Controllers\BattleshipsController::class, 'spectateRoom'])->name('battleships.spectate');
     })->whereUuid('room');
 });
 

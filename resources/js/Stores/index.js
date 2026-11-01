@@ -3,6 +3,7 @@ import app from '@/Stores/modules/app.js';
 import tetris2 from '@/Stores/modules/tetris2.js';
 import tetrismp from '@/Stores/modules/tetrismp.js';
 import archipelago from '@/Stores/modules/archipelago.js';
+import battleships from '@/Stores/modules/battleships.js';
 
 const debug = process.env.NODE_ENV !== 'production';
 
@@ -12,6 +13,7 @@ export default createStore({
     tetris2,
     tetrismp,
     archipelago,
+    battleships,
   },
   strict: debug,
 });
