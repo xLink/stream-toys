@@ -200,13 +200,19 @@
         <div class="player-color-input flex w-full">
           <RadioGroup
             v-model="playerColor"
-            :options="optionsObjects.colors"
+            :options="playerColorOptions"
             :use-color-value="true"
             name="playerColor"
             label="Player Color"
             float-label
             @change="saveToLS()"
           />
+          <div class="flex items-end ml-2 gap-1">
+            <label class="flex flex-col items-center text-xs">
+              Custom
+              <input type="color" v-model="playerColor" class="cursor-pointer rounded w-10 h-10" @input="saveToLS()" />
+            </label>
+          </div>
         </div>
       </div>
 
@@ -375,7 +381,20 @@ export default {
       'uniquePieces',
       'currentPlayer',
       'playerColor',
+      'players',
     ]),
+
+    playerColorOptions() {
+      const colors = { ...this.optionsObjects.colors };
+      if (this.players) {
+        Object.values(this.players).forEach(p => {
+          if (p.color && p.username !== this.currentPlayer && !colors[p.color]) {
+            colors[p.color] = p.username;
+          }
+        });
+      }
+      return colors;
+    },
   },
 
   watch: {

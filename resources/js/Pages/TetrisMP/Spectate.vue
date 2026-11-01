@@ -81,12 +81,18 @@
             <div class="player-color-input flex w-full">
               <RadioGroup
                 v-model="playerColor"
-                :options="optionsObjects.colors"
+                :options="playerColorOptions"
                 :use-color-value="true"
                 name="playerColor"
                 label="Player Color"
                 float-label
               />
+              <div class="flex items-end ml-2 gap-1">
+                <label class="flex flex-col items-center text-xs">
+                  Custom
+                  <input type="color" v-model="playerColor" class="cursor-pointer rounded w-10 h-10" />
+                </label>
+              </div>
             </div>
           </div>
 
@@ -254,11 +260,24 @@ export default {
       'showGridCoords',
       'boardStatsPosition',
       'playerColor',
+      'players',
+      'currentPlayer',
       'colors',
       'colors.trackColor',
     ]),
     wsConnected() {
       return this.wsState === 'connected';
+    },
+    playerColorOptions() {
+      const colors = { ...this.optionsObjects.colors };
+      if (this.players) {
+        Object.values(this.players).forEach(p => {
+          if (p.color && p.username !== this.currentPlayer && !colors[p.color]) {
+            colors[p.color] = p.username;
+          }
+        });
+      }
+      return colors;
     },
   },
 

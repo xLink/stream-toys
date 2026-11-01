@@ -345,6 +345,8 @@ class TetrisMPController extends Controller
             RoomPiece::insert($pieces);
         }
 
+        $room->touch();
+
         broadcast(
             new Tetris\UpdateTrackedCells($room->id, $trackedCells)
         )->toOthers();
@@ -424,6 +426,8 @@ class TetrisMPController extends Controller
             'section'  => 'history',
         ]);
 
+        $room->touch();
+
         broadcast(
             new Tetris\NewCell($room->id, $cell)
         )->toOthers();
@@ -452,6 +456,8 @@ class TetrisMPController extends Controller
             ])
             ->values()
             ->toArray();
+
+        $room->touch();
 
         broadcast(
             new Tetris\UpdateHistory($room->id, $history)
