@@ -3,6 +3,13 @@
 use App\Http\Controllers;
 use Illuminate\Support\Facades\Route;
 
+if (app()->environment('testing')) {
+    Route::get('/test-login/{user}', function (\App\Models\User $user) {
+        auth()->login($user);
+        return redirect('/');
+    })->name('test.login');
+}
+
 Route::group(['prefix' => 'auth'], function() {
     Route::get('/discord', [Controllers\AuthController::class, 'login'])->name('auth.discord');
     Route::get('/discord/callback', [Controllers\AuthController::class, 'callback'])->name('auth.discord.callback');

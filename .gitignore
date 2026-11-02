@@ -25,3 +25,5 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 bun*
+database/e2e.sqlite
+test-results/

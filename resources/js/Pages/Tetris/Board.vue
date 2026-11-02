@@ -118,6 +118,8 @@
               :style="pokemon.style"
               :data-x="x"
               :data-y="y"
+              :data-testid="`cell-${x}-${y}`"
+              :data-pokemon="pokemon.name || ''"
             >
               <img
                 v-if="typeof pokemon.image !== 'undefined'"

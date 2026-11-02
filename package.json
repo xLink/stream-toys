@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
     "@rushstack/eslint-patch": "^1.15.0",
     "@tailwindcss/vite": "^4.1.18",
     "@vue/eslint-config-prettier": "^9.0.0",
@@ -23,7 +24,8 @@
   "scripts": {
     "build": "vite build && vite build --ssr",
     "dev": "vite",
-    "lint": "eslint resources/js --ext .js,.vue --ignore-path .gitignore --fix"
+    "lint": "eslint resources/js --ext .js,.vue --ignore-path .gitignore --fix",
+    "test:e2e": "bunx playwright test"
   },
   "type": "module",
   "dependencies": {
