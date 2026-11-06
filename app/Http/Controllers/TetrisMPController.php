@@ -478,4 +478,24 @@ class TetrisMPController extends Controller
             'message' => 'Board regenerated successfully',
         ], 200);
     }
+
+    public function postInteractionSync(Room $room, Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        event(new Tetris\InteractionSync(
+            room: $room->id,
+            username: $user->username,
+            hoverCell: $request->input('hoverCell'),
+            searchText: $request->input('searchText'),
+            highlightedCells: $request->input('highlightedCells'),
+            pieceSelection: $request->input('pieceSelection') !== null ? (int) $request->input('pieceSelection') : null,
+            pieceGeneration: $request->input('pieceGeneration'),
+        ));
+
+        return response()->json(['ok' => true]);
+    }
 }

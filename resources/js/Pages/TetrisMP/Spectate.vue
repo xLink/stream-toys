@@ -108,7 +108,12 @@
               ? 'fixed inset-0 z-50 bg-slate-900 flex flex-col'
               : 'flex flex-col flex-1 min-h-0'"
           >
-            <MPBoard :board-popout="boardPopout" :input-disabled="showOptions" @toggle-popout="boardPopout = !boardPopout" />
+            <MPBoard
+              :board-popout="boardPopout"
+              :input-disabled="showOptions"
+              :remote-interactions="remoteInteractions"
+              @toggle-popout="boardPopout = !boardPopout"
+            />
           </div>
         </Teleport>
       </div>
@@ -141,6 +146,7 @@ export default {
       wsState: 'disconnected',
       boardPopout: false,
       showOptions: false,
+      remoteInteractions: {},
     };
   },
 
@@ -245,6 +251,9 @@ export default {
         })
         .listen('Tetris\\UpdateTrackedCells', (event) => {
           this.$store.commit('tetrismp/updateField', { path: 'trackedCells', value: event.trackedCells });
+        })
+        .listen('Tetris\\InteractionSync', (event) => {
+          this.remoteInteractions = { ...this.remoteInteractions, [event.username]: event };
         })
       ;
     },

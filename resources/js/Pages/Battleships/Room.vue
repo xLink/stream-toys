@@ -49,17 +49,52 @@
     </div>
 
     <section v-if="!loadedUserInfo" class="flex flex-col gap-2 mt-6 items-center justify-center">
-      <a
-        v-if="$attrs.auth.user === null"
-        class="flex py-2 bg-indigo-500 hover:bg-indigo-700 cursor-pointer justify-center items-center gap-1 text-2xl rounded-md px-8"
-        :href="route('auth.discord')"
-      >
-        <fa icon="fa-brands fa-discord" size="sm" class="text-white" />
-        Login with Discord
-      </a>
-      <div v-else class="flex flex-col rounded-lg bg-slate-800 p-4 gap-4 mb-4">
-        <p class="text-center">Click below to join the game.</p>
-        <Btn type="success" @click="joinRoom">Join Room</Btn>
+      <div class="flex flex-col">
+        <h2 class="text-2xl font-bold text-center">Welcome to Pokémon Battleships!</h2>
+        <p class="text-center">Please log in with Discord to join the game.</p>
+      </div>
+
+      <div class="flex flex-col rounded-lg bg-slate-800 p-4 gap-4 mb-4">
+        <TextField
+          v-model="name"
+          name="roomname"
+          label="Room Name"
+          :disabled="true"
+          float-label
+          class="w-64"
+        />
+
+        <TextField
+          :model-value="getOwner"
+          name="createdby"
+          label="Created By"
+          :disabled="true"
+          float-label
+          class="w-64"
+        />
+
+        <a
+          v-if="$attrs.auth.user === null"
+          class="flex py-2 bg-indigo-500 hover:bg-indigo-700 cursor-pointer justify-center items-center gap-1 text-2xl rounded-md"
+          :href="route('auth.discord')"
+        >
+          <fa icon="fa-brands fa-discord" size="sm" class="text-white" />
+          Login with Discord
+        </a>
+
+        <TextField
+          v-else
+          :model-value="$attrs.auth.user?.username || ''"
+          name="username"
+          label="Username"
+          :disabled="true"
+          float-label
+          class="w-64"
+        />
+
+        <Btn type="success" @click="joinRoom" :disabled="$attrs.auth.user === null">
+          Join Room
+        </Btn>
       </div>
     </section>
 
@@ -68,7 +103,12 @@
         :class="{ 'w-10/12': showSidebar, 'w-full': !showSidebar }"
       >
         <BSOptions v-if="showOptions && phase === 'lobby'" :options-objects="optionsObjects" />
-        <BSBoard :input-disabled="showOptions" />
+        <BSBoard
+          :input-disabled="showOptions"
+          :remote-interactions="remoteInteractions"
+          @hover-change="onHoverChange"
+          @search-change="onSearchChange"
+        />
       </div>
       <div v-if="showSidebar" class="relative bg-slate-700 w-2/12 overflow-y-auto">
         <BSSidebar :options-objects="optionsObjects" />
@@ -117,6 +157,8 @@ export default {
       username: '',
       onlineUsers: [],
       joiningRoom: false,
+      remoteInteractions: {},
+      _syncThrottle: null,
     };
   },
 
@@ -176,7 +218,8 @@ export default {
 
     joinChannel() {
       this._channel = ['App', 'Battleships', this.uuid].join('.');
-      window.Echo.join(this._channel)
+      this._echoChannel = window.Echo.join(this._channel);
+      this._echoChannel
         .here((users) => { this.onlineUsers = users; })
         .joining((user) => { this.onlineUsers.push(user); })
         .leaving((user) => { this.onlineUsers = this.onlineUsers.filter(u => u.id !== user.id); })
@@ -230,7 +273,31 @@ export default {
             this.$inertia.reload();
           }
         })
+        .listenForWhisper('interaction', (data) => {
+          if (data.username !== this.username) {
+            this.remoteInteractions = { ...this.remoteInteractions, [data.username]: data };
+          }
+        })
       ;
+    },
+
+    onHoverChange(hoverCell) {
+      this.broadcastInteraction({ hoverCell });
+    },
+
+    onSearchChange(searchText) {
+      this.broadcastInteraction({ searchText });
+    },
+
+    broadcastInteraction(data) {
+      const payload = { username: this.username, ...data };
+      if (this._echoChannel) {
+        this._echoChannel.whisper('interaction', payload);
+      }
+      clearTimeout(this._syncThrottle);
+      this._syncThrottle = setTimeout(() => {
+        axios.post(`/battleships/${this.uuid}/interaction-sync`, payload).catch(() => {});
+      }, 150);
     },
 
     toggleSidebar() {
@@ -281,6 +348,12 @@ export default {
 
     phaseIndex() {
       return this.phases.findIndex(p => p.key === this.phase);
+    },
+
+    getOwner() {
+      return Object.values(this.players)
+        .find(player => player.owner === true)
+        ?.username || '';
     },
   },
 

@@ -91,7 +91,15 @@
               ? 'fixed inset-0 z-50 bg-slate-900 flex flex-col'
               : 'flex flex-col flex-1 min-h-0'"
           >
-            <MPBoard :board-popout="boardPopout" :input-disabled="showOptions" @toggle-popout="boardPopout = !boardPopout" />
+            <MPBoard
+              :board-popout="boardPopout"
+              :input-disabled="showOptions"
+              :remote-interactions="remoteInteractions"
+              @toggle-popout="boardPopout = !boardPopout"
+              @hover-change="onHoverChange"
+              @search-change="onSearchChange"
+              @pieces-change="onPiecesChange"
+            />
           </div>
         </Teleport>
       </div>
@@ -106,6 +114,7 @@
 
 <script>
 import { mapFields } from 'vuex-map-fields';
+import axios from 'axios';
 import MPSidebar from '@/Pages/TetrisMP/MPSidebar.vue';
 import MPBoard from '@/Pages/TetrisMP/MPBoard.vue';
 import MPOptions from '@/Pages/TetrisMP/MPOptions.vue';
@@ -154,6 +163,8 @@ export default {
       boardPopout: false,
 
       onlineUsers: [],
+      remoteInteractions: {},
+      _syncThrottle: null,
     };
   },
 
@@ -228,7 +239,8 @@ export default {
   methods: {
     joinRoom() {
       let channelString = ['App', 'TetrisMP', this.uuid].join('.');
-      window.Echo.join(channelString)
+      this._echoChannel = window.Echo.join(channelString);
+      this._echoChannel
         .here((users) => {
           this.onlineUsers = users;
         })
@@ -268,7 +280,39 @@ export default {
         .listen('Tetris\\UpdateTrackedCells', (event) => {
           this.$store.commit('tetrismp/updateField', { path: 'trackedCells', value: event.trackedCells });
         })
+        .listenForWhisper('interaction', (data) => {
+          if (data.username !== this.username) {
+            this.remoteInteractions = { ...this.remoteInteractions, [data.username]: data };
+          }
+        })
       ;
+    },
+
+    onHoverChange(data) {
+      this.broadcastInteraction({
+        hoverCell: { x: data.x, y: data.y },
+        highlightedCells: data.highlightedCells,
+        pieceSelection: data.pieceSelection,
+      });
+    },
+
+    onSearchChange(searchText) {
+      this.broadcastInteraction({ searchText });
+    },
+
+    onPiecesChange(pieces) {
+      this.broadcastInteraction({ pieceGeneration: pieces });
+    },
+
+    broadcastInteraction(data) {
+      const payload = { username: this.username, ...data };
+      if (this._echoChannel) {
+        this._echoChannel.whisper('interaction', payload);
+      }
+      clearTimeout(this._syncThrottle);
+      this._syncThrottle = setTimeout(() => {
+        axios.post(`/tetris-mp/${this.uuid}/interaction-sync`, payload).catch(() => {});
+      }, 150);
     },
 
     saveUserToLS() {

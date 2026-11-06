@@ -31,6 +31,7 @@ Route::group(['prefix' => 'pokedex'], function($router) {
 
 Route::group(['prefix' => 'tetris'], function() {
     Route::get('/', [Controllers\TetrisController::class, 'getIndex'])->name('tetris.index');
+    Route::get('/test/{shape?}', [Controllers\TetrisController::class, 'getTestBoard'])->name('tetris.test');
 });
 
 Route::group(['prefix' => 'tetris-mp'], function() {
@@ -49,6 +50,7 @@ Route::group(['prefix' => 'tetris-mp'], function() {
         Route::post('/save-tracked', [Controllers\TetrisMPController::class, 'postSaveTrackedCells'])->name('tetris-mp.room-save-tracked');
         Route::post('/update-player', [Controllers\TetrisMPController::class, 'postUpdatePlayer'])->name('tetris-mp.room-update-player');
         Route::get('/regenerate-board', [Controllers\TetrisMPController::class, 'postRegenerateBoard'])->name('tetris-mp.room-regenerate');
+        Route::post('/interaction-sync', [Controllers\TetrisMPController::class, 'postInteractionSync'])->name('tetris-mp.interaction-sync');
         // Route::post('/online-users', [Controllers\TetrisMPController::class, 'postOnlineUsers']);
     })->whereUuid('room');
 });
@@ -69,6 +71,7 @@ Route::group(['prefix' => 'battleships'], function() {
         Route::post('/fire', [Controllers\BattleshipsController::class, 'postFireShot'])->name('battleships.fire');
         Route::post('/leave', [Controllers\BattleshipsController::class, 'postLeaveRoom'])->name('battleships.leave');
         Route::post('/kick', [Controllers\BattleshipsController::class, 'postKickPlayer'])->name('battleships.kick');
+        Route::post('/interaction-sync', [Controllers\BattleshipsController::class, 'postInteractionSync'])->name('battleships.interaction-sync');
         Route::get('/spectate', [Controllers\BattleshipsController::class, 'spectateRoom'])->name('battleships.spectate');
     })->whereUuid('room');
 });

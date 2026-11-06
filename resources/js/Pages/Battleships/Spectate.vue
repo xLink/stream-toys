@@ -52,7 +52,7 @@
       <div class="flex flex-col h-full overflow-hidden transition-all"
         :class="{ 'w-10/12': showSidebar, 'w-full': !showSidebar }"
       >
-        <BSBoard :input-disabled="true" />
+        <BSBoard :input-disabled="true" :remote-interactions="remoteInteractions" />
       </div>
       <div v-if="showSidebar" class="relative bg-slate-700 w-2/12 overflow-y-auto">
         <BSSidebar :options-objects="optionsObjects" :read-only="true" />
@@ -94,6 +94,7 @@ export default {
       showSidebar: true,
       wsState: 'disconnected',
       onlineUsers: [],
+      remoteInteractions: {},
     };
   },
 
@@ -179,6 +180,12 @@ export default {
         })
         .listen('Battleships\\UpdateUsers', (event) => {
           this.$store.dispatch('battleships/setPlayers', event.users);
+        })
+        .listenForWhisper('interaction', (data) => {
+          this.remoteInteractions = { ...this.remoteInteractions, [data.username]: data };
+        })
+        .listen('Battleships\\InteractionSync', (event) => {
+          this.remoteInteractions = { ...this.remoteInteractions, [event.username]: event };
         })
       ;
     },

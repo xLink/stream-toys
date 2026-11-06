@@ -14,6 +14,8 @@ class PlaywrightSeeder extends Seeder
     public const SPECTATOR_ID = '33333333-3333-3333-3333-333333333333';
     public const TETRIS_ROOM_ID = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
     public const BATTLESHIPS_ROOM_ID = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
+    public const BATTLESHIPS_SETUP_ROOM_ID = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
+    public const BATTLESHIPS_MULTI_ROOM_ID = 'dddddddd-dddd-dddd-dddd-dddddddddddd';
 
     public function run(): void
     {
@@ -73,6 +75,42 @@ class PlaywrightSeeder extends Seeder
 
         DB::table('tetris_room_players')->insert([
             ['room_id' => self::BATTLESHIPS_ROOM_ID, 'user_id' => $player1->id, 'color' => '#93c5fd', 'ready' => false, 'created_at' => now(), 'updated_at' => now()],
+        ]);
+
+        // Battleships room already in setup phase (for ship placement tests)
+        Room::create([
+            'id' => self::BATTLESHIPS_SETUP_ROOM_ID,
+            'name' => 'Test Setup Room',
+            'user_id' => $player1->id,
+            'mode' => 'battleships',
+            'seed' => 99999,
+            'dexes' => ['kanto'],
+            'selection_type' => 'single',
+            'phase' => 'setup',
+            'extraOptions' => ['perRow' => 5, 'sort' => 'random'],
+        ]);
+
+        DB::table('tetris_room_players')->insert([
+            ['room_id' => self::BATTLESHIPS_SETUP_ROOM_ID, 'user_id' => $player1->id, 'color' => '#93c5fd', 'ready' => false, 'created_at' => now(), 'updated_at' => now()],
+            ['room_id' => self::BATTLESHIPS_SETUP_ROOM_ID, 'user_id' => $player2->id, 'color' => '#ef4444', 'ready' => false, 'created_at' => now(), 'updated_at' => now()],
+        ]);
+
+        // Battleships room with multiple copies of ships (for multi-ship tests)
+        Room::create([
+            'id' => self::BATTLESHIPS_MULTI_ROOM_ID,
+            'name' => 'Test Multi Ships Room',
+            'user_id' => $player1->id,
+            'mode' => 'battleships',
+            'seed' => 77777,
+            'dexes' => ['kanto'],
+            'selection_type' => 'single',
+            'phase' => 'setup',
+            'extraOptions' => ['perRow' => 10, 'sort' => 'random', 'shipCounts' => ['destroyer' => 3, 'submarine' => 2]],
+        ]);
+
+        DB::table('tetris_room_players')->insert([
+            ['room_id' => self::BATTLESHIPS_MULTI_ROOM_ID, 'user_id' => $player1->id, 'color' => '#93c5fd', 'ready' => false, 'created_at' => now(), 'updated_at' => now()],
+            ['room_id' => self::BATTLESHIPS_MULTI_ROOM_ID, 'user_id' => $player2->id, 'color' => '#ef4444', 'ready' => false, 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 }

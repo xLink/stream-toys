@@ -77,6 +77,8 @@ export default {
       if (this.readOnly) {
         this.$store.dispatch('tetrismp/setViewingPlayer', username);
         this.$store.dispatch('tetrismp/setCurrentPlayer', username);
+        const history = [...this.$store.state.tetrismp.history];
+        this.$store.dispatch('tetrismp/setHistory', history);
         return;
       }
       const isCurrentPlayer = username?.toLowerCase() === this.currentPlayer?.toLowerCase();

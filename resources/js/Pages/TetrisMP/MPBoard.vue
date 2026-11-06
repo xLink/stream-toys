@@ -6,15 +6,15 @@
       class="flex flex-row gap-2 overflow-x-auto scrollbar-thin"
     >
       <Tetrimino
-        v-for="(piece, index) in pieceGeneration"
+        v-for="(piece, index) in displayPieceGeneration"
         :key="index"
         :type="piece.type"
         :rotation="rotation === null ? piece.rotation : rotation"
-        :active="pieceSelection === index"
+        :active="displayPieceSelection === index"
         :pieceDef="pieceDef"
         :colors="colors"
         @click="!readOnly && $store.dispatch('tetrismp/setPieceSelection', index)"
-        :class="readOnly ? 'bg-slate-700 opacity-75 pointer-events-none' : 'bg-slate-700'"
+        :class="readOnly ? 'bg-slate-700 pointer-events-none' : 'bg-slate-700'"
       />
     </div>
 
@@ -244,9 +244,13 @@ export default {
       type: Boolean,
       default: false,
     },
+    remoteInteractions: {
+      type: Object,
+      default: () => ({}),
+    },
   },
 
-  emits: ['toggle-popout'],
+  emits: ['toggle-popout', 'hover-change', 'search-change', 'pieces-change'],
 
   data() {
     return {
@@ -254,6 +258,30 @@ export default {
       searchText: '',
       cooldown: false,
     }
+  },
+
+  watch: {
+    'hoverCell': {
+      handler() {
+        this.emitInteractionState();
+      },
+      deep: true,
+    },
+    rotation() {
+      this.emitInteractionState();
+    },
+    pieceSelection() {
+      this.emitInteractionState();
+    },
+    pieceGeneration: {
+      handler(val) {
+        this.$emit('pieces-change', val);
+      },
+      deep: true,
+    },
+    searchText(val) {
+      this.$emit('search-change', val);
+    },
   },
 
   created() {
@@ -265,6 +293,18 @@ export default {
   },
 
   methods: {
+    emitInteractionState() {
+      const cells = this.isReadOnly ? [] : this.getTetriminoCoords(
+        this.selectedPiece.type, this.rotation, this.hoverCell.x, this.hoverCell.y
+      );
+      this.$emit('hover-change', {
+        x: this.hoverCell.x,
+        y: this.hoverCell.y,
+        highlightedCells: cells,
+        pieceSelection: this.pieceSelection,
+      });
+    },
+
     handleKeydown(e) {
       if (!e.key || this.inputDisabled) {
         return;
@@ -477,14 +517,52 @@ export default {
       return this.selectedCells.filter(c => c.username?.toLowerCase() === viewer);
     },
 
+    activeSearchText() {
+      if (this.search && this.searchText) return this.searchText;
+      const remote = Object.values(this.remoteInteractions).find(r => r.searchText);
+      return remote?.searchText || '';
+    },
+
+    remoteHoverCells() {
+      const cells = [];
+      for (const r of Object.values(this.remoteInteractions)) {
+        if (r.highlightedCells && r.highlightedCells.length > 0) {
+          for (const c of r.highlightedCells) {
+            cells.push({ x: c.x, y: c.y, username: r.username });
+          }
+        } else if (r.hoverCell && r.hoverCell.x >= 0 && r.hoverCell.y >= 0) {
+          cells.push({ x: r.hoverCell.x, y: r.hoverCell.y, username: r.username });
+        }
+      }
+      return cells;
+    },
+
+    displayPieceGeneration() {
+      if (this.isReadOnly) {
+        const remote = Object.values(this.remoteInteractions).find(r => r.pieceGeneration);
+        if (remote?.pieceGeneration) return remote.pieceGeneration;
+      }
+      return this.pieceGeneration;
+    },
+
+    displayPieceSelection() {
+      if (this.isReadOnly) {
+        const remote = Object.values(this.remoteInteractions).find(r => r.pieceSelection !== undefined);
+        if (remote?.pieceSelection !== undefined) return remote.pieceSelection;
+      }
+      return this.pieceSelection;
+    },
+
     renderCells() {
-      return this.board?.map((row, y) => 
+      const searchText = this.activeSearchText;
+      return this.board?.map((row, y) =>
         row.map((pokemon, x) => ({
           ...pokemon,
           key: [x, y].join(','),
           class: {
-            'border-[--hoverBorderColor]': this.getHighlightedCells.some(cell => cell.x === x && cell.y === y),
-            'opacity-30': (this.search && !(pokemon?.name ?? '').toLowerCase().includes(this.searchText.toLowerCase()))
+            'border-[--hoverBorderColor]': this.getHighlightedCells.some(cell => cell.x === x && cell.y === y)
+              || this.remoteHoverCells.some(cell => cell.x === x && cell.y === y),
+            'opacity-30': (searchText && !(pokemon?.name ?? '').toLowerCase().includes(searchText.toLowerCase()))
               || (this.selectedHistoryId !== null && !this.historyCheck(x, y)),
           },
           style: {

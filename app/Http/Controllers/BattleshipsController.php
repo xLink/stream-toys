@@ -787,4 +787,21 @@ class BattleshipsController extends Controller
 
         return true;
     }
+
+    public function postInteractionSync(Room $room, Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        event(new Battleships\InteractionSync(
+            room: $room->id,
+            username: $user->username,
+            hoverCell: $request->input('hoverCell'),
+            searchText: $request->input('searchText'),
+        ));
+
+        return response()->json(['ok' => true]);
+    }
 }

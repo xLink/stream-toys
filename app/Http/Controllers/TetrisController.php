@@ -32,5 +32,23 @@ class TetrisController extends Controller
         $pokedexData = app(PokedexService::class)->getData($pokedex);
 
         return response()->json($pokedexData);
-    }    
+    }
+
+    public function getTestBoard(string $shape = null): iResponse
+    {
+        $pokedexData = app(PokedexService::class)->getPokemonByDex('kanto');
+        $availableShapes = ['triangle', 'diamond', 'donut', 'crazy'];
+
+        if ($shape && !in_array($shape, $availableShapes)) {
+            abort(404, "Unknown shape: {$shape}");
+        }
+
+        return Inertia::render('Tetris/TestBoard', [
+            'pokedexData' => $pokedexData,
+            'shape' => $shape,
+            'shapes' => $availableShapes,
+            'perRow' => 15,
+            'seed' => 42,
+        ]);
+    }
 }

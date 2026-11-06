@@ -19,6 +19,15 @@
 
       <div v-else class="flex flex-col rounded-lg bg-slate-800 p-6 gap-4 w-96">
         <TextField
+          :model-value="$attrs.auth.user?.username || ''"
+          name="username"
+          label="Username"
+          :disabled="true"
+          float-label
+          class="w-full"
+        />
+
+        <TextField
           v-model="roomName"
           name="name"
           label="Room Name"

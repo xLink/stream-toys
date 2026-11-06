@@ -203,7 +203,13 @@ export default {
       type: Boolean,
       default: false,
     },
+    remoteInteractions: {
+      type: Object,
+      default: () => ({}),
+    },
   },
+
+  emits: ['hover-change', 'search-change'],
 
   data() {
     return {
@@ -212,6 +218,18 @@ export default {
       searchText: '',
       showShips: true,
     };
+  },
+
+  watch: {
+    'hoverCell': {
+      handler(val) {
+        this.$emit('hover-change', { x: val.x, y: val.y });
+      },
+      deep: true,
+    },
+    searchText(val) {
+      this.$emit('search-change', val);
+    },
   },
 
   created() {
@@ -416,6 +434,22 @@ export default {
       return keys;
     },
 
+    activeSearchText() {
+      if (this.search && this.searchText) return this.searchText;
+      const remote = Object.values(this.remoteInteractions).find(r => r.searchText);
+      return remote?.searchText || '';
+    },
+
+    remoteHoverCells() {
+      const cells = [];
+      for (const r of Object.values(this.remoteInteractions)) {
+        if (r.hoverCell && r.hoverCell.x >= 0 && r.hoverCell.y >= 0) {
+          cells.push({ x: r.hoverCell.x, y: r.hoverCell.y, username: r.username });
+        }
+      }
+      return cells;
+    },
+
     getHighlightedCells() {
       if (this.phase === 'setup' && this.placingShip && this.hoverCell.x >= 0 && this.hoverCell.y >= 0) {
         const size = this.shipDefs[this.placingShip]?.size;
@@ -430,15 +464,19 @@ export default {
     },
 
     renderCells() {
+      const searchText = this.activeSearchText;
       return this.board?.map((row, y) =>
         row.map((pokemon, x) => ({
           ...pokemon,
           key: [x, y].join(','),
           class: {
-            'border-[--hoverBorderColor]': this.getHighlightedCells.some(c => c.x === x && c.y === y),
+            'border-[--hoverBorderColor]': this.getHighlightedCells.some(c => c.x === x && c.y === y)
+              || this.remoteHoverCells.some(c => c.x === x && c.y === y),
             'border-red-500': this.figureBorderColor(x, y) === '#ef4444',
-            'border-transparent': this.figureBorderColor(x, y) === 'transparent' && !this.getHighlightedCells.some(c => c.x === x && c.y === y),
-            'opacity-30': this.search && this.searchText && !(pokemon?.name ?? '').toLowerCase().includes(this.searchText.toLowerCase()),
+            'border-transparent': this.figureBorderColor(x, y) === 'transparent'
+              && !this.getHighlightedCells.some(c => c.x === x && c.y === y)
+              && !this.remoteHoverCells.some(c => c.x === x && c.y === y),
+            'opacity-30': searchText && !(pokemon?.name ?? '').toLowerCase().includes(searchText.toLowerCase()),
             'bs-explode': this.explodingCells.includes(`${x},${y}`),
             'opacity-40 grayscale': this.sunkCells.includes(`${x},${y}`),
           },
